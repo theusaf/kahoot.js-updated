@@ -57,7 +57,7 @@ class WSHandler extends EventEmitter {
 						});
 					}
 				}catch(e){
-					console.log("error");
+					console.log("BEGIN_QUIZ_ERROR"); //You should never see this error...
 				}
 			},
 			2: (data, content) => {

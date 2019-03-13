@@ -53,7 +53,7 @@ class QuestionEndEvent {
 			this.rank = rawEvent.rank;
 			this.total = rawEvent.totalScore;
 		}catch(e){
-			console.log("error");
+			console.log("GET_END_EVT_ERR"); //this error will usually only happen if you join during the game.
 		}
 	}
 }

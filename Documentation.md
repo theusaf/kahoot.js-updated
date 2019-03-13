@@ -41,10 +41,11 @@ Returns: Promise
 ### Quiz
 **Properties**  
 `client (Kahoot)` - The client the quiz is attached.  
-`name (String)` - The name of the quiz.  
+`name (String)` - The name of the quiz. Note: this value may be "null" if you joined the quiz after it started  
 `type (String)` - The quiz type.  
 `currentQuestion (Question)` - The current question the quiz is on.  
-`questions (Question Array)` - An array of every single question in the quiz. New questions get added as they come in.
+`questions (Question Array)` - An array of every single question in the quiz. New questions get added as they come in.  
+`questionCount (Number)` - The number of questions in the quiz.
 
 ### Question
 **Methods**  
