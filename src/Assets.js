@@ -1,13 +1,14 @@
 var Promise = require("promise");
 
 class Quiz {
-	constructor(name, type, answerCount, client) {
+	constructor(name, type, answerCount, client, amount) {
 		this.client = client;
 		this.name = name;
 		this.type = type;
 		this.answerCount = answerCount;
 		this.currentQuestion = null;
 		this.questions = [];
+		this.questionCount = amount;
 	}
 }
 class Question {

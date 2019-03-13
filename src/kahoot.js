@@ -45,7 +45,7 @@ class Kahoot extends EventEmitter {
 					fulfill();
 				});
 				me._wsHandler.on("quizData", quizInfo => {
-					me.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, me);
+					me.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, me, quizInfo.totalQ);
 					me.emit("quizStart", me.quiz);
 					me.emit("quiz", me.quiz);
 				});
@@ -65,7 +65,7 @@ class Kahoot extends EventEmitter {
 					try{
 						me.emit("questionStart", me.quiz.currentQuestion);
 					}catch(e){
-						//joined during quiz
+						//joined during quiz (fixed v 1.1.1)
 					}
 				});
 				me._wsHandler.on("questionSubmit", message => {
