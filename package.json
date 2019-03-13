@@ -1,0 +1,31 @@
+{
+  "name": "kahoot.js-updated",
+  "version": "1.1.0",
+  "description": "Answer, Join Kahoot Quizzes with nodejs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "kahoot",
+    "js",
+    "quiz",
+    "game",
+    "updated",
+    "bot",
+    "answer"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/theusaf/kahoot.js-updated.git"
+  },
+  "author": "theusaf",
+  "license": "ISC",
+  "dependencies": {
+    "promise": "^8.0.2",
+    "ws": "^6.1.3""
+  },
+  "bugs": {
+    "url": "https://github.com/theusaf/kahoot.js-updated/issues"
+  },
+}
