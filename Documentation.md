@@ -14,7 +14,8 @@ Kahoot client that can interact with quizzes.
 `on('questionEnd', QuestionEndEvent)` - Emitted when a question ends. Passes a `QuestionEndEvent` class.  
 `on('finish', QuizFinishEvent)` - Emitted when the quiz ends. Passes a `QuizFinishEvent` class.  
 `on('finishText', FinishTextEvent)` - Emitted when the quiz finish text is sent. Passes a `FinishTextEvent` class.  
-`on('quizEnd')` and `on('disconnect')` - Emitted when the quiz closes, and the client is disconnected.
+`on('quizEnd')` and `on('disconnect')` - Emitted when the quiz closes, and the client is disconnected.  
+`on('2Step')` - Emitted when the 2 step authentification is sent to the client / refeshed
 
 **Methods**  
 `join(sessionID, playerName)`  
@@ -25,6 +26,10 @@ Returns: Promise
 `answerQuestion(id)`  
 Parameters:  
 *id (number)* - The ID of the question to answer. (0 is the first answer, 1 is the second answer, etc.)  
+Returns: Promise  
+`answer2Step(steps)`  
+Parameters:  
+*steps (array)* - An array of the steps for the 2 step authentification. (numbers 0-3)  
 Returns: Promise  
 `leave()`  
 Returns: Promise
@@ -72,7 +77,10 @@ Parameters:
 `correctAnswer (String)` - The correct answer. (if there are multiple correct answers, this will be the first in the array.)  
 `text (String)` - The text sent by Kahoot after a question has finished.  
 `correct (Boolean)` - Whether or not the client got the question right.  
-`nemesis (Nemesis)` - The client's nemesis. (Will be `null` if the client does not have a nemesis.)
+`nemesis (Nemesis)` - The client's nemesis. (Will be `null` if the client does not have a nemesis.)  
+`points (Number)` - The points earned from this question.  
+`rank (Number)` - The rank of the client  
+`total (Number)` - The total score of the client
 
 ### QuestionSubmitEvent
 **Properties**  
