@@ -1,4 +1,4 @@
-var Kahoot = require("kahoot.js");
+var Kahoot = require("kahoot.js-updated");
 var k = new Kahoot;
 console.log("joining kahoot");
 k.join(7877502 /* or any other kahoot token */, "kahoot.js").then(() => {
