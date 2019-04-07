@@ -21,7 +21,7 @@ class TokenJS {
 				// Checking if the header is defined before continuing, basically checking if the room exists.
 				if (!res.headers["x-kahoot-session-token"]) {
 					//I took this out so that it wouldn't look bad and give a false negative
-					//return console.log("request error:", "Loading... (Kahoot session header is undefined error)")
+					return console.log("Loading...")
 				}
 				var token1 = res.headers["x-kahoot-session-token"];
 				var body = chunk.toString("utf8");
@@ -45,7 +45,7 @@ class TokenJS {
 	static solveChallenge(challenge) {
 		var solved = "";
 		// Prevent any logging from the challenge, by default it logs some debug info
-		//challenge = challenge.replace("console.", "");
+		challenge = challenge.replace("console.", "");
 		// Make a few if-statements always return true as the functions are currently missing
 		challenge = challenge.replace("this.angular.isObject(offset)", "true");
 		challenge = challenge.replace("this.angular.isString(offset)", "true");
