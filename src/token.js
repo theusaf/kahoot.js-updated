@@ -45,7 +45,7 @@ class TokenJS {
 	static solveChallenge(challenge) {
 		var solved = "";
 		// Prevent any logging from the challenge, by default it logs some debug info
-		challenge = challenge.replace("console.", "");
+		//challenge = challenge.replace("console.", "");
 		// Make a few if-statements always return true as the functions are currently missing
 		challenge = challenge.replace("this.angular.isObject(offset)", "true");
 		challenge = challenge.replace("this.angular.isString(offset)", "true");
