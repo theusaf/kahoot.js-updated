@@ -20,7 +20,7 @@ class TokenJS {
 				// The first token is the session token, which is given as a header by the server encoded in base64
 				// Checking if the header is defined before continuing, basically checking if the room exists.
 				if (!res.headers["x-kahoot-session-token"]) {
-					return console.log("request error:", "Kahoot session header is undefined. (This normally means that the room no longer exists.)")
+					return console.log("request error:", "Loading... (Kahoot session header is undefined error)")
 				}
 				var token1 = res.headers["x-kahoot-session-token"];
 				var body = chunk.toString("utf8");
@@ -63,7 +63,7 @@ class TokenJS {
 		try{
 			return new Buffer(b64, "base64").toString("ascii");
 		}catch(e){
-			console.log("Error! (Most likely not a kahoot game)");
+			console.log("Error! (Most likely not a kahoot game, make sure your gamepin is right)");
 		}
 	}
 	static concatTokens(headerToken, challengeToken) {
