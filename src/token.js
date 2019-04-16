@@ -21,7 +21,7 @@ class TokenJS {
 				// Checking if the header is defined before continuing, basically checking if the room exists.
 				if (!res.headers["x-kahoot-session-token"]) {
 					//I took this out so that it wouldn't look bad and give a false negative
-					return console.log("request error:", "Kahoot session header is undefined. (This normally means that the room no longer exists.)")
+					return console.log("request error:", "Kahoot Session Failure, this either means kahoot blocked this specific bot or your gamepin is wrong")
 				}
 				var token1 = res.headers["x-kahoot-session-token"];
 				var body = chunk.toString("utf8");
