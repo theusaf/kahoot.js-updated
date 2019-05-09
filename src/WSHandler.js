@@ -321,6 +321,24 @@ class WSHandler extends EventEmitter {
 		}];
 		this.send(packet);
 	}
+	sendFeedback(fun,learning,recommend,overall){
+		var me = this;
+		var packet = [{
+			channel: "/service/controller",
+			clientId: me.clientID,
+			data: {
+				id: 11,
+				type: "message",
+				gameid: me.gameID,
+				host: consts.ENDPOINT_URI,
+				content: JSON.stringify({
+					totalScore: me.kahoot.
+				})
+			},
+			id: me.msgID + ""
+		}];
+		this.send(packet);
+	}
 	login(name) {
 		var me = this;
 		me.name = name;

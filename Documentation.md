@@ -30,7 +30,8 @@ Returns: Promise
 Returns: Promise  
 `answer2Step(steps)`  
 Parameters:  
-*steps (array)* - An array of steps for the 2 step verification.
+*steps (array)* - An array of steps for the 2 step verification.  
+Returns: Promise
 
 **Properties**  
 `sendingAnswer (boolean)` - Whether or not the client is currently sending an answer.  

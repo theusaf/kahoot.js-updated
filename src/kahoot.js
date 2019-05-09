@@ -113,7 +113,9 @@ class Kahoot extends EventEmitter {
 	}
 	//content: "{"totalScore":0,"fun":5,"learning":1,"recommend":1,"overall":1,"nickname":"oof"}"
 	sendFeedback(fun,learning,recommend,overall){
-
+		return new Promise((f,r)=>{
+			this._wsHandler.sendFeedback(fun,learning,recommend,overall);
+		});
 	}
 }
 module.exports = Kahoot;
