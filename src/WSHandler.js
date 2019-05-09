@@ -115,6 +115,9 @@ class WSHandler extends EventEmitter {
 					msg1: content.primaryMessage,
 					msg2: content.secondaryMessage
 				});
+			},
+			12: (data, content)=>{
+				me.emit("feedback");
 			}
 		}
 	}

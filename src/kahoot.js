@@ -84,6 +84,9 @@ class Kahoot extends EventEmitter {
 					var e = new Assets.QuizFinishEvent(data, me);
 					me.emit("finish", e);
 				});
+				me._wsHandler.on("feedback", ()=>{
+					me.emit("feedback");
+				})
 			});
 		});
 	}
@@ -107,6 +110,10 @@ class Kahoot extends EventEmitter {
 			this._wsHandler.ws.close();
 			fulfill();
 		});
+	}
+	//content: "{"totalScore":0,"fun":5,"learning":1,"recommend":1,"overall":1,"nickname":"oof"}"
+	sendFeedback(fun,learning,recommend,overall){
+
 	}
 }
 module.exports = Kahoot;

@@ -27,7 +27,10 @@ Parameters:
 *id (number)* - The ID of the question to answer. (0 is the first answer, 1 is the second answer, etc.)  
 Returns: Promise  
 `leave()`  
-Returns: Promise
+Returns: Promise  
+`answer2Step(steps)`  
+Parameters:  
+*steps (array)* - An array of steps for the 2 step verification.
 
 **Properties**  
 `sendingAnswer (boolean)` - Whether or not the client is currently sending an answer.  
