@@ -332,7 +332,12 @@ class WSHandler extends EventEmitter {
 				gameid: me.gameID,
 				host: consts.ENDPOINT_URI,
 				content: JSON.stringify({
-					totalScore: me.kahoot.
+					totalScore: me.kahoot.totalScore,
+					fun: fun,
+					learning: learning,
+					recommend: recommend,
+					overall: overall,
+					nickname: me.kahoot.name
 				})
 			},
 			id: me.msgID + ""

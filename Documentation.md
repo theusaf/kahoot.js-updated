@@ -14,7 +14,8 @@ Kahoot client that can interact with quizzes.
 `on('questionEnd', QuestionEndEvent)` - Emitted when a question ends. Passes a `QuestionEndEvent` class.  
 `on('finish', QuizFinishEvent)` - Emitted when the quiz ends. Passes a `QuizFinishEvent` class.  
 `on('finishText', FinishTextEvent)` - Emitted when the quiz finish text is sent. Passes a `FinishTextEvent` class.  
-`on('quizEnd')` and `on('disconnect')` - Emitted when the quiz closes, and the client is disconnected.
+`on('quizEnd')` and `on('disconnect')` - Emitted when the quiz closes, and the client is disconnected.  
+`on('2Step')` - Emitted when the 2 step authentification is sent to the client / refeshed
 
 **Methods**  
 `join(sessionID, playerName)`  
@@ -26,11 +27,18 @@ Returns: Promise
 Parameters:  
 *id (number)* - The ID of the question to answer. (0 is the first answer, 1 is the second answer, etc.)  
 Returns: Promise  
-`leave()`  
-Returns: Promise  
 `answer2Step(steps)`  
 Parameters:  
-*steps (array)* - An array of steps for the 2 step verification.  
+*steps (array)* - An array of the steps for the 2 step authentification. (numbers 0-3)  
+Returns: Promise  
+`leave()`  
+Returns: Promise  
+`sendFeedback(fun, learning, recommend, overall)`  
+Parameters:  
+*fun (number)* - A number to rate how much fun you had (1-5)  
+*learning (number)* - A number to rate if you learned anything (1 or 0)  
+*recommend (number)* - A number to rate if you would recommend (1 or 0)  
+*overall (number)* - A number to rate how you felt (1-3) 1 = good, 3 = bad  
 Returns: Promise
 
 **Properties**  
@@ -40,7 +48,8 @@ Returns: Promise
 `name (String)` - The user's name.  
 `quiz (Quiz)` - The current quiz of the client.  
 `nemesis (Nemesis)` - The client's nemesis. (Will be `null` if the client does not have a nemesis.)  
-`nemeses (Nemesis Array)` - An array of all the client's past nemeses.
+`nemeses (Nemesis Array)` - An array of all the client's past nemeses.  
+`totalScore (Number)` - The client's accumulated score
 
 ### Quiz
 **Properties**  
@@ -76,7 +85,10 @@ Parameters:
 `correctAnswer (String)` - The correct answer. (if there are multiple correct answers, this will be the first in the array.)  
 `text (String)` - The text sent by Kahoot after a question has finished.  
 `correct (Boolean)` - Whether or not the client got the question right.  
-`nemesis (Nemesis)` - The client's nemesis. (Will be `null` if the client does not have a nemesis.)
+`nemesis (Nemesis)` - The client's nemesis. (Will be `null` if the client does not have a nemesis.)  
+`points (Number)` - The points earned from this question.  
+`rank (Number)` - The rank of the client  
+`total (Number)` - The total score of the client
 
 ### QuestionSubmitEvent
 **Properties**  
