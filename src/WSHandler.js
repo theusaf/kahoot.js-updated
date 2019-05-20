@@ -227,32 +227,90 @@ class WSHandler extends EventEmitter {
 		if (data.channel == consts.CHANNEL_HANDSHAKE && data.clientId) { // The server sent a handshake packet
 			this.clientID = data.clientId;
 			var r = me.getPacket(data)[0];
+			me.timesync = r.ext.timesync;
 			r.ext.ack = undefined;
 			r.channel = consts.CHANNEL_SUBSCR;
 			r.clientId = me.clientID;
 			r.subscription = "/service/controller";
 			me.send(r);
-		} else if (data.channel == consts.CHANNEL_SUBSCR) {
-			if (data.subscription == "/service/controller" && data.successful == true) {
-				var playerSubscribe = me.getPacket(data)[0];
-				playerSubscribe.channel = consts.CHANNEL_SUBSCR;
-				playerSubscribe.clientId = me.clientID;
-				playerSubscribe.subscription = "/service/player";
-				me.send(playerSubscribe);
-				var connectionPacket = me.getPacket(data)[0];
-				connectionPacket.channel = consts.CHANNEL_CONN;
-				connectionPacket.clientId = me.clientID;
-				connectionPacket.connectionType = "websocket";
-				connectionPacket.advice = {
-					timeout: 0
+			me.msgID++;
+			r.subscription = "/service/player";
+			r.id = me.msgID + "";
+			me.send(r);
+			me.msgID++;
+			r.id = me.msgID + "";
+			r.subscription = "/service/status";
+			me.send(r);
+			me.msgID++;
+			//?
+			var connectionPacket = me.getPacket(data)[0];
+			connectionPacket.channel = consts.CHANNEL_CONN;
+			connectionPacket.clientId = me.clientID;
+			connectionPacket.connectionType = "websocket";
+			connectionPacket.advice = {
+				timeout: 0
+			}
+			me.send(connectionPacket);
+		} else if(data.channel == consts.CHANNEL_CONN && data.advice && data.advice.reconnect && data.advice.reconnect == "retry"){
+			//unsub
+			var r = {
+				ext:{
+					timesync: me.timesync
 				}
-				me.send(connectionPacket);
-				var statusSubscribe = me.getPacket(data)[0];
-				statusSubscribe.channel = consts.CHANNEL_SUBSCR;
-				statusSubscribe.clientId = me.clientID;
-				statusSubscribe.subscription = "/service/status";
-				me.send(statusSubscribe);
+			};
+			r.ext.ack = undefined;
+			r.channel = consts.CHANNEL_UNSUBSCR;
+			r.clientId = me.clientID;
+			r.subscription = "/service/controller";
+			r.id = me.msgID + "";
+			me.send(r);
+			me.msgID++;
+			r.id = me.msgID + "";
+			r.subscription = "/service/player";
+			me.send(r);
+			me.msgID++;
+			r.id = me.msgID + "";
+			r.subscription = "/service/status";
+			me.send(r);
+			me.msgID++;
+			//resub
+			var r = {
+				ext: {
+					timesync: me.timesync
+				}
+			};
+			r.ext.ack = undefined;
+			r.channel = consts.CHANNEL_SUBSCR;
+			r.clientId = me.clientID;
+			r.subscription = "/service/controller";
+			r.id = me.msgID + "";
+			me.send(r);
+			me.msgID++;
+			r.id = me.msgID + "";
+			r.subscription = "/service/player";
+			me.send(r);
+			me.msgID++;
+			r.id = me.msgID + "";
+			r.subscription = "/service/status";
+			me.send(r);
+			me.msgID++;
+			//connect packet
+			var connectionPacket = {
+				ext: {
+					ack: 1,
+					timesync: me.timesync
+				},
+				id: me.msgID + ""
+			};
+			connectionPacket.channel = consts.CHANNEL_CONN;
+			connectionPacket.clientId = me.clientID;
+			connectionPacket.connectionType = "websocket";
+			me.send(connectionPacket);
+			me.msgID++;
+		}else if (data.channel == consts.CHANNEL_SUBSCR) {
+			if (data.subscription == "/service/controller" && data.successful == true && !me.ready) {
 				me.emit("ready");
+				me.ready = true;
 			}
 		} else if (data.data) {
 			if (data.data.error) {
@@ -276,9 +334,21 @@ class WSHandler extends EventEmitter {
 				}
 			}
 		}
-		if (data.ext && data.channel !== "/meta/subscribe" && data.channel !== "/meta/handshake") {
-			var m = me.getPacket(data);
-			me.send(m);
+		if (data.ext && data.channel !== "/meta/unsubscribe" && data.channel !== "/meta/subscribe" && data.channel !== "/meta/handshake") {
+			/*var m = me.getPacket(data);
+			me.send(m);*/
+			var packet = {
+				ext: {
+					ack: data.ext.ack,
+					timesync: me.timesync
+				},
+				channel: data.channel,
+				connectionType: "websocket",
+				clientId: me.clientID,
+				id: me.msgID + ""
+			}
+			me.msgID++;
+			me.send(packet);
 		}
 		/*if(data.channel == "/service/player"){
 			console.log(data.data);

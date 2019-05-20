@@ -14,6 +14,7 @@ module.exports = {
 	WSS_ENDPOINT: "wss://kahoot.it/cometd/",
 	CHANNEL_HANDSHAKE: "/meta/handshake",
 	CHANNEL_SUBSCR: "/meta/subscribe",
+	CHANNEL_UNSUBSCR: "/meta/unsubscribe",
 	CHANNEL_CONN: "/meta/connect",
 	SUPPORTED_CONNTYPES: [
 		"websocket",
