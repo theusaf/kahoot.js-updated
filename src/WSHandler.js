@@ -160,15 +160,9 @@ class WSHandler extends EventEmitter {
 			data: {
 				content: JSON.stringify({
 					choice: questionChoice,
+					questionIndex: me.kahoot.quiz.currentQuestion.index,
 					meta: {
-						lag: 30,
-						device: {
-							userAgent: "kahoot.js",
-							screen: {
-								width: 1920,
-								height: 1050
-							}
-						}
+						lag: 30
 					}
 				}),
 				gameid: me.gameID,
@@ -180,12 +174,14 @@ class WSHandler extends EventEmitter {
 		}]
 	}
 	send(msg) {
-		if (this.connected) {
-			try {
-				//console.log(JSON.stringify(msg));
-				this.ws.send(JSON.stringify(msg));
-			} catch(e) { }
-		}
+		return new Promise((res,rej)=>{
+			if (this.connected) {
+				try {
+					console.log("U " + JSON.stringify(msg));
+					this.ws.send(JSON.stringify(msg),res);
+				} catch(e) { }
+			}
+		});
 	}
 	sendSubmit(questionChoice) {
 		var packet = this.getSubmitPacket(questionChoice);
@@ -221,92 +217,32 @@ class WSHandler extends EventEmitter {
 		me.send(r);
 	}
 	message(msg) {
-		//console.log(msg);
+		console.log("D " + msg);
 		var me = this;
 		var data = JSON.parse(msg)[0];
 		if (data.channel == consts.CHANNEL_HANDSHAKE && data.clientId) { // The server sent a handshake packet
 			this.clientID = data.clientId;
 			var r = me.getPacket(data)[0];
-			me.timesync = r.ext.timesync;
-			r.ext.ack = undefined;
-			r.channel = consts.CHANNEL_SUBSCR;
-			r.clientId = me.clientID;
-			r.subscription = "/service/controller";
-			me.send(r);
-			me.msgID++;
-			r.subscription = "/service/player";
-			r.id = me.msgID + "";
-			me.send(r);
-			me.msgID++;
-			r.id = me.msgID + "";
-			r.subscription = "/service/status";
-			me.send(r);
-			me.msgID++;
-			//?
-			var connectionPacket = me.getPacket(data)[0];
-			connectionPacket.channel = consts.CHANNEL_CONN;
-			connectionPacket.clientId = me.clientID;
-			connectionPacket.connectionType = "websocket";
-			connectionPacket.advice = {
-				timeout: 0
-			}
-			me.send(connectionPacket);
+			r.advice = {timeout: 0};
+			r.channel = "/meta/connect";
+			r.connectionType = "websocket";
+			r.ext.ack = 0;
+			me.send([r]);
 		} else if(data.channel == consts.CHANNEL_CONN && data.advice && data.advice.reconnect && data.advice.reconnect == "retry"){
-			//unsub
-			var r = {
-				ext:{
-					timesync: me.timesync
-				}
-			};
-			r.ext.ack = undefined;
-			r.channel = consts.CHANNEL_UNSUBSCR;
-			r.clientId = me.clientID;
-			r.subscription = "/service/controller";
-			r.id = me.msgID + "";
-			me.send(r);
-			me.msgID++;
-			r.id = me.msgID + "";
-			r.subscription = "/service/player";
-			me.send(r);
-			me.msgID++;
-			r.id = me.msgID + "";
-			r.subscription = "/service/status";
-			me.send(r);
-			me.msgID++;
-			//resub
-			var r = {
-				ext: {
-					timesync: me.timesync
-				}
-			};
-			r.ext.ack = undefined;
-			r.channel = consts.CHANNEL_SUBSCR;
-			r.clientId = me.clientID;
-			r.subscription = "/service/controller";
-			r.id = me.msgID + "";
-			me.send(r);
-			me.msgID++;
-			r.id = me.msgID + "";
-			r.subscription = "/service/player";
-			me.send(r);
-			me.msgID++;
-			r.id = me.msgID + "";
-			r.subscription = "/service/status";
-			me.send(r);
-			me.msgID++;
 			//connect packet
 			var connectionPacket = {
 				ext: {
 					ack: 1,
 					timesync: me.timesync
 				},
-				id: me.msgID + ""
+				id: ++me.msgID + ""
 			};
 			connectionPacket.channel = consts.CHANNEL_CONN;
 			connectionPacket.clientId = me.clientID;
 			connectionPacket.connectionType = "websocket";
 			me.send(connectionPacket);
-			me.msgID++;
+			me.emit("ready");
+			me.ready = true;
 		}else if (data.channel == consts.CHANNEL_SUBSCR) {
 			if (data.subscription == "/service/controller" && data.successful == true && !me.ready) {
 				me.emit("ready");
@@ -334,7 +270,7 @@ class WSHandler extends EventEmitter {
 				}
 			}
 		}
-		if (data.ext && data.channel !== "/meta/unsubscribe" && data.channel !== "/meta/subscribe" && data.channel !== "/meta/handshake") {
+		if (data.ext && data.channel == "/meta/connect" && me.ready) {
 			/*var m = me.getPacket(data);
 			me.send(m);*/
 			var packet = {
@@ -434,6 +370,18 @@ class WSHandler extends EventEmitter {
 	close() {
 		this.connected = false;
 		this.emit("close");
+	}
+	leave(){
+		var me = this;
+		me.msgID++;
+		me.send([{
+			channel: "/meta/disconnect",
+			clientID: me.clientID,
+			ext: {
+				timesync: me.timesync
+			},
+			id: me.msgID
+		}]).then(()=>{me.ws.close();});
 	}
 }
 module.exports = WSHandler;

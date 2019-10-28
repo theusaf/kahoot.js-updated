@@ -6,7 +6,7 @@
 Kahoot client that can interact with quizzes.
 
 **Events**  
-`on('ready')` and `on('join')` - Emitted when the client joins the game.  
+`on('ready')` and `on('joined')` - Emitted when the client joins the game.  
 `on('quizStart', Quiz)` and `on('quiz', Quiz)` - Emitted when the quiz starts for the client. Passes a `Quiz` class.  
 `on('question', Question)` - Emitted when the client receives a new question. This is NOT the same as the `questionStart` event, which is emitted after the question has started. Passes a `Question` class.  
 `on('questionStart', Question)` - Emitted when a question starts. Passes a `Question` class.  

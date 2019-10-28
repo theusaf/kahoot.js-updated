@@ -109,7 +109,7 @@ class Kahoot extends EventEmitter {
 	}
 	leave() {
 		return new Promise((fulfill, reject) => {
-			this._wsHandler.ws.close();
+			this._wsHandler.leave();
 			fulfill();
 		});
 	}

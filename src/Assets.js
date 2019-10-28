@@ -26,11 +26,11 @@ class Question {
 	}
 	answer(number) {
 		return new Promise((fulfill, reject) => {
-			if (!number && number !== 0) reject("Question answer is missing question number!");
+			if (!number && number !== 0) reject(console.log("Question answer is missing question number!"));
 			else {
 				this.client.answerQuestion(number).then(() => {
 					fulfill();
-				}).catch(reject);
+				}).catch(e=>{reject(),console.log(e)});
 			}
 		});
 	}
