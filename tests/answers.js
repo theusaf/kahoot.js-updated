@@ -2,7 +2,7 @@ var Kahoot = require("../index.js");
 var client = new Kahoot;
 //const PIN = parseInt(require("fs").readFileSync("PIN.txt"));
 console.log("joining game...");
-client.join(978966, "kahoo.js");
+client.join(790293, "kahoot.js");
 client.on("joined", () => {
     console.log("joined the game. waiting for quiz to start");
 });

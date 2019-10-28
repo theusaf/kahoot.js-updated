@@ -352,6 +352,10 @@ class WSHandler extends EventEmitter {
 	}
 	login(name) {
 		var me = this;
+		if(!me.ready){
+			setTimeout(()=>{me.login(name);},500);
+			return;
+		}
 		me.name = name;
 		var joinPacket = [{
 			channel: "/service/controller",
