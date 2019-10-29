@@ -132,10 +132,23 @@ class WSHandler extends EventEmitter {
 		}
 	}
 	getPacket(packet) {
-		var l = ((new Date).getTime() - packet.ext.timesync.tc - packet.ext.timesync.p) / 2;
-		var o = (packet.ext.timesync.ts - packet.ext.timesync.tc - l);
-		var ack;
 		var me = this;
+		var l,o;
+		try{
+			l = Math.round(((new Date).getTime() - packet.ext.timesync.tc - packet.ext.timesync.p) / 2);
+			o = (packet.ext.timesync.ts - packet.ext.timesync.tc - l);
+			me.timesync = {
+				tc: (new Date).getTime(),
+				l: l,
+				o: o
+			};
+		}catch(err){
+			me.timesync = {
+				tc: (new Date).getTime(),
+				l: 0,
+				o: 0
+			}
+		}
 		me.msgID++;
 		return [{
 			channel: packet.channel,
@@ -149,7 +162,7 @@ class WSHandler extends EventEmitter {
 				}
 			},
 			id: me.msgID + ""
-		}]
+		}];
 	}
 	getSubmitPacket(questionChoice) {
 		var me = this;
@@ -177,7 +190,7 @@ class WSHandler extends EventEmitter {
 		return new Promise((res,rej)=>{
 			if (this.connected) {
 				try {
-					console.log("U " + JSON.stringify(msg));
+					//console.log("U " + JSON.stringify(msg));
 					this.ws.send(JSON.stringify(msg),res);
 				} catch(e) { }
 			}
@@ -217,7 +230,7 @@ class WSHandler extends EventEmitter {
 		me.send(r);
 	}
 	message(msg) {
-		console.log("D " + msg);
+		//console.log("D " + msg);
 		var me = this;
 		var data = JSON.parse(msg)[0];
 		if (data.channel == consts.CHANNEL_HANDSHAKE && data.clientId) { // The server sent a handshake packet
@@ -271,20 +284,9 @@ class WSHandler extends EventEmitter {
 			}
 		}
 		if (data.ext && data.channel == "/meta/connect" && me.ready) {
-			/*var m = me.getPacket(data);
-			me.send(m);*/
-			var packet = {
-				ext: {
-					ack: data.ext.ack,
-					timesync: me.timesync
-				},
-				channel: data.channel,
-				connectionType: "websocket",
-				clientId: me.clientID,
-				id: me.msgID + ""
-			}
-			me.msgID++;
-			me.send(packet);
+			var packet = me.getPacket(data)[0];
+			packet.connectionType = "websocket";
+			me.send([packet]);
 		}
 		/*if(data.channel == "/service/player"){
 			console.log(data.data);
@@ -378,14 +380,16 @@ class WSHandler extends EventEmitter {
 	leave(){
 		var me = this;
 		me.msgID++;
+		try{me.timesync.tc = Date.now();}catch(err){console.log(err);}
+		//console.log(me.timesync);
 		me.send([{
 			channel: "/meta/disconnect",
-			clientID: me.clientID,
+			clientId: me.clientID,
 			ext: {
 				timesync: me.timesync
 			},
-			id: me.msgID
-		}]).then(()=>{me.ws.close();});
+			id: me.msgID + ""
+		}]).then(setTimeout(()=>{me.ws.close();},500));
 	}
 }
 module.exports = WSHandler;
