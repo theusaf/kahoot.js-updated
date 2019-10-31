@@ -271,6 +271,9 @@ class WSHandler extends EventEmitter {
 				return;
 			} else if (data.data.type == "loginResponse") {
 				// "/service/controller"
+				if(data.data.description && data.data.description == "Duplicate name"){
+					return me.emit("invalidName");
+				}
 				me.emit("joined");
 			} else {
 				if (data.data.content) {

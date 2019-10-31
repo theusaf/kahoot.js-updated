@@ -16,7 +16,8 @@ Kahoot client that can interact with quizzes.
 `on('finishText', FinishTextEvent)` - Emitted when the quiz finish text is sent. Passes a `FinishTextEvent` class.  
 `on('quizEnd')` and `on('disconnect')` - Emitted when the quiz closes, and the client is disconnected.  
 `on('2Step')` - Emitted when the 2 step authentification is sent to the client / refeshed  
-`on('feedback')` - Emitted when the host requests to see feedback.
+`on('feedback')` - Emitted when the host requests to see feedback.  
+`on('invalidName')` - Emitted when the name is a duplicate.
 
 **Methods**  
 `join(sessionID, playerName)`  
