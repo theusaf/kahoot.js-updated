@@ -37,6 +37,9 @@ class Kahoot extends EventEmitter {
 				me.gamemode = gamemode ? gamemode : "classic";
 				me.token = resolvedToken;
 				me._wsHandler = new WSHandler(me.sessionID, me.token, me);
+				me._wsHandler.on("invalidName",()=>{
+					me.emit("invalidName");
+				});
 				me._wsHandler.on("2step",()=>{
 					me.emit("2Step");
 				});
