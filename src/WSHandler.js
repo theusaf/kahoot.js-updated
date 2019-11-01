@@ -263,6 +263,9 @@ class WSHandler extends EventEmitter {
 			}
 		} else if (data.data) {
 			if (data.data.error) {
+				if(data.data.type && data.data.type == "loginResponse"){
+					return me.emit("invalidName");
+				}
 				try{
 					me.emit("error", data.data.error); //error here if stuff
 				}catch(er){
@@ -271,9 +274,6 @@ class WSHandler extends EventEmitter {
 				return;
 			} else if (data.data.type == "loginResponse") {
 				// "/service/controller"
-				if(data.data.description && data.data.description == "Duplicate name"){
-					return me.emit("invalidName");
-				}
 				me.emit("joined");
 			} else {
 				if (data.data.content) {
