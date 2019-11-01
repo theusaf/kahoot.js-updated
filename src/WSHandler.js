@@ -387,7 +387,7 @@ class WSHandler extends EventEmitter {
 					type: "message"
 				},
 				ext: {},
-				id: me.msgID + "";
+				id: me.msgID + ""
 			}];
 			me.msgID++;
 			me.send(joinPacket2);
