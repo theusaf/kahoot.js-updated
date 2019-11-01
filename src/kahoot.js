@@ -21,6 +21,9 @@ class Kahoot extends EventEmitter {
 	}
 	join(session, name, team) {
 		var me = this;
+		if(me._wsHandler && me._wsHandler.ready){
+			return me._wsHandler.login(name,team);
+		}
 		return new Promise((fulfill, reject) => {
 			if (!session) {
 				reject("You need a sessionID to connect to a Kahoot!");

@@ -9,4 +9,5 @@ client.on("ready", () => {
 });
 client.on("invalidName",()=>{
   console.log("bad");
+  setTimeout(()=>{client.join("testing2");},5000);
 });

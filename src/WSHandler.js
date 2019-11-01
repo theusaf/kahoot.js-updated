@@ -190,7 +190,7 @@ class WSHandler extends EventEmitter {
 		return new Promise((res,rej)=>{
 			if (this.connected) {
 				try {
-					//console.log("U " + JSON.stringify(msg));
+					console.log("U " + JSON.stringify(msg));
 					this.ws.send(JSON.stringify(msg),res);
 				} catch(e) { }
 			}
@@ -230,7 +230,7 @@ class WSHandler extends EventEmitter {
 		me.send(r);
 	}
 	message(msg) {
-		//console.log("D " + msg);
+		console.log("D " + msg);
 		var me = this;
 		var data = JSON.parse(msg)[0];
 		if (data.channel == consts.CHANNEL_HANDSHAKE && data.clientId) { // The server sent a handshake packet
@@ -361,16 +361,21 @@ class WSHandler extends EventEmitter {
 			setTimeout(()=>{me.login(name);},500);
 			return;
 		}
+		[{"channel":"/service/controller","clientId":"43tm81qj50k0z9ajit17mewxwjzzi2z","data":{"gameid":9451651,"host":"kahoot.it","type":"login"},"id":"14"}]
+		[{"channel":"/service/controller","clientId":"43tm81qj50k0z9ajit17mewxwjzzi2z","data":{"gameid":9451651,"host":"kahoot.it","type":"login"},"id":"12"}]
 		me.name = name;
 		var joinPacket = [{
 			channel: "/service/controller",
 			clientId: me.clientID,
 			data: {
+				content: '{"device":{"userAgent":"kahoot.js","screen":{"width":1280,"height":800}}}',
 				gameid: me.gameID,
 				host: consts.ENDPOINT_URI,
 				name: name,
 				type: "login"
 			},
+			ext: {},
+			participantUserId: null,
 			id: me.msgID + ""
 		}];
 		me.msgID++;
@@ -387,6 +392,7 @@ class WSHandler extends EventEmitter {
 					type: "message"
 				},
 				ext: {},
+				participantUserId: null,
 				id: me.msgID + ""
 			}];
 			me.msgID++;
