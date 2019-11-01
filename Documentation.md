@@ -20,10 +20,11 @@ Kahoot client that can interact with quizzes.
 `on('invalidName')` - Emitted when the name is a duplicate.
 
 **Methods**  
-`join(sessionID, playerName)`  
+`join(sessionID, playerName, teamNames)`  
 Parameters:  
 *sessionID (number)* - The Kahoot session ID to join.  
 *playerName (string)* - The name of the user.  
+*teamNames (array) [String]* - The names of the team members to be used in team game modes (optional).  
 Returns: Promise  
 `answerQuestion(id)`  
 Parameters:  
@@ -76,7 +77,9 @@ Parameters:
 `type (String)` - The question type.  
 `usesStoryBlocks (Boolean)` - Whether or not the question uses 'Story Blocks'.  
 `ended (Boolean)` - Whether or not the question has ended.  
-`number (Number)` - The number of the question.
+`number (Number)` - The number of the question.  
+`gamemode (String)` - The game mode of the session. It can be either "classic" or "team."  
+`team (Array) [String]` - The team member names.
 
 ### QuestionEndEvent
 **Properties**  

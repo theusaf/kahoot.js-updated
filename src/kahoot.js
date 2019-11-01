@@ -17,8 +17,9 @@ class Kahoot extends EventEmitter {
 		this.nemesis = null;
 		this.nemeses = [];
 		this.totalScore = 0;
+		this.gamemode = null;
 	}
-	join(session, name) {
+	join(session, name, team) {
 		var me = this;
 		return new Promise((fulfill, reject) => {
 			if (!session) {
@@ -31,14 +32,16 @@ class Kahoot extends EventEmitter {
 			}
 			me.sessionID = session;
 			me.name = name;
-			token.resolve(session, resolvedToken => {
+			me.team = team;
+			token.resolve(session, (resolvedToken,gamemode) => {
+				me.gamemode = gamemode ? gamemode : "classic";
 				me.token = resolvedToken;
 				me._wsHandler = new WSHandler(me.sessionID, me.token, me);
 				me._wsHandler.on("2step",()=>{
 					me.emit("2Step");
 				});
 				me._wsHandler.on("ready", () => {
-					me._wsHandler.login(me.name);
+					me._wsHandler.login(me.name,me.team);
 				});
 				me._wsHandler.on("joined", () => {
 					me.emit("ready");

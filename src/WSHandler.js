@@ -355,7 +355,7 @@ class WSHandler extends EventEmitter {
 		}];
 		this.send(packet);
 	}
-	login(name) {
+	login(name,team) {
 		var me = this;
 		if(!me.ready){
 			setTimeout(()=>{me.login(name);},500);
@@ -375,6 +375,23 @@ class WSHandler extends EventEmitter {
 		}];
 		me.msgID++;
 		this.send(joinPacket);
+		if(me.kahoot.gamemode == "team"){
+			const joinPacket2 = [{
+				channel: "/service/controller",
+				clientId: me.clientID,
+				data: {
+					content: JSON.stringify(team && typeof(team.push) == "function" && team.length ? team : ["Player 1","Player 2","Player 3","Player 4"]),
+					gameid: me.gameID,
+					host: consts.ENDPOINT_URI,
+					id: 18,
+					type: "message"
+				},
+				ext: {},
+				id: me.msgID + "";
+			}];
+			me.msgID++;
+			me.send(joinPacket2);
+		}
 	}
 	close() {
 		this.connected = false;

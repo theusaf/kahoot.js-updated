@@ -34,7 +34,7 @@ class TokenJS {
 				}
 				// The second token is given as a "challenge", which must be eval'd by the client to be decoded
 				var challenge = bodyObject.challenge;
-				callback(token1, challenge);
+				callback(token1, challenge, bodyObject.gamemode);
 			});
 		}).on("error", err => {
 			// TODO: better error handling
@@ -83,11 +83,11 @@ class TokenJS {
 	}
 	static resolve(sessionID, callback) {
 		var me = this;
-		me.requestToken(sessionID, (headerToken, challenge) => {
+		me.requestToken(sessionID, (headerToken, challenge, gamemode) => {
 			var token1 = this.decodeBase64(headerToken);
 			var token2 = this.solveChallenge(challenge);
 			var resolvedToken = this.concatTokens(token1, token2);
-			callback(resolvedToken);
+			callback(resolvedToken, gamemode);
 		});
 	}
 }
