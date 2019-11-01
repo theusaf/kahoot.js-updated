@@ -190,7 +190,7 @@ class WSHandler extends EventEmitter {
 		return new Promise((res,rej)=>{
 			if (this.connected) {
 				try {
-					console.log("U " + JSON.stringify(msg));
+					//console.log("U " + JSON.stringify(msg));
 					this.ws.send(JSON.stringify(msg),res);
 				} catch(e) { }
 			}
@@ -230,7 +230,7 @@ class WSHandler extends EventEmitter {
 		me.send(r);
 	}
 	message(msg) {
-		console.log("D " + msg);
+		//console.log("D " + msg);
 		var me = this;
 		var data = JSON.parse(msg)[0];
 		if (data.channel == consts.CHANNEL_HANDSHAKE && data.clientId) { // The server sent a handshake packet
