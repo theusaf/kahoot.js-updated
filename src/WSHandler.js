@@ -72,7 +72,7 @@ class WSHandler extends EventEmitter {
 					incorrect: content.incorrectCount
 				});
 			},
-			7: (data, content) => {
+			7: (data, content) => { // Appears to be removed in V2
 				me.emit("questionSubmit", content.primaryMessage);
 			},
 			8: (data, content) => {
@@ -197,8 +197,12 @@ class WSHandler extends EventEmitter {
 		});
 	}
 	sendSubmit(questionChoice) {
+		var me = this;
 		var packet = this.getSubmitPacket(questionChoice);
-		this.send(packet);
+		this.send(packet).then(()=>{
+			const snark = ["Toooo fast?","Genius machine?","Pure luck or true genius?"];
+			me.emit("questionSubmit",snark[Math.floor(Math.random()*snark.length)]);
+		});
 	}
 	open() {
 		var me = this;
