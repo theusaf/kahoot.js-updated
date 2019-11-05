@@ -22,7 +22,7 @@ class Kahoot extends EventEmitter {
 	reconnect(){
 		var me = this;
 		if(me.sessionID && me.cid && me._wsHandler && me._wsHandler.ws.readyState >= 2){
-			token.resolve(session, (resolvedToken,gamemode) => {
+			token.resolve(me.sessionID, (resolvedToken,gamemode) => {
 				me.gamemode = gamemode ? gamemode : "classic";
 				me.token = resolvedToken;
 				me._wsHandler = new WSHandler(me.sessionID, me.token, me);
