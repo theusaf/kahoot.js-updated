@@ -238,6 +238,7 @@ class WSHandler extends EventEmitter {
 		var data = JSON.parse(msg)[0];
 		if (data.channel == consts.CHANNEL_HANDSHAKE && data.clientId) { // The server sent a handshake packet
 			this.clientID = data.clientId;
+			this.kahoot.cid = data.clientID;
 			var r = me.getPacket(data)[0];
 			r.advice = {timeout: 0};
 			r.channel = "/meta/connect";
@@ -357,6 +358,25 @@ class WSHandler extends EventEmitter {
 			id: me.msgID + ""
 		}];
 		this.send(packet);
+	}
+	relog(cid){
+		var me = this;
+		me.clientID = cid;
+		me.msgID++;
+		let packet = {
+			channel: "/service/controller",
+			clientId: me.clientID,
+			data: {
+				cid: cid,
+				content: JSON.stringify({device:{userAgent:"kahoot.js",screen:{width:2000,height:1000}}}),
+				gameid: me.gameID,
+				host: "kahoot.it",
+				type: "relogin"
+			},
+			ext: {},
+			id: me.msgID + ""
+		};
+		me.send([packet]);
 	}
 	login(name,team) {
 		var me = this;

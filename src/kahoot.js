@@ -19,6 +19,74 @@ class Kahoot extends EventEmitter {
 		this.totalScore = 0;
 		this.gamemode = null;
 	}
+	reconnect(){
+		var me = this;
+		if(me.sessionID && me.cid && me._wsHandler && me._wsHandler.ws.readyState >= 2){
+			token.resolve(session, (resolvedToken,gamemode) => {
+				me.gamemode = gamemode ? gamemode : "classic";
+				me.token = resolvedToken;
+				me._wsHandler = new WSHandler(me.sessionID, me.token, me);
+				me._wsHandler.on("invalidName",()=>{
+					me.emit("invalidName");
+				});
+				me._wsHandler.on("2step",()=>{
+					me.emit("2Step");
+				});
+				me._wsHandler.on("ready", () => {
+					me._wsHandler.relog(me.cid);
+				});
+				me._wsHandler.on("joined", () => {
+					me.emit("ready");
+					me.emit("joined");
+					fulfill();
+				});
+				me._wsHandler.on("quizData", quizInfo => {
+					me.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, me, quizInfo.totalQ);
+					me.emit("quizStart", me.quiz);
+					me.emit("quiz", me.quiz);
+				});
+				me._wsHandler.on("quizUpdate", updateInfo => {
+					me.quiz.currentQuestion = new Assets.Question(updateInfo, me);
+					me.emit("question", me.quiz.currentQuestion);
+				});
+				me._wsHandler.on("questionEnd", endInfo => {
+					var e = new Assets.QuestionEndEvent(endInfo, me);
+					me.totalScore = e.total;
+					me.emit("questionEnd", e);
+				});
+				me._wsHandler.on("quizEnd", () => {
+					me.emit("quizEnd");
+					me.emit("disconnect");
+				});
+				me._wsHandler.on("questionStart", () => {
+					try{
+						me.emit("questionStart", me.quiz.currentQuestion);
+					}catch(e){
+						//joined during quiz (fixed v 1.1.1)
+					}
+				});
+				me._wsHandler.on("questionSubmit", message => {
+					me.sendingAnswer = false;
+					var e = new Assets.QuestionSubmitEvent(message, me);
+					me.emit("questionSubmit", e);
+					try {
+						me._qFulfill(e);
+					} catch(e) { }
+				});
+				me._wsHandler.on("finishText", data => {
+					var e = new Assets.FinishTextEvent(data);
+					me.emit("finishText", e);
+				});
+				me._wsHandler.on("finish", data => {
+					var e = new Assets.QuizFinishEvent(data, me);
+					me.emit("finish", e);
+				});
+				me._wsHandler.on("feedback", ()=>{
+					me.emit("feedback");
+				})
+			});
+		}
+	}
 	join(session, name, team) {
 		var me = this;
 		if(me._wsHandler && me._wsHandler.ready){

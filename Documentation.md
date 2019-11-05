@@ -26,6 +26,9 @@ Parameters:
 *playerName (string)* - The name of the user.  
 *teamNames (array) [String]* - The names of the team members to be used in team game modes (optional).  
 Returns: Promise  
+`reconnect()`  
+Should be used if connection is lost (network issue).  
+Returns: undefined  
 `answerQuestion(id)`  
 Parameters:  
 *id (number)* - The ID of the question to answer. (0 is the first answer, 1 is the second answer, etc.)  
@@ -52,7 +55,8 @@ Returns: Promise
 `quiz (Quiz)` - The current quiz of the client.  
 `nemesis (Nemesis)` - The client's nemesis. (Will be `null` if the client does not have a nemesis.)  
 `nemeses (Nemesis Array)` - An array of all the client's past nemeses.  
-`totalScore (Number)` - The client's accumulated score
+`totalScore (Number)` - The client's accumulated score.  
+`cid` - The client's client id.
 
 ### Quiz
 **Properties**  
