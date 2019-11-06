@@ -18,6 +18,7 @@ class Kahoot extends EventEmitter {
 		this.nemeses = [];
 		this.totalScore = 0;
 		this.gamemode = null;
+		this.cid = "";
 	}
 	reconnect(){
 		var me = this;
@@ -38,7 +39,7 @@ class Kahoot extends EventEmitter {
 				me._wsHandler.on("joined", () => {
 					me.emit("ready");
 					me.emit("joined");
-					fulfill();
+					//fulfill();
 				});
 				me._wsHandler.on("quizData", quizInfo => {
 					me.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, me, quizInfo.totalQ);

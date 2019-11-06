@@ -238,7 +238,6 @@ class WSHandler extends EventEmitter {
 		var data = JSON.parse(msg)[0];
 		if (data.channel == consts.CHANNEL_HANDSHAKE && data.clientId) { // The server sent a handshake packet
 			this.clientID = data.clientId;
-			this.kahoot.cid = data.clientID;
 			var r = me.getPacket(data)[0];
 			r.advice = {timeout: 0};
 			r.channel = "/meta/connect";
@@ -278,6 +277,7 @@ class WSHandler extends EventEmitter {
 				return;
 			} else if (data.data.type == "loginResponse") {
 				// "/service/controller"
+				me.kahoot.cid = data.data.cid;
 				me.emit("joined");
 			} else {
 				if (data.data.content) {
@@ -361,7 +361,10 @@ class WSHandler extends EventEmitter {
 	}
 	relog(cid){
 		var me = this;
-		me.clientID = cid;
+		if(!me.ready){
+			setTimeout(()=>{me.relog(cid);},500);
+			return;
+		}
 		me.msgID++;
 		let packet = {
 			channel: "/service/controller",
