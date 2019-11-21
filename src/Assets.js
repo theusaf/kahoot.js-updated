@@ -99,7 +99,7 @@ class QuizFinishEvent {
 		this.client = client;
 		this.quiz = client.quiz;
 		this.players = rawEvent.playerCount;
-		this.quizID = rawEvent.quizId;
+		this.quizID = rawEvent.quizID;
 		this.rank = rawEvent.rank;
 		this.correct = rawEvent.correct;
 		this.incorrect = rawEvent.incorrect;

@@ -65,7 +65,7 @@ class WSHandler extends EventEmitter {
 			3: (data, content) => {
 				me.emit("finish", {
 					playerCount: content.playerCount,
-					quizID: content.quizID,
+					quizID: content.quizId,
 					rank: content.rank,
 					correct: content.correctCount,
 					incorrect: content.incorrectCount
