@@ -1,7 +1,7 @@
 var Promise = require("promise");
 
 class Quiz {
-	constructor(name, type, answerCount, client, amount) {
+	constructor(name, type, answerCount, client, amount, answers) {
 		this.client = client;
 		this.name = name;
 		this.type = type;
@@ -9,6 +9,7 @@ class Quiz {
 		this.currentQuestion = null;
 		this.questions = [];
 		this.questionCount = amount;
+		this.answerCounts = answers
 	}
 }
 class Question {
@@ -98,7 +99,7 @@ class QuizFinishEvent {
 		this.client = client;
 		this.quiz = client.quiz;
 		this.players = rawEvent.playerCount;
-		this.quizID = rawEvent.quizID;
+		this.quizID = rawEvent.quizId;
 		this.rank = rawEvent.rank;
 		this.correct = rawEvent.correct;
 		this.incorrect = rawEvent.incorrect;

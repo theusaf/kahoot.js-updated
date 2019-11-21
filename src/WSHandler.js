@@ -95,7 +95,8 @@ class WSHandler extends EventEmitter {
 						name: content.quizName,
 						type: content.quizType,
 						qCount: content.quizQuestionAnswers[0],
-						totalQ: content.quizQuestionAnswers.length
+						totalQ: content.quizQuestionAnswers.length,
+						questionAnswers: content.quizQuestionAnswers
 					});
 				}
 			},

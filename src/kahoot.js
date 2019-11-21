@@ -42,7 +42,7 @@ class Kahoot extends EventEmitter {
 					//fulfill();
 				});
 				me._wsHandler.on("quizData", quizInfo => {
-					me.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, me, quizInfo.totalQ);
+					me.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, me, quizInfo.totalQ, quizInfo.quizQuestionAnswers);
 					me.emit("quizStart", me.quiz);
 					me.emit("quiz", me.quiz);
 				});
@@ -124,7 +124,7 @@ class Kahoot extends EventEmitter {
 					fulfill();
 				});
 				me._wsHandler.on("quizData", quizInfo => {
-					me.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, me, quizInfo.totalQ);
+					me.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, me, quizInfo.totalQ, quizInfo.quizQuestionAnswers);
 					me.emit("quizStart", me.quiz);
 					me.emit("quiz", me.quiz);
 				});
