@@ -65,7 +65,8 @@ Returns: Promise
 `type (String)` - The quiz type.  
 `currentQuestion (Question)` - The current question the quiz is on.  
 `questions (Question Array)` - An array of every single question in the quiz. New questions get added as they come in.  
-`questionCount (Number)` - The number of questions in the quiz.
+`questionCount (Number)` - The number of questions in the quiz.  
+`answerCounts (Number Array)` - An array that shows the # of choices per question in the quiz.
 
 ### Question
 **Methods**  
