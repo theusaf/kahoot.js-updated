@@ -9,7 +9,7 @@ class Quiz {
 		this.currentQuestion = null;
 		this.questions = [];
 		this.questionCount = amount;
-		this.answerCounts = answers
+		this.answerCounts = answers;
 	}
 }
 class Question {
