@@ -9,7 +9,7 @@ class TokenJS {
 			path: consts.TOKEN_ENDPOINT + sessionID + "/?" + (new Date).getTime(),
 			port: consts.ENDPOINT_PORT,
 			headers: {
-				"user-agent": "kahoot.js",
+				"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36",
 				"host": "kahoot.it",
 				"referer": "https://kahoot.it/",
 				"accept-language": "en-US,en;q=0.8",
