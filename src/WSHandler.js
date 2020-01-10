@@ -36,7 +36,7 @@ class WSHandler extends EventEmitter {
 				try{
 					//if joining during the quiz
 					if(!me.kahoot.quiz){
-						me.emit("quizData",{name: "null", type: content.quizType, qCount: content.quizQuestionAnswers[0], totalQ: content.quizQuestionAnswers.length, quizQuestionAnswers: content.quizQuestionAnswers});
+						me.emit("quizData",{name: null, type: content.quizType, qCount: content.quizQuestionAnswers[0], totalQ: content.quizQuestionAnswers.length, quizQuestionAnswers: content.quizQuestionAnswers});
 					}
 					if (!me.kahoot.quiz.currentQuestion) {
 						me.emit("quizUpdate", {
@@ -167,7 +167,7 @@ class WSHandler extends EventEmitter {
 	getSubmitPacket(questionChoice) {
 		var me = this;
 		me.msgID++;
-		return [{
+		const r = [{
 			channel: "/service/controller",
 			clientId: me.clientID,
 			data: {
@@ -184,7 +184,18 @@ class WSHandler extends EventEmitter {
 				type: "message"
 			},
 			id: me.msgID + ""
-		}]
+		}];
+		// for question type "open_ended," expect a string.
+		if(typeof(questionChoice) == "string"){
+			r[0].data.content = JSON.stringify({
+				text: questionChoice,
+				questionIndex: me.kahoot.quiz.currentQuestion.index,
+				meta: {
+					lag: 30
+				}
+			});
+		}
+		return r;
 	}
 	send(msg) {
 		return new Promise((res,rej)=>{

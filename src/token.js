@@ -1,5 +1,6 @@
 var https = require("https");
 var consts = require("./consts");
+const ua = require('user-agents');
 
 class TokenJS {
 	static requestToken(sessionID, callback) {
@@ -9,7 +10,7 @@ class TokenJS {
 			path: consts.TOKEN_ENDPOINT + sessionID + "/?" + (new Date).getTime(),
 			port: consts.ENDPOINT_PORT,
 			headers: {
-				"user-agent": "Googlebot/2.1 (+http://www.googlebot.com/bot.html)",
+				"user-agent": new ua().toString(),
 				"host": "kahoot.it",
 				"referer": "https://kahoot.it/",
 				"accept-language": "en-US,en;q=0.8",
