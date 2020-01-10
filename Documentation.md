@@ -326,6 +326,7 @@ The kahoot client that interacts with kahoot's quiz api.
   - "survey" is a poll, there aren't any points.
   - "content" is a slideshow, you don't need to answer this one.
   - "jumble" is a puzzle question, send an array of numbers to order the answers.
+  - "open_ended" is a free response question; send text.
 
 <a name="question.properties.usesStoryBlocks"></a>
 `usesStoryBlocks (Boolean)`
