@@ -183,7 +183,7 @@ The kahoot client that interacts with kahoot's quiz api.
 - Parameters:
   - ***id (Number|Array|String)***
     - for type "quiz," use a number (0-3) to specify the choice.
-    - for type "open_ended," use a string to specify the answer.
+    - for type "open_ended" and "word_cloud," use a string to specify the answer.
     - for type "jumble," use an array of numbers (0-3) to specify the order of items.
   - Returns: `Promise`
 
@@ -327,6 +327,7 @@ The kahoot client that interacts with kahoot's quiz api.
   - "content" is a slideshow, you don't need to answer this one.
   - "jumble" is a puzzle question, send an array of numbers to order the answers.
   - "open_ended" is a free response question; send text.
+  - "word_cloud" is a free response poll; send text.
 
 <a name="question.properties.usesStoryBlocks"></a>
 `usesStoryBlocks (Boolean)`
