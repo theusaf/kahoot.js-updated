@@ -310,24 +310,13 @@ class WSHandler extends EventEmitter {
 		/*if(data.channel == "/service/player"){
 			console.log(data.data);
 		}*/
-		if(!me.finished2Step && data.channel == "/service/player" && data.data ? (
-			(
-				data.data.id == 52 ? true:false
-			)
-		):(
-			false
-		)){
-			me.finished2Step = true;
-		}
-		if(!me.finished2Step && data.channel == "/service/player" && data.data ? (
-			(
-				data.data.id == 53 ? true:false
-			)
-		):(
-			false
-		)){
-			me.requires2Step = true;
-			me.emit("2step");
+		if (!me.finished2Step && data.channel == "/service/player" && data.data) {
+			if (data.data.id == 52) {
+				me.finished2Step = true;
+			} else if (data.data.id == 53) {
+				me.requires2Step = true;
+				me.emit("2step");
+			}
 		}
 	}
 	send2Step(steps){
