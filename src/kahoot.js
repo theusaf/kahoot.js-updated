@@ -21,77 +21,75 @@ class Kahoot extends EventEmitter {
 		this.cid = "";
 	}
 	reconnect(){
-		var me = this;
-		if(me.sessionID && me.cid && me._wsHandler && me._wsHandler.ws.readyState >= 2){
-			token.resolve(me.sessionID, (resolvedToken,gamemode) => {
-				me.gamemode = gamemode ? gamemode : "classic";
-				me.token = resolvedToken;
-				me._wsHandler = new WSHandler(me.sessionID, me.token, me);
-				me._wsHandler.on("invalidName",()=>{
-					me.emit("invalidName");
+		if(this.sessionID && this.cid && this._wsHandler && this._wsHandler.ws.readyState >= 2){
+			token.resolve(this.sessionID, (resolvedToken,gamemode) => {
+				this.gamemode = gamemode ? gamemode : "classic";
+				this.token = resolvedToken;
+				this._wsHandler = new WSHandler(this.sessionID, this.token, this);
+				this._wsHandler.on("invalidName",()=>{
+					this.emit("invalidName");
 				});
-				me._wsHandler.on("2step",()=>{
-					me.emit("2Step");
+				this._wsHandler.on("2step",()=>{
+					this.emit("2Step");
 				});
-				me._wsHandler.on("ready", () => {
-					me._wsHandler.relog(me.cid);
+				this._wsHandler.on("ready", () => {
+					this._wsHandler.relog(this.cid);
 				});
-				me._wsHandler.on("joined", () => {
-					me.emit("ready");
-					me.emit("joined");
+				this._wsHandler.on("joined", () => {
+					this.emit("ready");
+					this.emit("joined");
 					//fulfill();
 				});
-				me._wsHandler.on("quizData", quizInfo => {
-					me.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, me, quizInfo.totalQ, quizInfo.quizQuestionAnswers);
-					me.emit("quizStart", me.quiz);
-					me.emit("quiz", me.quiz);
+				this._wsHandler.on("quizData", quizInfo => {
+					this.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, this, quizInfo.totalQ, quizInfo.quizQuestionAnswers);
+					this.emit("quizStart", this.quiz);
+					this.emit("quiz", this.quiz);
 				});
-				me._wsHandler.on("quizUpdate", updateInfo => {
-					me.quiz.currentQuestion = new Assets.Question(updateInfo, me);
-					me.emit("question", me.quiz.currentQuestion);
+				this._wsHandler.on("quizUpdate", updateInfo => {
+					this.quiz.currentQuestion = new Assets.Question(updateInfo, this);
+					this.emit("question", this.quiz.currentQuestion);
 				});
-				me._wsHandler.on("questionEnd", endInfo => {
-					var e = new Assets.QuestionEndEvent(endInfo, me);
-					me.totalScore = e.total;
-					me.emit("questionEnd", e);
+				this._wsHandler.on("questionEnd", endInfo => {
+					var e = new Assets.QuestionEndEvent(endInfo, this);
+					this.totalScore = e.total;
+					this.emit("questionEnd", e);
 				});
-				me._wsHandler.on("quizEnd", () => {
-					me.emit("quizEnd");
-					me.emit("disconnect");
+				this._wsHandler.on("quizEnd", () => {
+					this.emit("quizEnd");
+					this.emit("disconnect");
 				});
-				me._wsHandler.on("questionStart", () => {
+				this._wsHandler.on("questionStart", () => {
 					try{
-						me.emit("questionStart", me.quiz.currentQuestion);
+						this.emit("questionStart", this.quiz.currentQuestion);
 					}catch(e){
 						//joined during quiz (fixed v 1.1.1)
 					}
 				});
-				me._wsHandler.on("questionSubmit", message => {
-					me.sendingAnswer = false;
-					var e = new Assets.QuestionSubmitEvent(message, me);
-					me.emit("questionSubmit", e);
+				this._wsHandler.on("questionSubmit", message => {
+					this.sendingAnswer = false;
+					var e = new Assets.QuestionSubmitEvent(message, this);
+					this.emit("questionSubmit", e);
 					try {
-						me._qFulfill(e);
+						this._qFulfill(e);
 					} catch(e) { }
 				});
-				me._wsHandler.on("finishText", data => {
+				this._wsHandler.on("finishText", data => {
 					var e = new Assets.FinishTextEvent(data);
-					me.emit("finishText", e);
+					this.emit("finishText", e);
 				});
-				me._wsHandler.on("finish", data => {
-					var e = new Assets.QuizFinishEvent(data, me);
-					me.emit("finish", e);
+				this._wsHandler.on("finish", data => {
+					var e = new Assets.QuizFinishEvent(data, this);
+					this.emit("finish", e);
 				});
-				me._wsHandler.on("feedback", ()=>{
-					me.emit("feedback");
+				this._wsHandler.on("feedback", ()=>{
+					this.emit("feedback");
 				});
 			});
 		}
 	}
 	join(session, name, team) {
-		var me = this;
-		if(me._wsHandler && me._wsHandler.ready){
-			return me._wsHandler.login(name,team);
+		if(this._wsHandler && this._wsHandler.ready){
+			return this._wsHandler.login(name,team);
 		}
 		return new Promise((fulfill, reject) => {
 			if (!session) {
@@ -102,87 +100,85 @@ class Kahoot extends EventEmitter {
 				reject("You need a name to connect to a Kahoot!");
 				return;
 			}
-			me.sessionID = session;
-			me.name = name;
-			me.team = team;
+			this.sessionID = session;
+			this.name = name;
+			this.team = team;
 			token.resolve(session, (resolvedToken,gamemode) => {
-				me.gamemode = gamemode ? gamemode : "classic";
-				me.token = resolvedToken;
-				me._wsHandler = new WSHandler(me.sessionID, me.token, me);
-				me._wsHandler.on("invalidName",()=>{
-					me.emit("invalidName");
+				this.gamemode = gamemode ? gamemode : "classic";
+				this.token = resolvedToken;
+				this._wsHandler = new WSHandler(this.sessionID, this.token, this);
+				this._wsHandler.on("invalidName",()=>{
+					this.emit("invalidName");
 				});
-				me._wsHandler.on("2step",()=>{
-					me.emit("2Step");
+				this._wsHandler.on("2step",()=>{
+					this.emit("2Step");
 				});
-				me._wsHandler.on("ready", () => {
-					me._wsHandler.login(me.name,me.team);
+				this._wsHandler.on("ready", () => {
+					this._wsHandler.login(this.name,this.team);
 				});
-				me._wsHandler.on("joined", () => {
-					me.emit("ready");
-					me.emit("joined");
+				this._wsHandler.on("joined", () => {
+					this.emit("ready");
+					this.emit("joined");
 					fulfill();
 				});
-				me._wsHandler.on("quizData", quizInfo => {
-					me.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, me, quizInfo.totalQ, quizInfo.quizQuestionAnswers);
-					me.emit("quizStart", me.quiz);
-					me.emit("quiz", me.quiz);
+				this._wsHandler.on("quizData", quizInfo => {
+					this.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, this, quizInfo.totalQ, quizInfo.quizQuestionAnswers);
+					this.emit("quizStart", this.quiz);
+					this.emit("quiz", this.quiz);
 				});
-				me._wsHandler.on("quizUpdate", updateInfo => {
-					me.quiz.currentQuestion = new Assets.Question(updateInfo, me);
-					me.emit("question", me.quiz.currentQuestion);
+				this._wsHandler.on("quizUpdate", updateInfo => {
+					this.quiz.currentQuestion = new Assets.Question(updateInfo, this);
+					this.emit("question", this.quiz.currentQuestion);
 				});
-				me._wsHandler.on("questionEnd", endInfo => {
-					var e = new Assets.QuestionEndEvent(endInfo, me);
-					me.totalScore = e.total;
-					me.emit("questionEnd", e);
+				this._wsHandler.on("questionEnd", endInfo => {
+					var e = new Assets.QuestionEndEvent(endInfo, this);
+					this.totalScore = e.total;
+					this.emit("questionEnd", e);
 				});
-				me._wsHandler.on("quizEnd", () => {
-					me.emit("quizEnd");
-					me.emit("disconnect");
+				this._wsHandler.on("quizEnd", () => {
+					this.emit("quizEnd");
+					this.emit("disconnect");
 				});
-				me._wsHandler.on("questionStart", () => {
+				this._wsHandler.on("questionStart", () => {
 					try{
-						me.emit("questionStart", me.quiz.currentQuestion);
+						this.emit("questionStart", this.quiz.currentQuestion);
 					}catch(e){
 						//joined during quiz (fixed v 1.1.1)
 					}
 				});
-				me._wsHandler.on("questionSubmit", message => {
-					me.sendingAnswer = false;
-					var e = new Assets.QuestionSubmitEvent(message, me);
-					me.emit("questionSubmit", e);
+				this._wsHandler.on("questionSubmit", message => {
+					this.sendingAnswer = false;
+					var e = new Assets.QuestionSubmitEvent(message, this);
+					this.emit("questionSubmit", e);
 					try {
-						me._qFulfill(e);
+						this._qFulfill(e);
 					} catch(e) { }
 				});
-				me._wsHandler.on("finishText", data => {
+				this._wsHandler.on("finishText", data => {
 					var e = new Assets.FinishTextEvent(data);
-					me.emit("finishText", e);
+					this.emit("finishText", e);
 				});
-				me._wsHandler.on("finish", data => {
-					var e = new Assets.QuizFinishEvent(data, me);
-					me.emit("finish", e);
+				this._wsHandler.on("finish", data => {
+					var e = new Assets.QuizFinishEvent(data, this);
+					this.emit("finish", e);
 				});
-				me._wsHandler.on("feedback", ()=>{
-					me.emit("feedback");
+				this._wsHandler.on("feedback", ()=>{
+					this.emit("feedback");
 				});
 			});
 		});
 	}
 	answer2Step(steps){
-		var me = this;
 		return new Promise((f,r)=>{
-			me._qFulfill = f;
-			me._wsHandler.send2Step(steps.join(""));
+			this._qFulfill = f;
+			this._wsHandler.send2Step(steps.join(""));
 		});
 	}
 	answerQuestion(id) {
-		var me = this;
 		return new Promise((fulfill, reject) => {
-			me._qFulfill = fulfill;
-			me.sendingAnswer = true;
-			me._wsHandler.sendSubmit(id);
+			this._qFulfill = fulfill;
+			this.sendingAnswer = true;
+			this._wsHandler.sendSubmit(id);
 		});
 	}
 	leave() {

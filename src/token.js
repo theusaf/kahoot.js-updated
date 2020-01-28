@@ -83,8 +83,7 @@ class TokenJS {
 		return token;
 	}
 	static resolve(sessionID, callback) {
-		var me = this;
-		me.requestToken(sessionID, (headerToken, challenge, gamemode) => {
+		this.requestToken(sessionID, (headerToken, challenge, gamemode) => {
 			var token1 = this.decodeBase64(headerToken);
 			var token2 = this.solveChallenge(challenge);
 			var resolvedToken = this.concatTokens(token1, token2);
