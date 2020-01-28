@@ -21,7 +21,7 @@ class TokenJS {
 				// The first token is the session token, which is given as a header by the server encoded in base64
 				// Checking if the header is defined before continuing, basically checking if the room exists.
 				if (!res.headers["x-kahoot-session-token"]) {
-					return console.log("request error:", "Kahoot session header is undefined. (This normally means that the room no longer exists.)")
+					return console.log("request error:", "Kahoot session header is undefined. (This normally means that the room no longer exists.)");
 				}
 				var token1 = res.headers["x-kahoot-session-token"];
 				var body = chunk.toString("utf8");
@@ -34,7 +34,7 @@ class TokenJS {
 					return;
 				}
 				// The second token is given as a "challenge", which must be eval'd by the client to be decoded
-				var challenge = bodyObject.challenge;
+				challenge = bodyObject.challenge;
 				callback(token1, challenge, bodyObject.gameMode);
 			});
 		}).on("error", err => {
@@ -75,10 +75,10 @@ class TokenJS {
 	static concatTokens(headerToken, challengeToken) {
 		// Combine the session token and the challenge token together to get the string needed to connect to the websocket endpoint
 		for (var token = "", i = 0; i < headerToken.length; i++) {
-		    var char = headerToken.charCodeAt(i);
-		    var mod = challengeToken.charCodeAt(i % challengeToken.length);
-		    var decodedChar = char ^ mod;
-		    token += String.fromCharCode(decodedChar);
+			var char = headerToken.charCodeAt(i);
+			var mod = challengeToken.charCodeAt(i % challengeToken.length);
+			var decodedChar = char ^ mod;
+			token += String.fromCharCode(decodedChar);
 		}
 		return token;
 	}

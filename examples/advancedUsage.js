@@ -4,14 +4,14 @@ console.log("Joining kahoot...");
 k.join(7877502 /* Or any other kahoot token */, "kahoot.js").then(() => {
 	console.log("joined quiz");
 	k.on("quizStart", quiz => {
-    	console.log("quiz "" + quiz.name + "" has started");
+		console.log("quiz " + quiz.name + " has started");
 	});
 	k.on("question", question => {
 		console.log("Recieved a new question. waiting until it starts..");
 	});
 	k.on("questionStart", question => {
-	    console.log("question started. answering answer id 1 (answer 2)");
-	    question.answer(1);
+		console.log("question started. answering answer id 1 (answer 2)");
+		question.answer(1);
 	});
 	k.on("questionSubmit", event => {
 		console.log("Submitted the answer. Kahoot says", event.message);
@@ -28,6 +28,6 @@ k.join(7877502 /* Or any other kahoot token */, "kahoot.js").then(() => {
 		console.log("the quiz is finishing, Kahoot says", e.firstMessage);
 	});
 	k.on("quizEnd", () => {
-	    console.log("the quiz ended");
+		console.log("the quiz ended");
 	});
 });

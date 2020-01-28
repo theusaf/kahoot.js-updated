@@ -20,4 +20,4 @@ module.exports = {
 		"websocket",
 		"long-polling"
 	]
-}
+};

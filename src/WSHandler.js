@@ -119,7 +119,7 @@ class WSHandler extends EventEmitter {
 			12: (data, content)=>{
 				me.emit("feedback");
 			}
-		}
+		};
 	}
 	getExt() {
 		return {
@@ -129,7 +129,7 @@ class WSHandler extends EventEmitter {
 				o: 0,
 				tc: (new Date).getTime()
 			}
-		}
+		};
 	}
 	getPacket(packet) {
 		var me = this;
@@ -147,7 +147,7 @@ class WSHandler extends EventEmitter {
 				tc: (new Date).getTime(),
 				l: 0,
 				o: 0
-			}
+			};
 		}
 		me.msgID++;
 		return [{

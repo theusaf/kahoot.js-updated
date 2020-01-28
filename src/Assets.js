@@ -31,7 +31,10 @@ class Question {
 			else {
 				this.client.answerQuestion(number).then(() => {
 					fulfill();
-				}).catch(e=>{reject(),console.log(e)});
+				}).catch(e=>{
+					reject();
+					console.log(e);
+				});
 			}
 		});
 	}
@@ -113,4 +116,4 @@ module.exports = {
 	Nemesis: Nemesis,
 	FinishTextEvent: FinishTextEvent,
 	QuizFinishEvent: QuizFinishEvent
-}
+};

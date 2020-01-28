@@ -84,7 +84,7 @@ class Kahoot extends EventEmitter {
 				});
 				me._wsHandler.on("feedback", ()=>{
 					me.emit("feedback");
-				})
+				});
 			});
 		}
 	}
@@ -166,7 +166,7 @@ class Kahoot extends EventEmitter {
 				});
 				me._wsHandler.on("feedback", ()=>{
 					me.emit("feedback");
-				})
+				});
 			});
 		});
 	}
