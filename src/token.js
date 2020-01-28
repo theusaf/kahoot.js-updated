@@ -1,6 +1,6 @@
 var https = require("https");
 var consts = require("./consts");
-const ua = require('user-agents');
+const ua = require("user-agents");
 
 class TokenJS {
 	static requestToken(sessionID, callback) {
@@ -44,11 +44,11 @@ class TokenJS {
 	}
 	static solveChallenge(challenge) {
 		var solved = "";
-		challenge = challenge.replace(/(\u0009|\u2003)/mg,"");
-		challenge = challenge.replace(/this /mg,"this");
-		challenge = challenge.replace(/ *\. */mg,".");
-		challenge = challenge.replace(/ *\( */mg,"(");
-		challenge = challenge.replace(/ *\) */mg,")");
+		challenge = challenge.replace(/(\u0009|\u2003)/mg, "");
+		challenge = challenge.replace(/this /mg, "this");
+		challenge = challenge.replace(/ *\. */mg, ".");
+		challenge = challenge.replace(/ *\( */mg, "(");
+		challenge = challenge.replace(/ *\) */mg, ")");
 		// Prevent any logging from the challenge, by default it logs some debug info
 		challenge = challenge.replace("console.", "");
 		// Make a few if-statements always return true as the functions are currently missing
@@ -66,9 +66,9 @@ class TokenJS {
 	}
 	static decodeBase64(b64) {
 		// for the session token
-		try{
+		try {
 			return new Buffer(b64, "base64").toString("ascii");
-		}catch(e){
+		} catch (e) {
 			console.log("Error! (Most likely not a kahoot game)");
 		}
 	}

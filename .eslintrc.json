@@ -14,7 +14,8 @@
 		"no-unused-vars": ["error", {"args": "none"}],
 		"no-empty": "off",
 		"no-control-regex": "off",
-		"indent": ["error", "tab"]
+		"indent": ["error", "tab"],
+		"quotes": ["error", "double", {"avoidEscape": true}]
 	},
 	"overrides": [
 		{

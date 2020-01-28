@@ -32,10 +32,16 @@ class WSHandler extends EventEmitter {
 		});
 		this.dataHandler = {
 			1: (data, content) => {
-				try{
+				try {
 					//if joining during the quiz
-					if(!this.kahoot.quiz){
-						this.emit("quizData",{name: null, type: content.quizType, qCount: content.quizQuestionAnswers[0], totalQ: content.quizQuestionAnswers.length, quizQuestionAnswers: content.quizQuestionAnswers});
+					if (!this.kahoot.quiz) {
+						this.emit("quizData", {
+							name: null,
+							type: content.quizType,
+							qCount: content.quizQuestionAnswers[0],
+							totalQ: content.quizQuestionAnswers.length,
+							quizQuestionAnswers: content.quizQuestionAnswers
+						});
 					}
 					if (!this.kahoot.quiz.currentQuestion) {
 						this.emit("quizUpdate", {
@@ -54,7 +60,7 @@ class WSHandler extends EventEmitter {
 							ansMap: content.answerMap
 						});
 					}
-				}catch(e){
+				} catch (e) {
 					console.log("BEGIN_QUIZ_ERROR"); //You should never see this error...
 				}
 			},
@@ -115,7 +121,7 @@ class WSHandler extends EventEmitter {
 					msg2: content.secondaryMessage
 				});
 			},
-			12: (data, content)=>{
+			12: (data, content) => {
 				this.emit("feedback");
 			}
 		};
@@ -131,8 +137,8 @@ class WSHandler extends EventEmitter {
 		};
 	}
 	getPacket(packet) {
-		var l,o;
-		try{
+		var l, o;
+		try {
 			l = Math.round(((new Date).getTime() - packet.ext.timesync.tc - packet.ext.timesync.p) / 2);
 			o = (packet.ext.timesync.ts - packet.ext.timesync.tc - l);
 			this.timesync = {
@@ -140,7 +146,7 @@ class WSHandler extends EventEmitter {
 				l: l,
 				o: o
 			};
-		}catch(err){
+		} catch (err) {
 			this.timesync = {
 				tc: (new Date).getTime(),
 				l: 0,
@@ -183,7 +189,7 @@ class WSHandler extends EventEmitter {
 			id: this.msgID + ""
 		}];
 		// for question type "open_ended," expect a string.
-		if(typeof(questionChoice) == "string"){
+		if (typeof(questionChoice) == "string") {
 			r[0].data.content = JSON.stringify({
 				text: questionChoice,
 				questionIndex: this.kahoot.quiz.currentQuestion.index,
@@ -195,20 +201,20 @@ class WSHandler extends EventEmitter {
 		return r;
 	}
 	send(msg) {
-		return new Promise((res,rej)=>{
+		return new Promise((res, rej) => {
 			if (this.connected) {
 				try {
 					//console.log("U " + JSON.stringify(msg));
-					this.ws.send(JSON.stringify(msg),res);
-				} catch(e) { }
+					this.ws.send(JSON.stringify(msg), res);
+				} catch (e) {}
 			}
 		});
 	}
 	sendSubmit(questionChoice) {
 		var packet = this.getSubmitPacket(questionChoice);
-		this.send(packet).then(()=>{
-			const snark = ["Toooo fast?","Genius machine?","Pure luck or true genius?"];
-			this.emit("questionSubmit",snark[Math.floor(Math.random()*snark.length)]);
+		this.send(packet).then(() => {
+			const snark = ["Toooo fast?", "Genius machine?", "Pure luck or true genius?"];
+			this.emit("questionSubmit", snark[Math.floor(Math.random() * snark.length)]);
 		});
 	}
 	open() {
@@ -245,12 +251,14 @@ class WSHandler extends EventEmitter {
 		if (data.channel == consts.CHANNEL_HANDSHAKE && data.clientId) { // The server sent a handshake packet
 			this.clientID = data.clientId;
 			var r = this.getPacket(data)[0];
-			r.advice = {timeout: 0};
+			r.advice = {
+				timeout: 0
+			};
 			r.channel = "/meta/connect";
 			r.connectionType = "websocket";
 			r.ext.ack = 0;
 			this.send([r]);
-		} else if(data.channel == consts.CHANNEL_CONN && data.advice && data.advice.reconnect && data.advice.reconnect == "retry"){
+		} else if (data.channel == consts.CHANNEL_CONN && data.advice && data.advice.reconnect && data.advice.reconnect == "retry") {
 			//connect packet
 			var connectionPacket = {
 				ext: {
@@ -265,19 +273,19 @@ class WSHandler extends EventEmitter {
 			this.send(connectionPacket);
 			this.emit("ready");
 			this.ready = true;
-		}else if (data.channel == consts.CHANNEL_SUBSCR) {
+		} else if (data.channel == consts.CHANNEL_SUBSCR) {
 			if (data.subscription == "/service/controller" && data.successful == true && !this.ready) {
 				this.emit("ready");
 				this.ready = true;
 			}
 		} else if (data.data) {
 			if (data.data.error) {
-				if(data.data.type && data.data.type == "loginResponse"){
+				if (data.data.type && data.data.type == "loginResponse") {
 					return this.emit("invalidName");
 				}
-				try{
+				try {
 					this.emit("error", data.data.error); //error here if stuff
-				}catch(er){
+				} catch (er) {
 					//error. usually due to username taken
 				}
 				return;
@@ -313,7 +321,7 @@ class WSHandler extends EventEmitter {
 			}
 		}
 	}
-	send2Step(steps){
+	send2Step(steps) {
 		var packet = [{
 			channel: "/service/controller",
 			clientId: this.clientID,
@@ -330,7 +338,7 @@ class WSHandler extends EventEmitter {
 		}];
 		this.send(packet);
 	}
-	sendFeedback(fun,learning,recommend,overall){
+	sendFeedback(fun, learning, recommend, overall) {
 		var packet = [{
 			channel: "/service/controller",
 			clientId: this.clientID,
@@ -352,9 +360,11 @@ class WSHandler extends EventEmitter {
 		}];
 		this.send(packet);
 	}
-	relog(cid){
-		if(!this.ready){
-			setTimeout(()=>{this.relog(cid);},500);
+	relog(cid) {
+		if (!this.ready) {
+			setTimeout(() => {
+				this.relog(cid);
+			}, 500);
 			return;
 		}
 		this.msgID++;
@@ -363,7 +373,15 @@ class WSHandler extends EventEmitter {
 			clientId: this.clientID,
 			data: {
 				cid: cid,
-				content: JSON.stringify({device:{userAgent:"kahoot.js",screen:{width:2000,height:1000}}}),
+				content: JSON.stringify({
+					device: {
+						userAgent: "kahoot.js",
+						screen: {
+							width: 2000,
+							height: 1000
+						}
+					}
+				}),
 				gameid: this.gameID,
 				host: "kahoot.it",
 				type: "relogin"
@@ -373,9 +391,11 @@ class WSHandler extends EventEmitter {
 		};
 		this.send([packet]);
 	}
-	login(name,team) {
-		if(!this.ready){
-			setTimeout(()=>{this.login(name);},500);
+	login(name, team) {
+		if (!this.ready) {
+			setTimeout(() => {
+				this.login(name);
+			}, 500);
 			return;
 		}
 		this.name = name;
@@ -395,12 +415,12 @@ class WSHandler extends EventEmitter {
 		}];
 		this.msgID++;
 		this.send(joinPacket);
-		if(this.kahoot.gamemode == "team"){
+		if (this.kahoot.gamemode == "team") {
 			const joinPacket2 = [{
 				channel: "/service/controller",
 				clientId: this.clientID,
 				data: {
-					content: JSON.stringify(team && typeof(team.push) == "function" && team.length ? team : ["Player 1","Player 2","Player 3","Player 4"]),
+					content: JSON.stringify(team && typeof(team.push) == "function" && team.length ? team : ["Player 1", "Player 2", "Player 3", "Player 4"]),
 					gameid: this.gameID,
 					host: consts.ENDPOINT_URI,
 					id: 18,
@@ -418,9 +438,13 @@ class WSHandler extends EventEmitter {
 		this.connected = false;
 		this.emit("close");
 	}
-	leave(){
+	leave() {
 		this.msgID++;
-		try{this.timesync.tc = Date.now();}catch(err){console.log(err);}
+		try {
+			this.timesync.tc = Date.now();
+		} catch (err) {
+			console.log(err);
+		}
 		//console.log(me.timesync);
 		this.send([{
 			channel: "/meta/disconnect",
@@ -429,7 +453,9 @@ class WSHandler extends EventEmitter {
 				timesync: this.timesync
 			},
 			id: this.msgID + ""
-		}]).then(setTimeout(()=>{this.ws.close();},500));
+		}]).then(setTimeout(() => {
+			this.ws.close();
+		}, 500));
 	}
 }
 module.exports = WSHandler;

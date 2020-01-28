@@ -20,16 +20,16 @@ class Kahoot extends EventEmitter {
 		this.gamemode = null;
 		this.cid = "";
 	}
-	reconnect(){
-		if(this.sessionID && this.cid && this._wsHandler && this._wsHandler.ws.readyState >= 2){
-			token.resolve(this.sessionID, (resolvedToken,gamemode) => {
+	reconnect() {
+		if (this.sessionID && this.cid && this._wsHandler && this._wsHandler.ws.readyState >= 2) {
+			token.resolve(this.sessionID, (resolvedToken, gamemode) => {
 				this.gamemode = gamemode ? gamemode : "classic";
 				this.token = resolvedToken;
 				this._wsHandler = new WSHandler(this.sessionID, this.token, this);
-				this._wsHandler.on("invalidName",()=>{
+				this._wsHandler.on("invalidName", () => {
 					this.emit("invalidName");
 				});
-				this._wsHandler.on("2step",()=>{
+				this._wsHandler.on("2step", () => {
 					this.emit("2Step");
 				});
 				this._wsHandler.on("ready", () => {
@@ -59,9 +59,9 @@ class Kahoot extends EventEmitter {
 					this.emit("disconnect");
 				});
 				this._wsHandler.on("questionStart", () => {
-					try{
+					try {
 						this.emit("questionStart", this.quiz.currentQuestion);
-					}catch(e){
+					} catch (e) {
 						//joined during quiz (fixed v 1.1.1)
 					}
 				});
@@ -71,7 +71,7 @@ class Kahoot extends EventEmitter {
 					this.emit("questionSubmit", e);
 					try {
 						this._qFulfill(e);
-					} catch(e) { }
+					} catch (e) {}
 				});
 				this._wsHandler.on("finishText", data => {
 					var e = new Assets.FinishTextEvent(data);
@@ -81,15 +81,15 @@ class Kahoot extends EventEmitter {
 					var e = new Assets.QuizFinishEvent(data, this);
 					this.emit("finish", e);
 				});
-				this._wsHandler.on("feedback", ()=>{
+				this._wsHandler.on("feedback", () => {
 					this.emit("feedback");
 				});
 			});
 		}
 	}
 	join(session, name, team) {
-		if(this._wsHandler && this._wsHandler.ready){
-			return this._wsHandler.login(name,team);
+		if (this._wsHandler && this._wsHandler.ready) {
+			return this._wsHandler.login(name, team);
 		}
 		return new Promise((fulfill, reject) => {
 			if (!session) {
@@ -103,18 +103,18 @@ class Kahoot extends EventEmitter {
 			this.sessionID = session;
 			this.name = name;
 			this.team = team;
-			token.resolve(session, (resolvedToken,gamemode) => {
+			token.resolve(session, (resolvedToken, gamemode) => {
 				this.gamemode = gamemode ? gamemode : "classic";
 				this.token = resolvedToken;
 				this._wsHandler = new WSHandler(this.sessionID, this.token, this);
-				this._wsHandler.on("invalidName",()=>{
+				this._wsHandler.on("invalidName", () => {
 					this.emit("invalidName");
 				});
-				this._wsHandler.on("2step",()=>{
+				this._wsHandler.on("2step", () => {
 					this.emit("2Step");
 				});
 				this._wsHandler.on("ready", () => {
-					this._wsHandler.login(this.name,this.team);
+					this._wsHandler.login(this.name, this.team);
 				});
 				this._wsHandler.on("joined", () => {
 					this.emit("ready");
@@ -140,9 +140,9 @@ class Kahoot extends EventEmitter {
 					this.emit("disconnect");
 				});
 				this._wsHandler.on("questionStart", () => {
-					try{
+					try {
 						this.emit("questionStart", this.quiz.currentQuestion);
-					}catch(e){
+					} catch (e) {
 						//joined during quiz (fixed v 1.1.1)
 					}
 				});
@@ -152,7 +152,7 @@ class Kahoot extends EventEmitter {
 					this.emit("questionSubmit", e);
 					try {
 						this._qFulfill(e);
-					} catch(e) { }
+					} catch (e) {}
 				});
 				this._wsHandler.on("finishText", data => {
 					var e = new Assets.FinishTextEvent(data);
@@ -162,15 +162,15 @@ class Kahoot extends EventEmitter {
 					var e = new Assets.QuizFinishEvent(data, this);
 					this.emit("finish", e);
 				});
-				this._wsHandler.on("feedback", ()=>{
+				this._wsHandler.on("feedback", () => {
 					this.emit("feedback");
 				});
 			});
 		});
 	}
-	answer2Step(steps){
-		return new Promise((f,r)=>{
-			this._qFulfill = f;
+	answer2Step(steps) {
+		return new Promise((fulfill, reject) => {
+			this._qFulfill = fulfill;
 			this._wsHandler.send2Step(steps.join(""));
 		});
 	}
@@ -188,9 +188,9 @@ class Kahoot extends EventEmitter {
 		});
 	}
 	//content: "{"totalScore":0,"fun":5,"learning":1,"recommend":1,"overall":1,"nickname":"oof"}"
-	sendFeedback(fun,learning,recommend,overall){
-		return new Promise((f,r)=>{
-			this._wsHandler.sendFeedback(fun,learning,recommend,overall);
+	sendFeedback(fun, learning, recommend, overall) {
+		return new Promise((f, r) => {
+			this._wsHandler.sendFeedback(fun, learning, recommend, overall);
 		});
 	}
 }
