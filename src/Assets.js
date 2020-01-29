@@ -18,7 +18,7 @@ class Question {
 		this.quiz = client.quiz;
 		this.index = rawEvent.questionIndex;
 		this.timeLeft = rawEvent.timeLeft;
-		this.type = rawEvent.type,
+		this.type = rawEvent.type;
 		this.usesStoryBlocks = rawEvent.useStoryBlocks;
 		this.ended = false;
 		this.quiz.questions.push(this);
@@ -31,14 +31,17 @@ class Question {
 			else {
 				this.client.answerQuestion(number).then(() => {
 					fulfill();
-				}).catch(e=>{reject(),console.log(e)});
+				}).catch(e => {
+					reject();
+					console.log(e);
+				});
 			}
 		});
 	}
 }
 class QuestionEndEvent {
 	constructor(rawEvent, client) {
-		try{
+		try {
 			this.client = client;
 			this.quiz = client.quiz;
 			this.question = this.quiz.questions[this.quiz.questions.length - 1];
@@ -53,7 +56,7 @@ class QuestionEndEvent {
 			this.points = rawEvent.points;
 			this.rank = rawEvent.rank;
 			this.total = rawEvent.totalScore;
-		}catch(e){
+		} catch (e) {
 			console.log("GET_END_EVT_ERR"); //this error will usually only happen if you join during the game.
 		}
 	}
@@ -113,4 +116,4 @@ module.exports = {
 	Nemesis: Nemesis,
 	FinishTextEvent: FinishTextEvent,
 	QuizFinishEvent: QuizFinishEvent
-}
+};

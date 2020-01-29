@@ -1,6 +1,6 @@
 var https = require("https");
 var consts = require("./consts");
-const ua = require('user-agents');
+const ua = require("user-agents");
 
 class TokenJS {
 	static requestToken(sessionID, callback) {
@@ -21,7 +21,7 @@ class TokenJS {
 				// The first token is the session token, which is given as a header by the server encoded in base64
 				// Checking if the header is defined before continuing, basically checking if the room exists.
 				if (!res.headers["x-kahoot-session-token"]) {
-					return console.log("request error:", "Kahoot session header is undefined. (This normally means that the room no longer exists.)")
+					return console.log("request error:", "Kahoot session header is undefined. (This normally means that the room no longer exists.)");
 				}
 				var token1 = res.headers["x-kahoot-session-token"];
 				var body = chunk.toString("utf8");
@@ -34,7 +34,7 @@ class TokenJS {
 					return;
 				}
 				// The second token is given as a "challenge", which must be eval'd by the client to be decoded
-				var challenge = bodyObject.challenge;
+				challenge = bodyObject.challenge;
 				callback(token1, challenge, bodyObject.gameMode);
 			});
 		}).on("error", err => {
@@ -44,11 +44,11 @@ class TokenJS {
 	}
 	static solveChallenge(challenge) {
 		var solved = "";
-		challenge = challenge.replace(/(\u0009|\u2003)/mg,"");
-		challenge = challenge.replace(/this /mg,"this");
-		challenge = challenge.replace(/ *\. */mg,".");
-		challenge = challenge.replace(/ *\( */mg,"(");
-		challenge = challenge.replace(/ *\) */mg,")");
+		challenge = challenge.replace(/(\u0009|\u2003)/mg, "");
+		challenge = challenge.replace(/this /mg, "this");
+		challenge = challenge.replace(/ *\. */mg, ".");
+		challenge = challenge.replace(/ *\( */mg, "(");
+		challenge = challenge.replace(/ *\) */mg, ")");
 		// Prevent any logging from the challenge, by default it logs some debug info
 		challenge = challenge.replace("console.", "");
 		// Make a few if-statements always return true as the functions are currently missing
@@ -66,25 +66,24 @@ class TokenJS {
 	}
 	static decodeBase64(b64) {
 		// for the session token
-		try{
+		try {
 			return new Buffer(b64, "base64").toString("ascii");
-		}catch(e){
+		} catch (e) {
 			console.log("Error! (Most likely not a kahoot game)");
 		}
 	}
 	static concatTokens(headerToken, challengeToken) {
 		// Combine the session token and the challenge token together to get the string needed to connect to the websocket endpoint
 		for (var token = "", i = 0; i < headerToken.length; i++) {
-		    var char = headerToken.charCodeAt(i);
-		    var mod = challengeToken.charCodeAt(i % challengeToken.length);
-		    var decodedChar = char ^ mod;
-		    token += String.fromCharCode(decodedChar);
+			var char = headerToken.charCodeAt(i);
+			var mod = challengeToken.charCodeAt(i % challengeToken.length);
+			var decodedChar = char ^ mod;
+			token += String.fromCharCode(decodedChar);
 		}
 		return token;
 	}
 	static resolve(sessionID, callback) {
-		var me = this;
-		me.requestToken(sessionID, (headerToken, challenge, gamemode) => {
+		this.requestToken(sessionID, (headerToken, challenge, gamemode) => {
 			var token1 = this.decodeBase64(headerToken);
 			var token2 = this.solveChallenge(challenge);
 			var resolvedToken = this.concatTokens(token1, token2);
