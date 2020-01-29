@@ -1,6 +1,7 @@
 const EventEmitter = require("events");
 var Promise = require("promise");
 var WebSocket = require("ws");
+const userAgents = require('user-agents');
 var consts = require("./consts.js");
 
 class WSHandler extends EventEmitter {
@@ -375,7 +376,7 @@ class WSHandler extends EventEmitter {
 				cid: cid,
 				content: JSON.stringify({
 					device: {
-						userAgent: "kahoot.js",
+						userAgent: new userAgents().toString(),
 						screen: {
 							width: 2000,
 							height: 1000
@@ -403,7 +404,7 @@ class WSHandler extends EventEmitter {
 			channel: "/service/controller",
 			clientId: this.clientID,
 			data: {
-				content: '{"device":{"userAgent":"kahoot.js","screen":{"width":1280,"height":800}}}',
+				content: '{"device":{"userAgent":"' + new userAgents().toString() + '","screen":{"width":1280,"height":800}}}',
 				gameid: this.gameID,
 				host: consts.ENDPOINT_URI,
 				name: this.name,

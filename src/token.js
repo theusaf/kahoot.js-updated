@@ -67,7 +67,7 @@ class TokenJS {
 	static decodeBase64(b64) {
 		// for the session token
 		try {
-			return new Buffer(b64, "base64").toString("ascii");
+			return new Buffer.from(b64, "base64").toString("ascii");
 		} catch (e) {
 			console.log("Error! (Most likely not a kahoot game)");
 		}
