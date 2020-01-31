@@ -1,7 +1,7 @@
 const EventEmitter = require("events");
 var Promise = require("promise");
 var WebSocket = require("ws");
-const userAgents = require('user-agents');
+const userAgents = require("user-agents");
 var consts = require("./consts.js");
 
 class WSHandler extends EventEmitter {
