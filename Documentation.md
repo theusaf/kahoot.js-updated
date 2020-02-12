@@ -81,9 +81,6 @@
     - [exists](#nemesis.properties.exists)
 8. [FinishTextEvent](#finishtextevent)
   - [Properties](#finishtextevent.properties)
-    - [firstMessage](#finishtextevent.properties.firstMessage)
-    - [secondMessage](#finishtextevent.properties.secondMessage)
-    - [messages](#finishtextevent.properties.messages)
     - [metal](#finishtextevent.properties.metal)
 9. [QuizFinishEvent](#quizfinishevent)
   - [Properties](#quizfinishevent.properties)
@@ -441,17 +438,6 @@ The kahoot client that interacts with kahoot's quiz api.
 ---
 <a name="finishtextevent.properties"></a>
 #### Properties
-<a name="finishtextevent.properties.firstMessage"></a>
-`firstMessage (String)`
-- The first finishing message sent by Kahoot.
-
-<a name="finishtextevent.properties.secondMessage"></a>
-`secondMessage (String)`
-- The second message sent by Kahoot. (this property will be `undefined` if a second message was not sent.)
-
-<a name="finishtextevent.properties.messages"></a>
-`messages (String Array)`
-- An array of the messages sent.
 
 <a name="finishtextevent.properties.metal"></a>
 `metal (String)`

@@ -88,12 +88,6 @@ class Nemesis {
 }
 class FinishTextEvent {
 	constructor(rawEvent) {
-		this.fistMessage = rawEvent.msg1;
-		this.secondMessage = rawEvent.msg2;
-		this.messages = [
-			this.firstMessage,
-			this.secondMessage
-		];
 		this.metal = rawEvent.metal;
 	}
 }
