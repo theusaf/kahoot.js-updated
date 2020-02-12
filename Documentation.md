@@ -66,19 +66,18 @@
     - [nemesis](#questionendevent.properties.nemesis)
     - [points](#questionendevent.properties.points)
     - [rank](#questionendevent.properties.rank)
+    - [streak](#questionendevent.properties.streak)
     - [total](#questionendevent.properties.total)
 6. [QuestionSubmitEvent](#questionsubmitevent)
   - [Properties](#questionsubmitevent.properties)
-    - [message](#questionsubmitevent.properties.message)
+    - [index](#questionsubmitevent.properties.index)
     - [client](#questionsubmitevent.properties.client)
     - [quiz](#questionsubmitevent.properties.quiz)
     - [question](#questionsubmitevent.properties.question)
 7. [Nemesis](#nemesis)
   - [Properties](#nemesis.properties)
     - [name](#nemesis.properties.name)
-    - [id](#nemesis.properties.id)
     - [score](#nemesis.properties.score)
-    - [isKicked](#nemesis.properties.isKicked)
     - [exists](#nemesis.properties.exists)
 8. [FinishTextEvent](#finishtextevent)
   - [Properties](#finishtextevent.properties)
@@ -386,6 +385,10 @@ The kahoot client that interacts with kahoot's quiz api.
 `points (Number)`
 - The points earned from this question.
 
+<a name="questionendevent.properties.streak"></a>
+`streak (Number)`
+- The current correct streak.
+
 <a name="questionendevent.properties.rank"></a>
 `rank (Number)`
 - The rank of the client
@@ -398,9 +401,9 @@ The kahoot client that interacts with kahoot's quiz api.
 ---
 <a name="questionsubmitevent.properties"></a>
 #### Properties
-<a name="questionsubmitevent.properties.message"></a>
-`message (String)`
-- The message sent by Kahoot after you sent in an answer.
+<a name="questionsubmitevent.properties.index"></a>
+`index (Number)`
+- The question index number.
 
 <a name="questionsubmitevent.properties.client"></a>
 `client (Kahoot)`
@@ -422,17 +425,13 @@ The kahoot client that interacts with kahoot's quiz api.
 `name (String)`
 - The name of the nemesis user.
 
-<a name="nemesis.properties.id"></a>
-`id (Number / String)`
-- The client ID of the nemesis user
-
 <a name="nemesis.properties.score"></a>
 `score (Number)`
 - The score of the nemesis user.
 
-<a name="nemesis.properties.isKicked"></a>
-`isKicked (Boolean)`
-- Whether or not the nemesis user is kicked or not.
+<a name="nemesis.properties.isGhost"></a>
+`isGhost (Boolean)`
+- Whether or not the nemesis user is a ghost player or not.
 
 <a name="nemesis.properties.exists"></a>
 `exists (Boolean)`

@@ -56,6 +56,7 @@ class QuestionEndEvent {
 			this.points = rawEvent.points;
 			this.rank = rawEvent.rank;
 			this.total = rawEvent.totalScore;
+			this.streak = rawEvent.pointsData.answerStreakPoints.streakLevel;
 		} catch (e) {
 			console.log("GET_END_EVT_ERR"); //this error will usually only happen if you join during the game.
 		}
@@ -63,19 +64,18 @@ class QuestionEndEvent {
 }
 class QuestionSubmitEvent {
 	constructor(message, client) {
-		this.message = message;
+		this.questionIndex = message;
 		this.client = client;
 		this.quiz = client.quiz;
-		this.question = this.quiz.questions[this.quiz.questions.length - 1];
+		this.question = this.quiz.questions[this.quiz.questions.length - 1]; // not entirely sure what this is, but ok.
 	}
 }
 class Nemesis {
 	constructor(rawData) {
 		if (rawData) {
 			this.name = rawData.name;
-			this.id = rawData.cid;
 			this.score = rawData.totalScore;
-			this.isKicked = rawData.isKicked;
+			this.isGhost = rawData.isGhost;
 			this.exists = true;
 		} else {
 			this.name = null;

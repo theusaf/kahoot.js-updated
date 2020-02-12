@@ -77,8 +77,8 @@ class WSHandler extends EventEmitter {
 					incorrect: content.incorrectCount
 				});
 			},
-			7: (data, content) => { // Appears to be removed in V2
-				this.emit("questionSubmit", content.primaryMessage);
+			4: (data, content) => {
+				this.emit("questionSubmit", content.questionNumber);
 			},
 			8: (data, content) => {
 				// console.log(data);
@@ -89,7 +89,6 @@ class WSHandler extends EventEmitter {
 					pointsData: content.pointsData,
 					rank: content.rank,
 					nemesis: content.nemesis,
-					hasNemesis: content.nemisisIsGhost,
 					text: content.text,
 					totalScore: content.totalScore
 				});
@@ -117,9 +116,7 @@ class WSHandler extends EventEmitter {
 			},
 			13: (data, content) => {
 				this.emit("finishText", {
-					metal: content.podiumMedalType,
-					msg1: content.primaryMessage,
-					msg2: content.secondaryMessage
+					metal: content.podiumMedalType
 				});
 			},
 			12: (data, content) => {
