@@ -78,7 +78,7 @@ class WSHandler extends EventEmitter {
 				});
 			},
 			4: (data, content) => {
-				this.emit("questionSubmit", content.questionNumber);
+				// this.emit("questionSubmit", content.questionNumber);
 			},
 			8: (data, content) => {
 				// console.log(data);
