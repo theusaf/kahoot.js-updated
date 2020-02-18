@@ -12,6 +12,8 @@
     - [finish](#kahoot.events.finish)
     - [finishText](#kahoot.events.finishText)
     - [2Step](#kahoot.events.2Step)
+    - [2StepFail](#kahoot.events.2StepFail)
+    - [2StepSuccess](#kahoot.events.2StepSuccess)
     - [feedback](#kahoot.events.feedback)
     - [invalidName](#kahoot.events.invalidName)
   - [Methods](#kahoot.methods)
@@ -32,6 +34,9 @@
     - [totalScore](#kahoot.properties.totalScore)
     - [cid](#kahoot.properties.cid)
     - [team](#kahoot.properties.team)
+    - [hasTwoFactorAuth](#kahoot.properties.hasTwoFactorAuth)
+    - [usesNamerator](#kahoot.properties.usesNamerator)
+    - [gamemode](#kahoot.properties.gamemode)
 3. [Quiz](#quiz)
   - [Properties](#quiz.properties)
     - [client](#quiz.properties.client)
@@ -70,7 +75,7 @@
     - [total](#questionendevent.properties.total)
 6. [QuestionSubmitEvent](#questionsubmitevent)
   - [Properties](#questionsubmitevent.properties)
-    - [message](#questionsubmitevent.properties.message)
+    - [questionIndex](#questionsubmitevent.properties.questionIndex)
     - [client](#questionsubmitevent.properties.client)
     - [quiz](#questionsubmitevent.properties.quiz)
     - [question](#questionsubmitevent.properties.question)
@@ -147,6 +152,14 @@ The kahoot client that interacts with kahoot's quiz api.
 `on('2Step')`
 - Emitted when the 2 Step Auth is recieved
 - Emitted when the 2 Step Auth is refreshed
+
+<a name="kahoot.events.2StepFail"></a>
+`on('2StepFail')`
+- Emitted when the 2 Step Auth is incorrect
+
+<a name="kahoot.events.2StepSuccess"></a>
+`on('2Step')`
+- Emitted when the 2 Step Auth is correct
 
 <a name="kahoot.events.feedback"></a>
 `on('feedback')`
@@ -253,6 +266,20 @@ The kahoot client that interacts with kahoot's quiz api.
 <a name="kahoot.properties.team"></a>
 `team (Array) [String]`
 - The team member names.
+
+<a name="kahoot.properties.gamemode"></a>
+`gamemode (String)`
+- The game mode of the kahoot.
+  - `classic` - normal kahoot game.
+  - `team` - kahoot game with teams.
+
+<a name="kahoot.properties.usesNamerator"></a>
+`usesNamerator (Boolean)`
+- Whether the kahoot is using the namerator.
+
+<a name="kahoot.properties.hasTwoFactorAuth"></a>
+`hasTwoFactorAuth (Boolean)`
+- Whether the kahoot is using two factor authentification.
 
 ### Quiz
 ---
@@ -398,9 +425,9 @@ The kahoot client that interacts with kahoot's quiz api.
 ---
 <a name="questionsubmitevent.properties"></a>
 #### Properties
-<a name="questionsubmitevent.properties.message"></a>
-`message (String)`
-- The message sent by kahoot after submitting.
+<a name="questionsubmitevent.properties.questionIndex"></a>
+`questionIndex (Number)`
+- The quesiton index sent by kahoot after submitting.
 
 <a name="questionsubmitevent.properties.client"></a>
 `client (Kahoot)`

@@ -78,7 +78,7 @@ class WSHandler extends EventEmitter {
 				});
 			},
 			4: (data, content) => {
-				// this.emit("questionSubmit", content.questionNumber);
+				this.emit("questionSubmit", content.questionNumber);
 			},
 			8: (data, content) => {
 				// console.log(data);
@@ -121,6 +121,19 @@ class WSHandler extends EventEmitter {
 			},
 			12: (data, content) => {
 				this.emit("feedback");
+			},
+			52: () => {
+				if(!this.finished2Step){
+					this.finished2Step = true;
+					this.emit("2StepSuccess");
+				}
+			},
+			53: () => {
+				this.requires2Step = true;
+				this.emit("2Step");
+			},
+			51: ()=>{
+				this.emit("2StepFail");
 			}
 		};
 	}
@@ -199,10 +212,10 @@ class WSHandler extends EventEmitter {
 		return r;
 	}
 	send(msg) {
+		// console.log("U: " + JSON.stringify(msg));
 		return new Promise((res, rej) => {
 			if (this.connected) {
 				try {
-					//console.log("U " + JSON.stringify(msg));
 					this.ws.send(JSON.stringify(msg), res);
 				} catch (e) {}
 			}
@@ -210,10 +223,7 @@ class WSHandler extends EventEmitter {
 	}
 	sendSubmit(questionChoice) {
 		var packet = this.getSubmitPacket(questionChoice);
-		this.send(packet).then(() => {
-			const snark = ["Toooo fast?", "Genius machine?", "Pure luck or true genius?"];
-			this.emit("questionSubmit", snark[Math.floor(Math.random() * snark.length)]);
-		});
+		this.send(packet);
 	}
 	open() {
 		this.connected = true;
@@ -244,7 +254,7 @@ class WSHandler extends EventEmitter {
 		this.send(r);
 	}
 	message(msg) {
-		//console.log("D " + msg);
+		// console.log("D: " + msg);
 		var data = JSON.parse(msg)[0];
 		if (data.channel == consts.CHANNEL_HANDSHAKE && data.clientId) { // The server sent a handshake packet
 			this.clientID = data.clientId;
@@ -268,14 +278,13 @@ class WSHandler extends EventEmitter {
 			connectionPacket.channel = consts.CHANNEL_CONN;
 			connectionPacket.clientId = this.clientID;
 			connectionPacket.connectionType = "websocket";
-			this.send(connectionPacket);
-			this.emit("ready");
-			this.ready = true;
-		} else if (data.channel == consts.CHANNEL_SUBSCR) {
-			if (data.subscription == "/service/controller" && data.successful == true && !this.ready) {
+			this.send([connectionPacket]);
+			// Added a 0.5 second delay before joining - should solve most issues with joining kahoot.
+			// Reasoning: Kahoot likely added some kind of check to see how fast a player tries to join.
+			setTimeout(()=>{
 				this.emit("ready");
 				this.ready = true;
-			}
+			},500);
 		} else if (data.data) {
 			if (data.data.error) {
 				if (data.data.type && data.data.type == "loginResponse") {
@@ -302,21 +311,10 @@ class WSHandler extends EventEmitter {
 				}
 			}
 		}
-		if (data.ext && data.channel == "/meta/connect" && this.ready) {
+		if (data.ext && data.channel == "/meta/connect" && !data.advice && this.ready) {
 			var packet = this.getPacket(data)[0];
 			packet.connectionType = "websocket";
 			this.send([packet]);
-		}
-		/*if(data.channel == "/service/player"){
-			console.log(data.data);
-		}*/
-		if (!this.finished2Step && data.channel == "/service/player" && data.data) {
-			if (data.data.id == 52) {
-				this.finished2Step = true;
-			} else if (data.data.id == 53) {
-				this.requires2Step = true;
-				this.emit("2step");
-			}
 		}
 	}
 	send2Step(steps) {
@@ -409,7 +407,7 @@ class WSHandler extends EventEmitter {
 			},
 			ext: {},
 			participantUserId: null,
-			id: this.msgID + ""
+			id: ++this.msgID + ""
 		}];
 		this.msgID++;
 		this.send(joinPacket);

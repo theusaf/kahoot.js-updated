@@ -64,10 +64,10 @@ class QuestionEndEvent {
 }
 class QuestionSubmitEvent {
 	constructor(message, client) {
-		this.message = message;
+		this.questionIndex = message;
 		this.client = client;
 		this.quiz = client.quiz;
-		this.question = this.quiz.questions[this.quiz.questions.length - 1]; // not entirely sure what this is, but ok.
+		this.question = this.quiz.questions[this.quiz.questions.length - 1];
 	}
 }
 class Nemesis {

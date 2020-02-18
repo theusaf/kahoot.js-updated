@@ -23,13 +23,21 @@ class Kahoot extends EventEmitter {
 	reconnect() {
 		if (this.sessionID && this.cid && this._wsHandler && this._wsHandler.ws.readyState >= 2) {
 			token.resolve(this.sessionID, (resolvedToken, gamemode) => {
-				this.gamemode = gamemode ? gamemode : "classic";
+				this.gamemode = content.gamemode || "classic";
+				this.hasTwoFactorAuth = content.twoFactorAuth || false;
+				this.usesNamerator = content.namerator || false;
 				this.token = resolvedToken;
 				this._wsHandler = new WSHandler(this.sessionID, this.token, this);
 				this._wsHandler.on("invalidName", () => {
 					this.emit("invalidName");
 				});
-				this._wsHandler.on("2step", () => {
+				this._wsHandler.on("2StepFail",()=>{
+					this.emit("2StepFail");
+				});
+				this._wsHandler.on("2StepSuccess",()=>{
+					this.emit("2StepSuccess");
+				});
+				this._wsHandler.on("2Step", () => {
 					this.emit("2Step");
 				});
 				this._wsHandler.on("ready", () => {
@@ -103,14 +111,25 @@ class Kahoot extends EventEmitter {
 			this.sessionID = session;
 			this.name = name;
 			this.team = team;
-			token.resolve(session, (resolvedToken, gamemode) => {
-				this.gamemode = gamemode ? gamemode : "classic";
+			token.resolve(session, (resolvedToken, content) => {
+				this.gamemode = content.gamemode || "classic";
+				this.hasTwoFactorAuth = content.twoFactorAuth || false;
+				this.usesNamerator = content.namerator || false;
+				if(this.hasTwoFactorAuth){
+					this.emit("2Step");
+				}
 				this.token = resolvedToken;
 				this._wsHandler = new WSHandler(this.sessionID, this.token, this);
 				this._wsHandler.on("invalidName", () => {
 					this.emit("invalidName");
 				});
-				this._wsHandler.on("2step", () => {
+				this._wsHandler.on("2StepFail",()=>{
+					this.emit("2StepFail");
+				});
+				this._wsHandler.on("2StepSuccess",()=>{
+					this.emit("2StepSuccess");
+				});
+				this._wsHandler.on("2Step", () => {
 					this.emit("2Step");
 				});
 				this._wsHandler.on("ready", () => {

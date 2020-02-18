@@ -35,7 +35,7 @@ class TokenJS {
 				}
 				// The second token is given as a "challenge", which must be eval'd by the client to be decoded
 				challenge = bodyObject.challenge;
-				callback(token1, challenge, bodyObject.gameMode);
+				callback(token1, challenge, bodyObject);
 			});
 		}).on("error", err => {
 			// TODO: better error handling
