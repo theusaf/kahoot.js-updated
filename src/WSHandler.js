@@ -130,6 +130,9 @@ class WSHandler extends EventEmitter {
 			},
 			53: () => {
 				this.requires2Step = true;
+				if(this.finished2Step){
+					return;
+				}
 				this.emit("2Step");
 			},
 			51: ()=>{

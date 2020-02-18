@@ -115,9 +115,6 @@ class Kahoot extends EventEmitter {
 				this.gamemode = content.gamemode || "classic";
 				this.hasTwoFactorAuth = content.twoFactorAuth || false;
 				this.usesNamerator = content.namerator || false;
-				if(this.hasTwoFactorAuth){
-					this.emit("2Step");
-				}
 				this.token = resolvedToken;
 				this._wsHandler = new WSHandler(this.sessionID, this.token, this);
 				this._wsHandler.on("invalidName", () => {
@@ -138,6 +135,9 @@ class Kahoot extends EventEmitter {
 				this._wsHandler.on("joined", () => {
 					this.emit("ready");
 					this.emit("joined");
+					if(this.hasTwoFactorAuth){
+						this.emit("2Step");
+					}
 					fulfill();
 				});
 				this._wsHandler.on("quizData", quizInfo => {
