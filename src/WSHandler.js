@@ -78,7 +78,7 @@ class WSHandler extends EventEmitter {
 				});
 			},
 			4: (data, content) => {
-				this.emit("questionSubmit", content.questionNumber);
+				// this.emit("questionSubmit", content.questionNumber);
 			},
 			8: (data, content) => {
 				// console.log(data);
@@ -227,6 +227,7 @@ class WSHandler extends EventEmitter {
 	sendSubmit(questionChoice) {
 		var packet = this.getSubmitPacket(questionChoice);
 		this.send(packet);
+		this.emit("questionSubmit");
 	}
 	open() {
 		this.connected = true;

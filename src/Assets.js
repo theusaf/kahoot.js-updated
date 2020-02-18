@@ -64,7 +64,7 @@ class QuestionEndEvent {
 }
 class QuestionSubmitEvent {
 	constructor(message, client) {
-		this.questionIndex = message;
+		// this.questionIndex = message;
 		this.client = client;
 		this.quiz = client.quiz;
 		this.question = this.quiz.questions[this.quiz.questions.length - 1];

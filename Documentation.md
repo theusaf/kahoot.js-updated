@@ -75,7 +75,6 @@
     - [total](#questionendevent.properties.total)
 6. [QuestionSubmitEvent](#questionsubmitevent)
   - [Properties](#questionsubmitevent.properties)
-    - [questionIndex](#questionsubmitevent.properties.questionIndex)
     - [client](#questionsubmitevent.properties.client)
     - [quiz](#questionsubmitevent.properties.quiz)
     - [question](#questionsubmitevent.properties.question)
@@ -425,10 +424,6 @@ The kahoot client that interacts with kahoot's quiz api.
 ---
 <a name="questionsubmitevent.properties"></a>
 #### Properties
-<a name="questionsubmitevent.properties.questionIndex"></a>
-`questionIndex (Number)`
-- The quesiton index sent by kahoot after submitting.
-
 <a name="questionsubmitevent.properties.client"></a>
 `client (Kahoot)`
 - The client attached to the event.
