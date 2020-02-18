@@ -112,7 +112,7 @@ class Kahoot extends EventEmitter {
 			this.name = name;
 			this.team = team;
 			token.resolve(session, (resolvedToken, content) => {
-				this.gamemode = content.gamemode || "classic";
+				this.gamemode = content.gameMode || "classic";
 				this.hasTwoFactorAuth = content.twoFactorAuth || false;
 				this.usesNamerator = content.namerator || false;
 				this.token = resolvedToken;
