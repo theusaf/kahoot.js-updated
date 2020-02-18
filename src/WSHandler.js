@@ -394,7 +394,7 @@ class WSHandler extends EventEmitter {
 	login(name, team) {
 		if (!this.ready) {
 			setTimeout(() => {
-				this.login(name);
+				this.login(name,team);
 			}, 500);
 			return;
 		}
