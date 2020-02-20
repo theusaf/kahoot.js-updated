@@ -11,6 +11,7 @@ class WSHandler extends EventEmitter {
 		this.finished2Step = false;
 		this.kahoot = kahoot;
 		this.msgID = 0;
+		this.receivedQuestionTime = 0;
 		this.clientID = "_none_";
 		this.connected = false;
 		this.gameID = session;
@@ -66,6 +67,7 @@ class WSHandler extends EventEmitter {
 				}
 			},
 			2: (data, content) => {
+				this.receivedQuestionTime = Date.now();
 				this.emit("questionStart");
 			},
 			3: (data, content) => {
@@ -225,6 +227,14 @@ class WSHandler extends EventEmitter {
 		});
 	}
 	sendSubmit(questionChoice) {
+		const time = Date.now() - this.receivedQuestionTime;
+		if(time < 400){
+			setTimeout(()=>{
+				this.sendSubmit(questionChoice);
+			},400 - time);
+			return;
+		}
+		console.log("sending packet");
 		var packet = this.getSubmitPacket(questionChoice);
 		this.send(packet);
 		this.emit("questionSubmit");

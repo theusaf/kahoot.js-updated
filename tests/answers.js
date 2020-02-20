@@ -13,10 +13,6 @@ client.on("questionStart", question => {
 	console.log("question started. answering 0.");
 	question.answer(0);
 });
-client.on("questionSubmit",a=>{
-  console.log(a);
-});
 client.on("finish", (o) => {
 	console.log("the quiz has finished.");
-  console.log(o);
 })
