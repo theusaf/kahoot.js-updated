@@ -3,3 +3,4 @@ tests/
 .git/
 examples/
 .gitignore
+.github/
