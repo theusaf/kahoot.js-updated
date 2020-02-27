@@ -234,7 +234,6 @@ class WSHandler extends EventEmitter {
 			},400 - time);
 			return;
 		}
-		console.log("sending packet");
 		var packet = this.getSubmitPacket(questionChoice);
 		this.send(packet);
 		this.emit("questionSubmit");
