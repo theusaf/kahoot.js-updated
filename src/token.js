@@ -1,33 +1,44 @@
 var https = require("https");
 var consts = require("./consts");
 const ua = require("user-agents");
+const URL = require("url").URL;
 
 class TokenJS {
 	static requestToken(sessionID, callback, proxy) {
 		// Make a GET request to the endpoint and get 2 tokens
+		var proxyOptions;
 		if(proxy && proxy.length && typeof(proxy.push) == "function"){
 			proxy = proxy[Math.floor(Math.random() * proxy.length)];
-		}else{
+		}else if(typeof(proxy) == "string"){
 			proxy = proxy || "";
+		}else if(proxy){
+			proxyOptions = proxy.options
+			proxy = proxy.proxies;
+			if(typeof(proxy.push) == "function"){
+				proxy = proxy[Math.floor(Math.random() * proxy.length)];
+			}
 		}
-		return https.get({
-			host: proxy || consts.ENDPOINT_URI,
-			path: ((proxy && ("https://" + consts.ENDPOINT_URI)) || "") + consts.TOKEN_ENDPOINT + sessionID + "/?" + (new Date).getTime(),
+		var uri;
+		uri = new URL((proxy || "https://") + consts.ENDPOINT_URI + consts.TOKEN_ENDPOINT + sessionID + "/?" + Date.now());
+		let options = {
 			port: consts.ENDPOINT_PORT,
 			headers: {
 				"user-agent": new ua().toString(),
-				"host": proxy || "kahoot.it",
+				"host": (proxy && uri.hostname) || "kahoot.it",
 				"referer": "https://kahoot.it/",
 				"accept-language": "en-US,en;q=0.8",
 				"accept": "*/*"
 			}
-		}, res => {
+		};
+		if(proxyOptions){
+			Object.assign(options,proxyOptions);
+		}
+		return https.get(uri,options, res => {
 			res.on("data", chunk => {
 				// The first token is the session token, which is given as a header by the server encoded in base64
 				// Checking if the header is defined before continuing, basically checking if the room exists.
-				console.log(chunk.toString("utf8"));
 				if (!res.headers["x-kahoot-session-token"]) {
-					return console.log("request error:", "Kahoot session header is undefined. (This normally means that the room no longer exists.)");
+					return console.log("request error:", "Kahoot session header is undefined. Either the room doesn't exist, or kahoot has blocked this IP.");
 				}
 				var token1 = res.headers["x-kahoot-session-token"];
 				var body = chunk.toString("utf8");

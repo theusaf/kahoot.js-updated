@@ -1,5 +1,13 @@
+// not working yet.
 var Kahoot = require("../index.js");
-var client = new Kahoot("cors-anywhere.herokuapp.com");
+var client = new Kahoot({
+  proxies: "https://cors-anywhere.herokuapp.com/",
+  options: {
+    headers: {
+      "x-requested-with": "nodejs"
+    }
+  }
+});
 const PIN = parseInt(require("fs").readFileSync("PIN.txt"));
 console.log("joining game...");
 client.join(PIN, "testing",["a","b","c","d"]);
