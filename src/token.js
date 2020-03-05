@@ -3,15 +3,20 @@ var consts = require("./consts");
 const ua = require("user-agents");
 
 class TokenJS {
-	static requestToken(sessionID, callback) {
+	static requestToken(sessionID, callback, proxy) {
 		// Make a GET request to the endpoint and get 2 tokens
+		if(proxy && proxy.length && typeof(proxy.push) == "function"){
+			proxy = proxy[Math.floor(Math.random() * proxy.length)];
+		}else{
+			proxy = proxy || "";
+		}
 		return https.get({
-			host: consts.ENDPOINT_URI,
-			path: consts.TOKEN_ENDPOINT + sessionID + "/?" + (new Date).getTime(),
+			host: proxy || consts.ENDPOINT_URI,
+			path: ((proxy && ("https://" + consts.ENDPOINT_URI)) || "") + consts.TOKEN_ENDPOINT + sessionID + "/?" + (new Date).getTime(),
 			port: consts.ENDPOINT_PORT,
 			headers: {
 				"user-agent": new ua().toString(),
-				"host": "kahoot.it",
+				"host": proxy || "kahoot.it",
 				"referer": "https://kahoot.it/",
 				"accept-language": "en-US,en;q=0.8",
 				"accept": "*/*"
@@ -20,6 +25,7 @@ class TokenJS {
 			res.on("data", chunk => {
 				// The first token is the session token, which is given as a header by the server encoded in base64
 				// Checking if the header is defined before continuing, basically checking if the room exists.
+				console.log(chunk.toString("utf8"));
 				if (!res.headers["x-kahoot-session-token"]) {
 					return console.log("request error:", "Kahoot session header is undefined. (This normally means that the room no longer exists.)");
 				}
@@ -82,13 +88,13 @@ class TokenJS {
 		}
 		return token;
 	}
-	static resolve(sessionID, callback) {
+	static resolve(sessionID, callback, proxy) {
 		this.requestToken(sessionID, (headerToken, challenge, gamemode) => {
 			var token1 = this.decodeBase64(headerToken);
 			var token2 = this.solveChallenge(challenge);
 			var resolvedToken = this.concatTokens(token1, token2);
 			callback(resolvedToken, gamemode);
-		});
+		}, proxy);
 	}
 }
 module.exports = TokenJS;

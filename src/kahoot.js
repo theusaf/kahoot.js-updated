@@ -5,7 +5,7 @@ var WSHandler = require("./WSHandler.js");
 var token = require("./token.js");
 
 class Kahoot extends EventEmitter {
-	constructor() {
+	constructor(proxies) {
 		super();
 		this._wsHandler = null;
 		this._qFulfill = null;
@@ -19,10 +19,11 @@ class Kahoot extends EventEmitter {
 		this.totalScore = 0;
 		this.gamemode = null;
 		this.cid = "";
+		this.proxies = proxies;
 	}
 	reconnect() {
 		if (this.sessionID && this.cid && this._wsHandler && this._wsHandler.ws.readyState >= 2) {
-			token.resolve(this.sessionID, (resolvedToken, gamemode) => {
+			token.resolve(this.sessionID, (resolvedToken, content) => {
 				this.gamemode = content.gamemode || "classic";
 				this.hasTwoFactorAuth = content.twoFactorAuth || false;
 				this.usesNamerator = content.namerator || false;
@@ -92,7 +93,7 @@ class Kahoot extends EventEmitter {
 				this._wsHandler.on("feedback", () => {
 					this.emit("feedback");
 				});
-			});
+			}, this.proxies);
 		}
 	}
 	join(session, name, team) {
@@ -184,7 +185,7 @@ class Kahoot extends EventEmitter {
 				this._wsHandler.on("feedback", () => {
 					this.emit("feedback");
 				});
-			});
+			}, this.proxies);
 		});
 	}
 	answer2Step(steps) {
