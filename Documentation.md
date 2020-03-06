@@ -500,7 +500,9 @@ The kahoot client that interacts with kahoot's quiz api.
 `incorrect (Number)`
 - The number of questions that were scored incorrect.
 ---
+<a name="qa"></a>
 ## Q and A
+<a name="qa.proxies"></a>
 ### Using Proxies
 This package (**V1.2.12+**) now has support for use of proxies. This will request the session information using the proxy, but the websocket will still be directly connected.
 Proxies can either be a **String** or an **Object** like so:
