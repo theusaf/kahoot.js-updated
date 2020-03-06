@@ -95,6 +95,8 @@
     - [rank](#quizfinishevent.properties.rank)
     - [correct](#quizfinishevent.properties.correct)
     - [incorrect](#quizfinishevent.properties.incorrect)
+10. [Q and A](#qa)
+11. [Using Proxies](#qa.proxies)
 
 ## Classes
 ### Kahoot
@@ -497,3 +499,41 @@ The kahoot client that interacts with kahoot's quiz api.
 <a name="quizfinishevent.properties.incorrect"></a>
 `incorrect (Number)`
 - The number of questions that were scored incorrect.
+---
+## Q and A
+### Using Proxies
+This package (**V1.2.12+**) now has support for use of proxies. This will request the session information using the proxy, but the websocket will still be directly connected.
+Proxies can either be a **String** or an **Object** like so:
+```js
+const proxy1 = "http://cors-server.example.com/";
+const proxy2 = {
+  proxy: "http://other-server.example.com/path/",
+  options: {
+    headers: {
+      "X-Requested-With": "foobar"
+    }
+  }
+};
+```
+#### Example Usage:
+```js
+const kahootJS = require("kahoot.js-updated");
+const bots = [];
+for(let i = 0; i < 10; ++i){
+  let client;
+  if(Math.round(Math.random())){
+    client = new kahootJS(proxy1);
+  }else{
+    client = new kahootJS(proxy2);
+  }
+  client.join(pin);
+  bots.push(client);
+}
+```
+#### The Proxy Option
+Proxies must be in this format in order to work:<br/>
+`https://sub.domain.top/<path>/<query>`
+- The information is requested by appending the proxy to the start of the url:<br>
+`"https://sub.domain.top/path/" + "https://kahoot.it/reserve/session/12345/?12418"`
+
+The options is the [HTTP Request Options](https://nodejs.org/api/http.html#http_http_request_options_callback), which should only be used if the proxy service requires special headers to work.

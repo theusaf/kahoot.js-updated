@@ -1,5 +1,7 @@
-var https = require("https");
-var consts = require("./consts");
+const https = require("https");
+const http = require("http");
+const path = require("path");
+const consts = require(path.join(__dirname,"consts.js"));
 const ua = require("user-agents");
 const URL = require("url").URL;
 
@@ -7,16 +9,13 @@ class TokenJS {
 	static requestToken(sessionID, callback, proxy) {
 		// Make a GET request to the endpoint and get 2 tokens
 		var proxyOptions;
-		if(proxy && proxy.length && typeof(proxy.push) == "function"){
-			proxy = proxy[Math.floor(Math.random() * proxy.length)];
-		}else if(typeof(proxy) == "string"){
+		if(typeof(proxy) == "string"){
 			proxy = proxy || "";
-		}else if(proxy){
-			proxyOptions = proxy.options
-			proxy = proxy.proxies;
-			if(typeof(proxy.push) == "function"){
-				proxy = proxy[Math.floor(Math.random() * proxy.length)];
-			}
+		}else if(proxy && proxy.proxy){
+			proxyOptions = proxy.options || {};
+			proxy = proxy.proxy;
+		}else{
+			proxy = "";
 		}
 		var uri;
 		uri = new URL((proxy || "https://") + consts.ENDPOINT_URI + consts.TOKEN_ENDPOINT + sessionID + "/?" + Date.now());
@@ -33,12 +32,18 @@ class TokenJS {
 		if(proxyOptions){
 			Object.assign(options,proxyOptions);
 		}
-		return https.get(uri,options, res => {
+		let proto;
+		if(uri.protocol == "https:"){
+			proto = https;
+		}else{
+			proto = http;
+		}
+		return proto.get(uri,options, res => {
 			res.on("data", chunk => {
 				// The first token is the session token, which is given as a header by the server encoded in base64
 				// Checking if the header is defined before continuing, basically checking if the room exists.
 				if (!res.headers["x-kahoot-session-token"]) {
-					return console.log("request error:", "Kahoot session header is undefined. Either the room doesn't exist, or kahoot has blocked this IP.");
+					return console.log("request error:", "Kahoot Session Failure, this either means kahoot blocked this specific program or your gamepin is wrong.");
 				}
 				var token1 = res.headers["x-kahoot-session-token"];
 				var body = chunk.toString("utf8");
@@ -86,7 +91,7 @@ class TokenJS {
 		try {
 			return new Buffer.from(b64, "base64").toString("ascii");
 		} catch (e) {
-			console.log("Error! (Most likely not a kahoot game)");
+			console.log("Error! (Most likely not a kahoot game, make sure your gamepin is right)");
 		}
 	}
 	static concatTokens(headerToken, challengeToken) {

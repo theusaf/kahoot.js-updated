@@ -5,7 +5,7 @@ const PIN = parseInt(require("fs").readFileSync("PIN.txt"));
 console.log("joining game...");
 client.join(PIN, "kahoot.js");
 client.on("joined", () => {
-    console.log("joined the game. waiting for quiz to start");
+	console.log("joined the game. waiting for quiz to start");
 });
 client.on("quiz", quiz => {
 	// List all the properties of a quiz
@@ -53,4 +53,4 @@ client.on("finish", e => {
 	console.log("rank: " + e.rank);
 	console.log("correct: " + e.correct);
 	console.log("incorrect: " + e.incorrect);
-})
+});
