@@ -43,7 +43,8 @@ class TokenJS {
 				// The first token is the session token, which is given as a header by the server encoded in base64
 				// Checking if the header is defined before continuing, basically checking if the room exists.
 				if (!res.headers["x-kahoot-session-token"]) {
-					return console.log("request error:", "Kahoot Session Failure, this either means kahoot blocked this specific program or your gamepin is wrong.");
+					// console.log("request error:", "Kahoot Session Failure, this either means kahoot blocked this specific program or your gamepin is wrong.");
+					return callback(null,null,null);
 				}
 				var token1 = res.headers["x-kahoot-session-token"];
 				var body = chunk.toString("utf8");
@@ -52,7 +53,7 @@ class TokenJS {
 				try {
 					bodyObject = JSON.parse(body);
 				} catch (e) {
-					callback(null, e);
+					callback(null, e, null);
 					return;
 				}
 				// The second token is given as a "challenge", which must be eval'd by the client to be decoded
@@ -106,6 +107,9 @@ class TokenJS {
 	}
 	static resolve(sessionID, callback, proxy) {
 		this.requestToken(sessionID, (headerToken, challenge, gamemode) => {
+			if(!headerToken){
+				return callback(null,null);
+			}
 			var token1 = this.decodeBase64(headerToken);
 			var token2 = this.solveChallenge(challenge);
 			var resolvedToken = this.concatTokens(token1, token2);
