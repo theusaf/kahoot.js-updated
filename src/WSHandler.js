@@ -244,7 +244,7 @@ class WSHandler extends EventEmitter {
 		const time = Date.now() - this.receivedQuestionTime;
 		if(time < 500){
 			setTimeout(()=>{
-				this.sendSubmit(questionChoice);
+				this.sendSubmit(questionChoice,question);
 			},500 - time);
 			return;
 		}
