@@ -69,7 +69,7 @@ class TokenJS {
 		}).on("error", err => {
 			// TODO: better error handling
 			console.log("request error:", err);
-		});
+		}).end();;
 	}
 	static solveChallenge(challenge) {
 		var solved = "";
