@@ -184,7 +184,7 @@ class WSHandler extends EventEmitter {
 			id: this.msgID + ""
 		}];
 	}
-	getSubmitPacket(questionChoice) {
+	getSubmitPacket(questionChoice,question) {
 		this.msgID++;
 		const r = [{
 			channel: "/service/controller",
@@ -205,14 +205,26 @@ class WSHandler extends EventEmitter {
 			id: this.msgID + ""
 		}];
 		// for question type "open_ended," expect a string.
-		if (typeof(questionChoice) == "string") {
+		if (question.type == "open_ended" || question.type == "word_cloud") {
 			r[0].data.content = JSON.stringify({
-				text: questionChoice,
+				text: String(questionChoice),
 				questionIndex: this.kahoot.quiz.currentQuestion.index,
 				meta: {
 					lag: 30
 				}
 			});
+		}
+		// array
+		if(question.type == "jumble" || question.type == "multiple_select_quiz"){
+			if(typeof(questionChoice.push) != "function"){
+				r[0].data.content = JSON.stringify({
+					choice: [0,1,2,3],
+					questionIndex: this.kahoot.quiz.currentQuestion.index,
+					meta: {
+						lag: 30
+					}
+				});
+			}
 		}
 		return r;
 	}
@@ -226,7 +238,7 @@ class WSHandler extends EventEmitter {
 			}
 		});
 	}
-	sendSubmit(questionChoice) {
+	sendSubmit(questionChoice,question) {
 		const time = Date.now() - this.receivedQuestionTime;
 		if(time < 500){
 			setTimeout(()=>{
@@ -234,7 +246,7 @@ class WSHandler extends EventEmitter {
 			},500 - time);
 			return;
 		}
-		var packet = this.getSubmitPacket(questionChoice);
+		var packet = this.getSubmitPacket(questionChoice,question);
 		this.send(packet);
 		this.emit("questionSubmit");
 	}
