@@ -229,7 +229,9 @@ class WSHandler extends EventEmitter {
 		return r;
 	}
 	send(msg) {
-		// console.log("U: " + JSON.stringify(msg));
+		if(this.kahoot.loggingMode){
+			console.log("SND: " + JSON.stringify(msg));
+		}
 		return new Promise((res, rej) => {
 			if (this.connected) {
 				try {
@@ -279,7 +281,9 @@ class WSHandler extends EventEmitter {
 		this.send(r);
 	}
 	message(msg) {
-		// console.log("D: " + msg);
+		if(this.kahoot.loggingMode){
+			console.log("DWN: " + msg);
+		}
 		var data = JSON.parse(msg)[0];
 		if (data.channel == consts.CHANNEL_HANDSHAKE && data.clientId) { // The server sent a handshake packet
 			this.clientID = data.clientId;

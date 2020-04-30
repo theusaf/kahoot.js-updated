@@ -20,6 +20,7 @@ class Kahoot extends EventEmitter {
 		this.gamemode = null;
 		this.cid = "";
 		this.proxies = proxies;
+		this.loggingMode = false;
 	}
 	reconnect() {
 		if (this.sessionID && this.cid && this._wsHandler && this._wsHandler.ws.readyState >= 2) {

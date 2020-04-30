@@ -37,6 +37,7 @@
     - [hasTwoFactorAuth](#kahoot.properties.hasTwoFactorAuth)
     - [usesNamerator](#kahoot.properties.usesNamerator)
     - [gamemode](#kahoot.properties.gamemode)
+    - [loggingMode](#kahoot.properties.loggingMode)
 3. [Quiz](#quiz)
   - [Properties](#quiz.properties)
     - [client](#quiz.properties.client)
@@ -273,6 +274,10 @@ The kahoot client that interacts with kahoot's quiz api.
 - The game mode of the kahoot.
   - `classic` - normal kahoot game.
   - `team` - kahoot game with teams.
+
+<a name="kahoot.properties.loggingMode"></a>
+`loggingMode (Boolean)`
+- Whether to log the messages from and to the server. Defaults to false.
 
 <a name="kahoot.properties.usesNamerator"></a>
 `usesNamerator (Boolean)`
