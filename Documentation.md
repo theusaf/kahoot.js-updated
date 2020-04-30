@@ -518,8 +518,10 @@ const proxy2 = {
   options: {
     headers: {
       "X-Requested-With": "foobar"
-    }
-  }
+    },
+    method: "POST"
+  },
+  nopath: true
 };
 ```
 #### Example Usage:
@@ -542,5 +544,6 @@ Proxies must be in this format in order to work:<br/>
 `https://sub.domain.top/<path>/<query>`
 - The information is requested by appending the proxy to the start of the url:<br>
 `"https://sub.domain.top/path/" + "https://kahoot.it/reserve/session/12345/?12418"`
+- This can be prevented by using the nopath option.
 
-The options is the [HTTP Request Options](https://nodejs.org/api/http.html#http_http_request_options_callback), which should only be used if the proxy service requires special headers to work.
+The options is the [HTTP Request Options](https://nodejs.org/api/http.html#http_http_request_options_callback), which should only be used if the proxy service requires special headers to work. You can also set the method used.

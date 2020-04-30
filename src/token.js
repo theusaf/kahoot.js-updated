@@ -9,16 +9,22 @@ class TokenJS {
 	static requestToken(sessionID, callback, proxy) {
 		// Make a GET request to the endpoint and get 2 tokens
 		var proxyOptions;
+		var nopath;
 		if(typeof(proxy) == "string"){
 			proxy = proxy || "";
 		}else if(proxy && proxy.proxy){
 			proxyOptions = proxy.options || {};
 			proxy = proxy.proxy;
+			nopath = proxy.nopath;
 		}else{
 			proxy = "";
 		}
 		var uri;
-		uri = new URL((proxy || "https://") + consts.ENDPOINT_URI + consts.TOKEN_ENDPOINT + sessionID + "/?" + Date.now());
+		if(nopath){ // don't append
+			uri = new URL(proxy);
+		}else{
+			uri = new URL((proxy || "https://") + consts.ENDPOINT_URI + consts.TOKEN_ENDPOINT + sessionID + "/?" + Date.now());
+		}
 		let options = {
 			port: consts.ENDPOINT_PORT,
 			headers: {
@@ -38,7 +44,7 @@ class TokenJS {
 		}else{
 			proto = http;
 		}
-		return proto.get(uri,options, res => {
+		return proto.request(uri,options, res => {
 			res.on("data", chunk => {
 				// The first token is the session token, which is given as a header by the server encoded in base64
 				// Checking if the header is defined before continuing, basically checking if the room exists.
