@@ -1,6 +1,7 @@
 const CONSTS = require("./consts.js");
 const userAgents = require("user-agents");
 const EventEmitter = require("events");
+const Promise = require("promise");
 
 class ChallengeHandler extends EventEmitter {
 	constructor(kahoot,content,proxy) {
@@ -11,6 +12,13 @@ class ChallengeHandler extends EventEmitter {
     this.challengeData = content;
     this.proxy = proxy;
 	}
+  sendHttpRequest(url,options,proxy){
+
+  }
+  // handles the logic of continuing to the next steps.
+  next(){
+
+  }
   getProgress(){
 
   }

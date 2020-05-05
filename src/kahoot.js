@@ -229,5 +229,11 @@ class Kahoot extends EventEmitter {
 			this._wsHandler.sendFeedback(fun, learning, recommend, overall);
 		});
 	}
+	// challenge-specific functions
+	next(){
+		if(this.gamemode == "challenge"){
+			this._wsHandler.next();
+		}
+	}
 }
 module.exports = Kahoot;
