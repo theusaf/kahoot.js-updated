@@ -23,7 +23,8 @@ class Kahoot extends EventEmitter {
 		this.proxies = proxies;
 		this.loggingMode = false;
 		this.options = Object.assign({
-			ChallengeAutoContinue: true
+			ChallengeAutoContinue: true,
+			ChallengeGetFullScore: false
 		},options);
 	}
 	reconnect() {
