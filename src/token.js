@@ -69,7 +69,7 @@ class TokenJS {
 		}).on("error", err => {
 			// TODO: better error handling
 			console.log("request error:", err);
-		}).end();;
+		}).end();
 	}
 	static solveChallenge(challenge) {
 		var solved = "";
@@ -112,6 +112,9 @@ class TokenJS {
 		return token;
 	}
 	static resolve(sessionID, callback, proxy) {
+		if(sessionID[0] == "0"){
+			return this.requestChallenge(sessionID,callback,proxy);
+		}
 		this.requestToken(sessionID, (headerToken, challenge, gamemode) => {
 			if(!headerToken){
 				return callback(null,null);
@@ -121,6 +124,66 @@ class TokenJS {
 			var resolvedToken = this.concatTokens(token1, token2);
 			callback(resolvedToken, gamemode);
 		}, proxy);
+	}
+	static requestChallenge(id,callback,proxy){
+		// Make a GET request to the endpoint and get 2 tokens
+		var proxyOptions;
+		var nopath;
+		if(typeof(proxy) == "string"){
+			proxy = proxy || "";
+		}else if(proxy && proxy.proxy){
+			proxyOptions = proxy.options || {};
+			proxy = proxy.proxy;
+			nopath = proxy.nopath;
+		}else{
+			proxy = "";
+		}
+		var uri;
+		if(nopath){ // don't append
+			uri = new URL(proxy);
+		}else{
+			uri = new URL((proxy || "https://") + consts.ENDPOINT_URI + consts.CHALLENGE_ENDPOINT + "/pin/" + sessionID);
+		}
+		let options = {
+			port: consts.ENDPOINT_PORT,
+			headers: {
+				"user-agent": new ua().toString(),
+				"host": (proxy && uri.hostname) || "kahoot.it",
+				"referer": "https://kahoot.it/",
+				"accept-language": "en-US,en;q=0.8",
+				"accept": "*/*"
+			}
+		};
+		if(proxyOptions){
+			Object.assign(options,proxyOptions);
+		}
+		let proto;
+		if(uri.protocol == "https:"){
+			proto = https;
+		}else{
+			proto = http;
+		}
+		return proto.request(uri,options, res => {
+			res.on("data", chunk => {
+				var body = chunk.toString("utf8");
+				var bodyObject;
+				try {
+					bodyObject = JSON.parse(body);
+				} catch (e) {
+					callback(null, e, null);
+					return;
+				}
+				callback(true,Object.assign({
+					twoFactorAuth: false,
+					gameMode: bodyObject.challenge.type,
+					kahootData: bodyObject.kahoot,
+					rawChallengeData: bodyObject.challenge
+				},bodyObject.challenge.game_options));
+			});
+		}).on("error", err => {
+			// TODO: better error handling
+			console.log("request error:", err);
+		}).end();
 	}
 }
 module.exports = TokenJS;

@@ -2,10 +2,11 @@ const EventEmitter = require("events");
 var Promise = require("promise");
 var Assets = require("./Assets.js");
 var WSHandler = require("./WSHandler.js");
+const ChallengeHandler = require("./ChallengeHandler.js");
 var token = require("./token.js");
 
 class Kahoot extends EventEmitter {
-	constructor(proxies) {
+	constructor(proxies,options) {
 		super();
 		this._wsHandler = null;
 		this._qFulfill = null;
@@ -21,9 +22,15 @@ class Kahoot extends EventEmitter {
 		this.cid = "";
 		this.proxies = proxies;
 		this.loggingMode = false;
+		this.options = Object.assign({
+			ChallengeAutoContinue: true
+		},options);
 	}
 	reconnect() {
 		if (this.sessionID && this.cid && this._wsHandler && this._wsHandler.ws.readyState >= 2) {
+			if(this.sessionID[0] == "0"){
+				return;
+			}
 			token.resolve(this.sessionID, (resolvedToken, content) => {
 				this.gamemode = content.gamemode || "classic";
 				this.hasTwoFactorAuth = content.twoFactorAuth || false;
@@ -118,7 +125,11 @@ class Kahoot extends EventEmitter {
 				this.hasTwoFactorAuth = content.twoFactorAuth || false;
 				this.usesNamerator = content.namerator || false;
 				this.token = resolvedToken;
-				this._wsHandler = new WSHandler(this.sessionID, this.token, this);
+				if(resolvedToken === true){
+					this._wsHandler = new ChallengeHandler(this,content,this.proxies);
+				}else{
+					this._wsHandler = new WSHandler(this.sessionID, this.token, this);
+				}
 				this._wsHandler.on("invalidName", () => {
 					this.emit("invalidName");
 					reject();

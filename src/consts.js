@@ -2,6 +2,7 @@ module.exports = {
 	ENDPOINT_URI: "kahoot.it",
 	ENDPOINT_PORT: 443,
 	TOKEN_ENDPOINT: "/reserve/session/",
+	CHALLENGE_ENDPOINT: "/rest/challenges/",
 	EVAL_:  "var _ = {" +
 			"	replace: function() {" +
 			"		var args = arguments;" +
