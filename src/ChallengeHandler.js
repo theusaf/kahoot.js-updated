@@ -3,6 +3,16 @@ const userAgents = require("user-agents");
 const EventEmitter = require("events");
 const Promise = require("promise");
 
+function calculateStreakPoints(n){
+	if(n >= 6){
+		return 500;
+	}else if(n <= 1){
+		return 0;
+	}else{
+		return (n - 1) * 100;
+	}
+}
+
 class ChallengeHandler extends EventEmitter {
 	constructor(kahoot,content,proxy) {
 		super();
@@ -189,15 +199,31 @@ class ChallengeHandler extends EventEmitter {
 			case "jumble":
 				// the answers aren't randomized, so...
 				correct = JSON.stringify(choice) == JSON.stringify([0,1,2,3]);
-				const text = "";
 				for(let n of choice){
 					text += question.choices[n].answer + "|";
 				}
-				text = text.replace(/\|$/);
+				text = text.replace(/\|$/,"");
 				choiceIndex = -1;
 				break;
 			case "multiple_select_quiz":
-				
+				const totalCorrect = question.choices.filter(ch=>{
+					return ch.correct;
+				}).length;
+				let correctCount = 0;
+				for(let ch of choice){
+					if(question.choices[ch].correct){
+						correct = true;
+						correctCount++;
+					}else{
+						correct = false;
+						break;
+					}
+				}
+				percentCorrect = correctCount / totalCorrect;
+				for(let ch of choice){
+					text += question.choices[ch].answer + "|";
+				}
+				text = text.replace(/\|$/,"");
 				break;
 			case "open_ended":
 				text = String(choice);
@@ -218,8 +244,13 @@ class ChallengeHandler extends EventEmitter {
 					}
 				}
 				break;
-			default:
+			case "word_cloud":
+				text = choice;
 				choiceIndex = -1;
+				correct = true;
+				break;
+			default:
+				choiceIndex = choice || 0;
 				correct = true;
 		}
 		// random debug stuff
@@ -231,8 +262,58 @@ class ChallengeHandler extends EventEmitter {
 				score = secret.points;
 			}
 		}
+		if(correct){
+			this.boost++;
+		}
 		// send the packet!
-		let payload = {};
+		let payload = {
+			device: {
+				screen: this.userAgentMeta,
+				userAgent: this.userAgent
+			},
+			gameMode: this.challengeData.progress.gameMode,
+			gameOptions: this.challengeData.progress.gameOptions,
+			hostOrganizationId: null,
+			kickedPlayers: [],
+			numQuestions: this.challengeData.kahoot.questions.length,
+			organizationId: "",
+			question: {
+				answers: [
+					{
+						bonusPoints: {
+							answerStreakBonus: question.points ? calculateStreakPoints(this.boost) : 0
+						},
+						choiceIndex: choiceIndex,
+						isCorrect: correct,
+						playerCid: this.clientID,
+						playerId: this.name,
+						points: Number(correct) * score,
+						reactionTime: tick,
+						receivedTime: this.receivedQuestionTime,
+						text: text
+					}
+				],
+				choices: question.choices,
+				duration: question.time,
+				format: question.questionFormat,
+				index: this.questionIndex,
+				lag: 0,
+				layout: question.layout,
+				playerCount: 1,
+				pointsQuestion: typeof question.points == "undefined" ? true : question.points,
+				skipped: false,
+				startTime: 0,
+				title: question.question,
+				type: question.type,
+				video: question.video
+			},
+			quizId: this.challengeData.kahoot.uuid,
+			quizMaster: this.challengeData.challenge.quizMaster,
+			quizTitle: this.challengeData.kahoot.title,
+			quizType: this.challengeData.progress.quizType,
+			sessionId: this.kahoot.sessionID,
+			startTime: this.challengeData.progress.timestamp
+		};
 		switch (question.type) {
 			case "quiz":
 
