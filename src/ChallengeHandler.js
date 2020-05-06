@@ -106,8 +106,17 @@ class ChallengeHandler extends EventEmitter {
   }
   getProgress(question){
     if(typeof question != "undefined"){
+			return new Promise((resolve, reject)=>{
+				this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}progress/?upToQuestion=${question}`,null,thgis.proxy,true).then(data=>{
+					resolve(data);
+				});
+			});;
     }else{ // first login. get data
-
+			return new Promise((resolve, reject)=>{
+				this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}progress`,null,this.proxy,true).then(data=>{
+					resolve(data);
+				});
+			});;
     }
   }
   leave(){
