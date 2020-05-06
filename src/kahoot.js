@@ -208,14 +208,14 @@ class Kahoot extends EventEmitter {
 			this._wsHandler.send2Step(steps.join(""));
 		});
 	}
-	answerQuestion(id,question) {
+	answerQuestion(id,question,secret) {
 		return new Promise((fulfill, reject) => {
 			this._qFulfill = fulfill;
 			this.sendingAnswer = true;
 			if(!question){
 				question = this.quiz.currentQuestion;
 			}
-			this._wsHandler.sendSubmit(id,question);
+			this._wsHandler.sendSubmit(id,question,secret);
 		});
 	}
 	leave() {

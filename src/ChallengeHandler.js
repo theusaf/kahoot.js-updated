@@ -1,4 +1,4 @@
-const CONSTS = require("./consts.js");
+const consts = require("./consts.js");
 const userAgents = require("user-agents");
 const EventEmitter = require("events");
 const Promise = require("promise");
@@ -17,6 +17,9 @@ class ChallengeHandler extends EventEmitter {
       width: u.screenWidth,
       height: u.screenHeight
     };
+		this.questionIndex = 0;
+		this.score = 0;
+		this.boost = -1;
     this.receivedQuestionTime = 0;
     // to prevent certain things from crashing
     this.ws = {
@@ -31,11 +34,15 @@ class ChallengeHandler extends EventEmitter {
     };
     getProgress().then(inf=>{
       this.challengeData.progress = inf;
-			this.emit("ready");
+			if(inf.challenge.emdTime >= Date.now() || inf.challenge.challengeUsersList.length >= inf.challenge.maxPlayers){
+				// quiz already ended or is full
+				this.emit("quizEnd");
+			}else{
+				this.emit("ready");
+			}
     });
-
 	}
-  sendHttpRequest(url,opts,proxy,isJSON){
+  sendHttpRequest(url,opts,proxy,isJSON,packet){
     var proxyOptions;
 		var nopath;
 		if(typeof(proxy) == "string"){
@@ -77,21 +84,49 @@ class ChallengeHandler extends EventEmitter {
 		}
     return new Promise((resolve, reject)=>{
       proto.request(uri,options,res=>{
+				let chunks = [];
         res.on("data",data=>{
-          const body = data.toString("utf8");
+					chunks.push(data);
+        });
+				res.on("end",()=>{
+					const data = Buffer.concat(chunks);
+					const body = data.toString("utf8");
           if(isJSON){
             return resolve(JSON.parse(body));
           }
           resolve(body);
-        });
-      }).on("err",e=>{reject(e)}).end();
+				});
+      }).on("err",e=>{reject(e)}).end(packet);
     });
   }
   login(name){
 		return new Promise((resolve, reject)=>{
 			this.name = String(name);
+			let count = 0;
+			let score = 0;
+			for(let p of this.challengeData.progress.playerProgress.playerProgressEntries){
+				if(this.name in p.questionMetrics){
+					count++;
+					score = p.questionMetrics[this.name];
+				}else{
+					break;
+				}
+			}
+			if(count > 0){
+				this.questionIndex = count;
+				this.score = score;
+				for(let u of this.challengeData.challenge.challengeUsersList){
+					if(u.nickname == this.name){
+						this.playerCid = u.playerCId;
+						break;
+					}
+				}
+				this.emit("joined");
+				return;
+			}
 			this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}/join/?nickname=${this.name}`,{method:"POST"},this.proxy,true).then(data=>{
 				Object.assign(this.challengeData,data);
+				this.clientID = data.playerCid;
 				resolve(this.challengeData);
 				this.emit("joined");
 			});
@@ -99,9 +134,6 @@ class ChallengeHandler extends EventEmitter {
   }
   // handles the logic of continuing to the next steps.
   next(){
-
-  }
-  calculateScore(){
 
   }
   getProgress(question){
@@ -122,8 +154,101 @@ class ChallengeHandler extends EventEmitter {
   leave(){
     return;
   }
-  sendSubmit(choice,question){
+  sendSubmit(choice,question,secret){
+		// calculate scores, then send http request.
+		const tick = Date.now() - this.receivedQuestionTime;
+		if(this.kahoot.options.ChallengeGetFullScore){
+			tick = 1;
+		}
+		const usesPoints = question.points;
+		const score = (Math.round((1 - ((tick / question.time) / 2)) * 1000) * question.pointsMultiplier) * Number(usesPoints);
+		// calculate extra boost.
+		if(boost == -1){
+			boost = 0;
+			const ent = this.challengeData.progress.playerProgress.playerProgressEntries;
+			let falseScore = 0;
+			for(let q in ent){
+				if(ent[q].questionMetrics[this.name] > falseScore || !this.challengeData.kahoot.questions[q].points){
+					boost++;
+				}else{
+					boost = 0;
+				}
+				falseScore = ent[q].questionMetrics[this.name];
+			}
+		}
+		// now we have previous streak, determine if correct.
+		let correct = false;
+		let text = "";
+		let choiceIndex = Number(choice);
+		let percentCorrect = 0;
+		switch (question.type) {
+			case "quiz":
+				correct = question.choices[choice].correct;
+				text = question.choices[choice].answer;
+				break;
+			case "jumble":
+				// the answers aren't randomized, so...
+				correct = JSON.stringify(choice) == JSON.stringify([0,1,2,3]);
+				const text = "";
+				for(let n of choice){
+					text += question.choices[n].answer + "|";
+				}
+				text = text.replace(/\|$/);
+				choiceIndex = -1;
+				break;
+			case "multiple_select_quiz":
+				
+				break;
+			case "open_ended":
+				text = String(choice);
+				let spe = [];
+				const invalid = /[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|-\_+=]/gm;
+				const test = text.replace(invalid,"");
+				for(choice of question.choices){
+					// has text besides emojis
+					if(choice.replace(consts.EMOJI_REGEX,"").length){
+						correct = test.replace(consts.EMOJI_REGEX,"").toLowerCase() == choice.replace(consts.EMOJI_REGEX,"").replace(invalid,"").toLowerCase();
+					}else{
+						// only has emojis
+						correct = test == choice;
+					}
+					if(correct){
+						choiceIndex = question.choices.indexOf(choice);
+						break;
+					}
+				}
+				break;
+			default:
+				choiceIndex = -1;
+				correct = true;
+		}
+		// random debug stuff
+		if(secret){
+			if(secret.correct){
+				correct = true;
+			}
+			if(secret.points){
+				score = secret.points;
+			}
+		}
+		// send the packet!
+		let payload = {};
+		switch (question.type) {
+			case "quiz":
 
+				break;
+			default:
+
+		}
+		this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}answers`,{
+			headers: {
+				"Content-Type": "application/json",
+				"Content-Length": Buffer.byteLength(JSON.stringify(payload))
+			},
+			method: "POST"
+		},this.proxy,false,JSON.stringify(payload)).then(()=>{
+			this.emit("questionSubmit");
+		});
   }
   send2Step(){
     return;
