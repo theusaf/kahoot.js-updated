@@ -8,16 +8,16 @@ client.on("joined", () => {
 });
 client.on("quiz", quiz => {
 	console.log("quiz has started. waiting for questions..");
-  console.log(quiz);
+  //console.log(quiz);
 });
 client.on("questionStart", question => {
 	console.log("question started. answering 0.");
-  console.log(question);
+  //console.log(question);
 	question.answer(0);
 });
 client.on("question",question=>{
   console.log("recieved question");
-  console.log(question);
+  //console.log(question);
 });
 client.on("questionEnd",q=>{
   console.log("question ended");
@@ -28,7 +28,7 @@ client.on("questionSubmit",()=>{
 });
 client.on("finish", (o) => {
 	console.log("the quiz has finished.");
-  console.log(o);
+  //console.log(o);
 });
 client.on("finishText",t=>{
   console.log(t);

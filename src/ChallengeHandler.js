@@ -326,6 +326,9 @@ class ChallengeHandler extends EventEmitter {
 			case "jumble":
 				// the answers aren't randomized, so...
 				correct = JSON.stringify(choice) == JSON.stringify([0,1,2,3]);
+				if(typeof choice == "string" || typeof choice == "number"){
+					choice = []
+				}
 				for(let n of choice){
 					text += question.choices[n].answer + "|";
 				}
