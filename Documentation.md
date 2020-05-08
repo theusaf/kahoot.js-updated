@@ -504,6 +504,9 @@ The kahoot client that interacts with kahoot's quiz api.
 <a name="quizfinishevent.properties.incorrect"></a>
 `incorrect (Number)`
 - The number of questions that were scored incorrect.
+
+#### All events have a .rawEvent property, which contains the raw information from Kahoot.
+
 ---
 <a name="qa"></a>
 ## Q and A

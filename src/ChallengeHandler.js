@@ -30,6 +30,7 @@ class ChallengeHandler extends EventEmitter {
 		this.questionIndex = 0;
 		this.score = 0;
 		this.boost = -1;
+		this.phase = "start"
     this.receivedQuestionTime = 0;
     // to prevent certain things from crashing
     this.ws = {
@@ -147,7 +148,113 @@ class ChallengeHandler extends EventEmitter {
   }
   // handles the logic of continuing to the next steps.
   next(){
-
+		switch (this.phase) {
+			case "start":
+				// start quiz
+				this.phase = "ready";
+				const kahoot = this.challengeData.kahoot;
+				let qqa = [];
+				for(let question of kahoot.questions){
+					qqa.push(question.choices ? question.choices.length : null);
+				}
+				this.emit("quizData",Object.assign(this.challengeData.kahoot,{
+					name: kahoot.title,
+					qCount: null,
+					totalQ: kahoot.questions.length,
+					quizQuestionAnswers: qqa
+				}));
+				setTimeout(this.next,5000);
+				break;
+			case "ready":
+				this.phase = "answer";
+				const q = this.challengeData.kahoot.questions[this.questionIndex];
+				this.emit("quizUpdate",Object.assign(q,{
+					questionIndex: this.questionIndex,
+					timeLeft: 5000,
+					type: q.type,
+					useStoryBlocks: false
+				}));
+				setTimeout(this.next,5000);
+				break;
+			case "answer":
+				const q = this.challengeData.kahoot.questions[this.questionIndex];
+				this.emit("questionStart");
+				this.phase = "leaderboard";
+				if(this.kahoot.options.ChallengeAutoContinue){
+					const question = q;
+					let c = [];
+					for(let choice of question.choices){
+						if(choice.correct){
+							c.push(choice.answer);
+						}
+					}
+					const event = {
+						correctAnswers: c,
+						correctAnswer: c[0],
+						text: c.join("|"),
+						correct: false,
+						nemesis: this._getNemesis(),
+						points: 0,
+						rank: this._getRank(),
+						totalScore: this.score,
+						pointsData: {
+							answerStreakPoints: {
+								answerStreakBonus: 0,
+								streakLevel: 0
+							}
+						}
+					};
+					if(this.challengeData.challenge.game_options.question_timer){
+						this.ti = setTimeout(()=>{
+							// didnt answer
+							this.boost = 0;
+							this.emit("questionEnd",event);
+							this.next();
+						},q.time);
+					}else{
+						this.ti = setTimeout(()=>{
+							// didnt answer
+							this.boost = 0;
+							this.emit("questionEnd",event);
+							this.next();
+						},1000 * 120);
+					}
+				}
+				break;
+			case "leaderboard":
+				this.questionIndex++;
+				this.phase = "ready";
+				if(this.questionIndex == this.challengeData.kahoot.questions.length){
+					this.phase = "close";
+					if(this.kahoot.options.ChallengeAutoContinue){
+						setTimeout(this.next,5000);
+					}
+					return;
+				}
+				if(this.kahoot.options.ChallengeAutoContinue){
+					setTimeout(this.next,5000);
+				}
+				break;
+			case "close":
+				this.phase = "complete";
+				this.emit("finish",{
+					playerCount: this.challengeData.challenge.challengeUsersList.length + 1,
+					quizID: this.challengeData.kahoot.uuid,
+					rank: this._getRank(),
+					correct: 0,
+					incorrect: 0
+				});
+				this.emit("finishText",{
+					metal: ["gold","silver","bronze"][this._getRank()]
+				});
+				if(this.kahoot.options.ChallengeAutoContinue){
+					setTimeout(this.next,5000);
+				}
+				break;
+			case "complete":
+				this.emit("quizEnd");
+				break;
+		}
   }
   getProgress(question){
     if(typeof question != "undefined"){
@@ -169,6 +276,7 @@ class ChallengeHandler extends EventEmitter {
   }
   sendSubmit(choice,question,secret){
 		// TODO: resolve any issues with slides, fix multiple_select_quiz
+		// TODO: figure out what happens if you run out of time
 		// calculate scores, then send http request.
 		const tick = Date.now() - this.receivedQuestionTime;
 		if(this.kahoot.options.ChallengeGetFullScore){
@@ -369,8 +477,10 @@ class ChallengeHandler extends EventEmitter {
 			method: "POST"
 		},this.proxy,false,JSON.stringify(payload)).then(()=>{
 			this.emit("questionSubmit");
-			setTimeout(()=>{
+			this.ti = setTimeout(()=>{
+				clearTimeout(this.ti);
 				this.emit("questionEnd",event);
+				this.next();
 			},300);
 		});
   }
