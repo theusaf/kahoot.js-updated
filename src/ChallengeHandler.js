@@ -264,6 +264,8 @@ class ChallengeHandler extends EventEmitter {
 		}
 		if(correct){
 			this.boost++;
+		}else{
+			this.boost = 0;
 		}
 		// send the packet!
 		let payload = {
@@ -315,8 +317,17 @@ class ChallengeHandler extends EventEmitter {
 			startTime: this.challengeData.progress.timestamp
 		};
 		switch (question.type) {
-			case "quiz":
-
+			case "open_ended":
+			case "word_cloud":
+				payload.question.answers[0].originalText = text;
+				payload.question.answers[0].text = text.toLowerCase().replace(/[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|-\_+=]/gm,"");
+				break;
+			case "jumble":
+				payload.question.answers[0].selectedJumbleOrder = choice;
+				break;
+			case "multiple_select_quiz":
+				// currently don't know how multiple_select_quiz works
+				payload.question.answers[0].points = payload.question.answers[0].points * percentCorrect;
 				break;
 			default:
 
