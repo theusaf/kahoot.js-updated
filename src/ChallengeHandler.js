@@ -253,7 +253,7 @@ class ChallengeHandler extends EventEmitter {
 					incorrect: 0
 				});
 				this.emit("finishText",{
-					metal: ["gold","silver","bronze"][this._getRank()]
+					metal: ["gold","silver","bronze"][this._getRank() - 1]
 				});
 				if(this.kahoot.options.ChallengeAutoContinue){
 					setTimeout(()=>{this.next();},5000);
