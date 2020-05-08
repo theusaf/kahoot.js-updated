@@ -30,6 +30,7 @@ client.on("questionStart", question => {
 				continue;
 			}
 			question.answer(i);
+			return;
 		}
 	}
 	if(foo.length){

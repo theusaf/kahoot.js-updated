@@ -297,7 +297,7 @@ class ChallengeHandler extends EventEmitter {
 		if(this.kahoot.options.ChallengeGetFullScore){
 			tick = 1;
 		}
-		const usesPoints = question.points;
+		const usesPoints = typeof question.points != "undefined" ? question.points : true;
 		const score = (Math.round((1 - ((tick / question.time) / 2)) * 1000) * question.pointsMultiplier) * Number(usesPoints);
 		// calculate extra boost. and score.
 		if(this.boost == -1){
