@@ -174,19 +174,23 @@ class ChallengeHandler extends EventEmitter {
 				setTimeout(()=>{this.next();},5000);
 				break;
 			case "ready":
-				this.phase = "answer";
-				var q = this.challengeData.kahoot.questions[this.questionIndex];
-				this.emit("quizUpdate",Object.assign(q,{
-					questionIndex: this.questionIndex,
-					timeLeft: 5000,
-					type: q.type,
-					useStoryBlocks: false
-				}));
-				setTimeout(()=>{this.next();},5000);
+				this.getProgress(this.questionIndex).then(inf=>{
+					this.challengeData.progress = inf;
+					this.phase = "answer";
+					var q = this.challengeData.kahoot.questions[this.questionIndex];
+					this.emit("quizUpdate",Object.assign(q,{
+						questionIndex: this.questionIndex,
+						timeLeft: 5000,
+						type: q.type,
+						useStoryBlocks: false
+					}));
+					setTimeout(()=>{this.next();},5000);
+				});
 				break;
 			case "answer":
 				var q = this.challengeData.kahoot.questions[this.questionIndex];
 				this.emit("questionStart");
+				this.receivedQuestionTime = Date.now();
 				this.phase = "leaderboard";
 				if(this.kahoot.options.ChallengeAutoContinue){
 					const question = q;
@@ -267,7 +271,7 @@ class ChallengeHandler extends EventEmitter {
   getProgress(question){
     if(typeof question != "undefined"){
 			return new Promise((resolve, reject)=>{
-				this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}progress/?upToQuestion=${question}`,null,this.proxy,true).then(data=>{
+				this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}/progress/?upToQuestion=${question}`,null,this.proxy,true).then(data=>{
 					resolve(data);
 				});
 			});;
@@ -486,13 +490,13 @@ class ChallengeHandler extends EventEmitter {
 				}
 			}
 		};
-		this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}answers`,{
+		this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}/answers`,{
 			headers: {
 				"Content-Type": "application/json",
 				"Content-Length": Buffer.byteLength(JSON.stringify(payload))
 			},
 			method: "POST"
-		},this.proxy,false,JSON.stringify(payload)).then(()=>{
+		},this.proxy,false,JSON.stringify(payload)).then(d=>{
 			this.emit("questionSubmit");
 			clearTimeout(this.ti);
 			this.ti = setTimeout(()=>{
