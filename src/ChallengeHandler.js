@@ -32,7 +32,7 @@ class ChallengeHandler extends EventEmitter {
 		this.questionIndex = 0;
 		this.score = 0;
 		this.boost = -1;
-		this.phase = "start"
+		this.phase = "start";
     this.receivedQuestionTime = 0;
     // to prevent certain things from crashing
     this.ws = {
@@ -138,6 +138,9 @@ class ChallengeHandler extends EventEmitter {
 					}
 				}
 				this.emit("joined");
+				if(this.kahoot.options.ChallengeAutoContinue){
+					setTimeout(()=>{this.next();},5000);
+				}
 				return;
 			}
 			this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}/join/?nickname=${this.name}`,{method:"POST"},this.proxy,true).then(data=>{
@@ -146,7 +149,7 @@ class ChallengeHandler extends EventEmitter {
 				resolve(this.challengeData);
 				this.emit("joined");
 				if(this.kahoot.options.ChallengeAutoContinue){
-					setTimeout(this.next,5000);
+					setTimeout(()=>{this.next();},5000);
 				}
 			});
 		});
@@ -155,20 +158,25 @@ class ChallengeHandler extends EventEmitter {
   next(){
 		switch (this.phase) {
 			case "start":
+				console.log(0)
 				// start quiz
 				this.phase = "ready";
 				const kahoot = this.challengeData.kahoot;
 				let qqa = [];
+				console.log(1)
 				for(let question of kahoot.questions){
 					qqa.push(question.choices ? question.choices.length : null);
 				}
+				console.log(2)
 				this.emit("quizData",Object.assign(this.challengeData.kahoot,{
 					name: kahoot.title,
 					qCount: null,
 					totalQ: kahoot.questions.length,
 					quizQuestionAnswers: qqa
 				}));
-				setTimeout(this.next,5000);
+				console.log(3)
+				setTimeout(()=>{this.next();},5000);
+				console.log(4)
 				break;
 			case "ready":
 				this.phase = "answer";
@@ -179,7 +187,7 @@ class ChallengeHandler extends EventEmitter {
 					type: q.type,
 					useStoryBlocks: false
 				}));
-				setTimeout(this.next,5000);
+				setTimeout(()=>{this.next();},5000);
 				break;
 			case "answer":
 				var q = this.challengeData.kahoot.questions[this.questionIndex];
@@ -232,12 +240,12 @@ class ChallengeHandler extends EventEmitter {
 				if(this.questionIndex == this.challengeData.kahoot.questions.length){
 					this.phase = "close";
 					if(this.kahoot.options.ChallengeAutoContinue){
-						setTimeout(this.next,5000);
+						setTimeout(()=>{this.next();},5000);
 					}
 					return;
 				}
 				if(this.kahoot.options.ChallengeAutoContinue){
-					setTimeout(this.next,5000);
+					setTimeout(()=>{this.next();},5000);
 				}
 				break;
 			case "close":
@@ -253,7 +261,7 @@ class ChallengeHandler extends EventEmitter {
 					metal: ["gold","silver","bronze"][this._getRank()]
 				});
 				if(this.kahoot.options.ChallengeAutoContinue){
-					setTimeout(this.next,5000);
+					setTimeout(()=>{this.next();},5000);
 				}
 				break;
 			case "complete":
