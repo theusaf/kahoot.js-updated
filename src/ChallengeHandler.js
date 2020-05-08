@@ -158,25 +158,20 @@ class ChallengeHandler extends EventEmitter {
   next(){
 		switch (this.phase) {
 			case "start":
-				console.log(0)
 				// start quiz
 				this.phase = "ready";
 				const kahoot = this.challengeData.kahoot;
 				let qqa = [];
-				console.log(1)
 				for(let question of kahoot.questions){
 					qqa.push(question.choices ? question.choices.length : null);
 				}
-				console.log(2)
 				this.emit("quizData",Object.assign(this.challengeData.kahoot,{
 					name: kahoot.title,
 					qCount: null,
 					totalQ: kahoot.questions.length,
 					quizQuestionAnswers: qqa
 				}));
-				console.log(3)
 				setTimeout(()=>{this.next();},5000);
-				console.log(4)
 				break;
 			case "ready":
 				this.phase = "answer";
@@ -293,6 +288,7 @@ class ChallengeHandler extends EventEmitter {
 		// TODO: resolve any issues with slides, fix multiple_select_quiz
 		// TODO: figure out what happens if you run out of time
 		// calculate scores, then send http request.
+		question = question.rawEvent;
 		const tick = Date.now() - this.receivedQuestionTime;
 		if(this.kahoot.options.ChallengeGetFullScore){
 			tick = 1;
@@ -361,10 +357,10 @@ class ChallengeHandler extends EventEmitter {
 				let spe = [];
 				const invalid = /[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|\-\_+=]/gm;
 				const test = text.replace(invalid,"");
-				for(choice of question.choices){
+				for(let choice of question.choices){
 					// has text besides emojis
-					if(choice.replace(consts.EMOJI_REGEX,"").length){
-						correct = test.replace(consts.EMOJI_REGEX,"").toLowerCase() == choice.replace(consts.EMOJI_REGEX,"").replace(invalid,"").toLowerCase();
+					if(choice.answer.replace(consts.EMOJI_REGEX,"").length){
+						correct = test.replace(consts.EMOJI_REGEX,"").toLowerCase() == choice.answer.replace(consts.EMOJI_REGEX,"").replace(invalid,"").toLowerCase();
 					}else{
 						// only has emojis
 						correct = test == choice;
@@ -376,7 +372,7 @@ class ChallengeHandler extends EventEmitter {
 				}
 				break;
 			case "word_cloud":
-				text = choice;
+				text = String(choice);
 				choiceIndex = -1;
 				correct = true;
 				break;
