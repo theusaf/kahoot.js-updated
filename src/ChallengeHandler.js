@@ -69,7 +69,7 @@ class ChallengeHandler extends EventEmitter {
 		if(nopath){ // don't append
 			uri = new URL(proxy);
 		}else{
-			uri = new URL((proxy || "") + url;
+			uri = new URL((proxy || "") + url);
 		}
 		let options = {
 			port: consts.ENDPOINT_PORT,
@@ -167,7 +167,7 @@ class ChallengeHandler extends EventEmitter {
 				break;
 			case "ready":
 				this.phase = "answer";
-				const q = this.challengeData.kahoot.questions[this.questionIndex];
+				var q = this.challengeData.kahoot.questions[this.questionIndex];
 				this.emit("quizUpdate",Object.assign(q,{
 					questionIndex: this.questionIndex,
 					timeLeft: 5000,
@@ -177,7 +177,7 @@ class ChallengeHandler extends EventEmitter {
 				setTimeout(this.next,5000);
 				break;
 			case "answer":
-				const q = this.challengeData.kahoot.questions[this.questionIndex];
+				var q = this.challengeData.kahoot.questions[this.questionIndex];
 				this.emit("questionStart");
 				this.phase = "leaderboard";
 				if(this.kahoot.options.ChallengeAutoContinue){
