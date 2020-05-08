@@ -189,8 +189,8 @@ class ChallengeHandler extends EventEmitter {
 				break;
 			case "answer":
 				var q = this.challengeData.kahoot.questions[this.questionIndex];
-				this.emit("questionStart");
 				this.receivedQuestionTime = Date.now();
+				this.emit("questionStart");
 				this.phase = "leaderboard";
 				if(this.kahoot.options.ChallengeAutoContinue){
 					const question = q;

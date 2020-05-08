@@ -11,9 +11,32 @@ client.on("quiz", quiz => {
   //console.log(quiz);
 });
 client.on("questionStart", question => {
-	console.log("question started. answering 0.");
-  console.log(question.rawEvent);
-	question.answer(0);
+	console.log("question started. answering.");
+  // find correct answer
+	const choices = question.rawEvent.choices;
+	let foo = [];
+	for(let i in choices){
+		if(choices[i].correct){
+			if(question.type == "open_ended" || question.type == "word_cloud"){
+				question.answer(choices[i].answer);
+				return;
+			}
+			if(question.type == "jumble"){
+				question.answer([0,1,2,3]);
+				return;
+			}
+			if(question.type == "multiple_select_quiz"){
+				foo.push(i);
+				continue;
+			}
+			question.answer(i);
+		}
+	}
+	if(foo.length){
+		question.answer(foo);
+	}else{
+		question.answer(0);
+	}
 });
 client.on("question",question=>{
   console.log("recieved question");
