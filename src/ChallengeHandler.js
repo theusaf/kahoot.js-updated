@@ -305,6 +305,9 @@ class ChallengeHandler extends EventEmitter {
 			const ent = this.challengeData.progress.playerProgress.playerProgressEntries;
 			let falseScore = 0;
 			for(let q in ent){
+				if(!ent[q].questionMetrics){
+					break;
+				}
 				if(ent[q].questionMetrics[this.name] > falseScore || !this.challengeData.kahoot.questions[q].points){
 					this.boost++;
 				}else{
@@ -356,7 +359,7 @@ class ChallengeHandler extends EventEmitter {
 			case "open_ended":
 				text = String(choice);
 				let spe = [];
-				const invalid = /[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|-\_+=]/gm;
+				const invalid = /[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|\-\_+=]/gm;
 				const test = text.replace(invalid,"");
 				for(choice of question.choices){
 					// has text besides emojis
@@ -455,7 +458,7 @@ class ChallengeHandler extends EventEmitter {
 			case "open_ended":
 			case "word_cloud":
 				payload.question.answers[0].originalText = text;
-				payload.question.answers[0].text = text.toLowerCase().replace(/[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|-\_+=]/gm,"");
+				payload.question.answers[0].text = text.toLowerCase().replace(/[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|\-\_+=]/gm,"");
 				break;
 			case "jumble":
 				payload.question.answers[0].selectedJumbleOrder = choice;
