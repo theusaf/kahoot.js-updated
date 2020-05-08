@@ -142,7 +142,7 @@ class TokenJS {
 		if(nopath){ // don't append
 			uri = new URL(proxy);
 		}else{
-			uri = new URL((proxy || "https://") + consts.ENDPOINT_URI + consts.CHALLENGE_ENDPOINT + "/pin/" + sessionID);
+			uri = new URL((proxy || "https://") + consts.ENDPOINT_URI + consts.CHALLENGE_ENDPOINT + "/pin/" + id);
 		}
 		let options = {
 			port: consts.ENDPOINT_PORT,

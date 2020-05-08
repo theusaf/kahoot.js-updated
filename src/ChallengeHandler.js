@@ -2,6 +2,8 @@ const consts = require("./consts.js");
 const userAgents = require("user-agents");
 const EventEmitter = require("events");
 const Promise = require("promise");
+const http = require("http");
+const https = require("https");
 
 function calculateStreakPoints(n){
 	if(n >= 6){
@@ -43,15 +45,15 @@ class ChallengeHandler extends EventEmitter {
       readyState: 3,
       addEventListener: ()=>{}
     };
-    getProgress().then(inf=>{
-      this.challengeData.progress = inf;
-			if(inf.challenge.endTime >= Date.now() || inf.challenge.challengeUsersList.length >= inf.challenge.maxPlayers){
+    this.getProgress().then(inf=>{
+      this.challengeData = inf;
+			if(inf.challenge.endTime <= Date.now() || inf.challenge.challengeUsersList.length >= inf.challenge.maxPlayers){
 				// quiz already ended or is full
 				this.emit("quizEnd");
 			}else{
 				this.emit("ready");
 			}
-    });
+    }).catch(e=>{console.log(e)});
 	}
   sendHttpRequest(url,opts,proxy,isJSON,packet){
     var proxyOptions;
@@ -116,6 +118,9 @@ class ChallengeHandler extends EventEmitter {
 			let count = 0;
 			let score = 0;
 			for(let p of this.challengeData.progress.playerProgress.playerProgressEntries){
+				if(!p.questionMetrics){
+					break;
+				}
 				if(this.name in p.questionMetrics){
 					count++;
 					score = p.questionMetrics[this.name];
@@ -259,14 +264,16 @@ class ChallengeHandler extends EventEmitter {
   getProgress(question){
     if(typeof question != "undefined"){
 			return new Promise((resolve, reject)=>{
-				this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}progress/?upToQuestion=${question}`,null,thgis.proxy,true).then(data=>{
+				this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}progress/?upToQuestion=${question}`,null,this.proxy,true).then(data=>{
 					resolve(data);
 				});
 			});;
     }else{ // first login. get data
 			return new Promise((resolve, reject)=>{
-				this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}progress`,null,this.proxy,true).then(data=>{
-					resolve(data);
+				this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}pin/${this.kahoot.sessionID}`,null,this.proxy,true).then(data=>{
+					this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${data.challenge.challengeId}/progress`,null,this.proxy,true).then(data2=>{
+						resolve(Object.assign(data,{progress:data2}));
+					});
 				});
 			});;
     }
