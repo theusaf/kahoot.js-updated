@@ -494,8 +494,8 @@ class ChallengeHandler extends EventEmitter {
 			method: "POST"
 		},this.proxy,false,JSON.stringify(payload)).then(()=>{
 			this.emit("questionSubmit");
+			clearTimeout(this.ti);
 			this.ti = setTimeout(()=>{
-				clearTimeout(this.ti);
 				this.emit("questionEnd",event);
 				this.next();
 			},300);

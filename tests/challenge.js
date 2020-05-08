@@ -12,7 +12,7 @@ client.on("quiz", quiz => {
 });
 client.on("questionStart", question => {
 	console.log("question started. answering 0.");
-  //console.log(question);
+  console.log(question.rawEvent);
 	question.answer(0);
 });
 client.on("question",question=>{
@@ -21,14 +21,14 @@ client.on("question",question=>{
 });
 client.on("questionEnd",q=>{
   console.log("question ended");
-  console.log(q);
+  //console.log(q);
 });
 client.on("questionSubmit",()=>{
   console.log("submitted");
 });
 client.on("finish", (o) => {
 	console.log("the quiz has finished.");
-  //console.log(o);
+  console.log(o);
 });
 client.on("finishText",t=>{
   console.log(t);
