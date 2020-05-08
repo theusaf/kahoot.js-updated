@@ -44,7 +44,7 @@ class ChallengeHandler extends EventEmitter {
     };
     getProgress().then(inf=>{
       this.challengeData.progress = inf;
-			if(inf.challenge.emdTime >= Date.now() || inf.challenge.challengeUsersList.length >= inf.challenge.maxPlayers){
+			if(inf.challenge.endTime >= Date.now() || inf.challenge.challengeUsersList.length >= inf.challenge.maxPlayers){
 				// quiz already ended or is full
 				this.emit("quizEnd");
 			}else{
@@ -139,6 +139,9 @@ class ChallengeHandler extends EventEmitter {
 				this.clientID = data.playerCid;
 				resolve(this.challengeData);
 				this.emit("joined");
+				if(this.kahoot.options.ChallengeAutoContinue){
+					setTimeout(this.next,5000);
+				}
 			});
 		});
   }
@@ -165,6 +168,7 @@ class ChallengeHandler extends EventEmitter {
     return;
   }
   sendSubmit(choice,question,secret){
+		// TODO: resolve any issues with slides, fix multiple_select_quiz
 		// calculate scores, then send http request.
 		const tick = Date.now() - this.receivedQuestionTime;
 		if(this.kahoot.options.ChallengeGetFullScore){
@@ -172,18 +176,19 @@ class ChallengeHandler extends EventEmitter {
 		}
 		const usesPoints = question.points;
 		const score = (Math.round((1 - ((tick / question.time) / 2)) * 1000) * question.pointsMultiplier) * Number(usesPoints);
-		// calculate extra boost.
-		if(boost == -1){
-			boost = 0;
+		// calculate extra boost. and score.
+		if(this.boost == -1){
+			this.boost = 0;
 			const ent = this.challengeData.progress.playerProgress.playerProgressEntries;
 			let falseScore = 0;
 			for(let q in ent){
 				if(ent[q].questionMetrics[this.name] > falseScore || !this.challengeData.kahoot.questions[q].points){
-					boost++;
+					this.boost++;
 				}else{
-					boost = 0;
+					this.boost = 0;
 				}
 				falseScore = ent[q].questionMetrics[this.name];
+				this.score = falseScore;
 			}
 		}
 		// now we have previous streak, determine if correct.
@@ -267,8 +272,15 @@ class ChallengeHandler extends EventEmitter {
 		}else{
 			this.boost = 0;
 		}
+		// get correct answers
+		let c = [];
+		for(let choice of question.choices){
+			if(choice.correct){
+				c.push(choice.answer);
+			}
+		}
 		// send the packet!
-		let payload = {
+		const payload = {
 			device: {
 				screen: this.userAgentMeta,
 				userAgent: this.userAgent
@@ -332,6 +344,23 @@ class ChallengeHandler extends EventEmitter {
 			default:
 
 		}
+		this.score += payload.question.answers[0].points + payload.question.answers[0].bonusPoints.answerStreakBonus;
+		const event = {
+			correctAnswers: c,
+			correctAnswer: c[0],
+			text: c.join("|"),
+			correct: correct,
+			nemesis: this._getNemesis(),
+			points: payload.question.answers[0].points,
+			rank: this._getRank(),
+			totalScore: this.score,
+			pointsData: {
+				answerStreakPoints: {
+					answerStreakBonus: calculateStreakPoints(this.boost),
+					streakLevel: this.boost
+				}
+			}
+		};
 		this.sendHttpRequest(`https://${consts.ENDPOINT_URI}${consts.CHALLENGE_ENDPOINT}${this.challengeData.challenge.challengeId}answers`,{
 			headers: {
 				"Content-Type": "application/json",
@@ -340,6 +369,9 @@ class ChallengeHandler extends EventEmitter {
 			method: "POST"
 		},this.proxy,false,JSON.stringify(payload)).then(()=>{
 			this.emit("questionSubmit");
+			setTimeout(()=>{
+				this.emit("questionEnd",event);
+			},300);
 		});
   }
   send2Step(){
@@ -348,5 +380,41 @@ class ChallengeHandler extends EventEmitter {
   sendFeedback(){
     return;
   }
+	_getNemesis(){
+		const scores = Array.from(this.challengeData.progress.playerProgress.playerProgressEntries);
+		const latest = scores.reverse()[0].questionMetrics;
+		let rank = 0;
+		let nemesisName = null;
+		let nemesisScore = 0;
+		for(let i in latest){
+			if(i == this.name){
+				continue;
+			}
+			if(latest[i] >= this.score){
+				rank++;
+				if(latest[i] > nemesisScore){
+					nemesisName = i;
+					nemesisScore = latest[i];
+				}
+			}
+		}
+		if(rank){
+			return {
+				name: nemesisName,
+				isGhost: false,
+				totalScore: nemesisScore,
+				rank: rank
+			};
+		}
+		return null;
+	}
+	_getRank(){
+		const nem = this._getNemesis();
+		if(nem){
+			return nem.rank + 1;
+		}else{
+			return 1;
+		}
+	}
 }
 module.exports = ChallengeHandler;

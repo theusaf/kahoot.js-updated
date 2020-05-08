@@ -59,7 +59,7 @@ class Kahoot extends EventEmitter {
 					//fulfill();
 				});
 				this._wsHandler.on("quizData", quizInfo => {
-					this.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, this, quizInfo.totalQ, quizInfo.quizQuestionAnswers);
+					this.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, this, quizInfo.totalQ, quizInfo.quizQuestionAnswers, quizInfo);
 					this.emit("quizStart", this.quiz);
 					this.emit("quiz", this.quiz);
 				});

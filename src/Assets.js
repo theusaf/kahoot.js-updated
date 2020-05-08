@@ -1,7 +1,7 @@
 var Promise = require("promise");
 
 class Quiz {
-	constructor(name, type, answerCount, client, amount, answers) {
+	constructor(name, type, answerCount, client, amount, answers, rawData) {
 		this.client = client;
 		this.name = name;
 		this.type = type;
@@ -10,6 +10,7 @@ class Quiz {
 		this.questions = [];
 		this.questionCount = amount;
 		this.answerCounts = answers;
+		this.rawEvent = rawData;
 	}
 }
 class Question {
@@ -24,6 +25,7 @@ class Question {
 		this.quiz.questions.push(this);
 		this.number = this.quiz.questions.length;
 		this.quiz.currentQuestion = this;
+		this.rawEvent = rawEvent;
 	}
 	answer(number) {
 		return new Promise((fulfill, reject) => {
@@ -57,6 +59,7 @@ class QuestionEndEvent {
 			this.rank = rawEvent.rank;
 			this.total = rawEvent.totalScore;
 			this.streak = rawEvent.pointsData.answerStreakPoints.streakLevel;
+			this.rawEvent = rawEvent;
 		} catch (e) {
 			console.log("GET_END_EVT_ERR"); //this error will usually only happen if you join during the game.
 		}
@@ -68,6 +71,7 @@ class QuestionSubmitEvent {
 		this.client = client;
 		this.quiz = client.quiz;
 		this.question = this.quiz.questions[this.quiz.questions.length - 1];
+		this.rawEvent = message;
 	}
 }
 class Nemesis {
@@ -77,18 +81,20 @@ class Nemesis {
 			this.score = rawData.totalScore;
 			this.isGhost = rawData.isGhost;
 			this.exists = true;
+			this.rawEvent = rawData
 		} else {
 			this.name = null;
-			this.id = null;
 			this.score = null;
 			this.isKicked = null;
 			this.exists = false;
+			this.rawEvent = null;
 		}
 	}
 }
 class FinishTextEvent {
 	constructor(rawEvent) {
 		this.metal = rawEvent.metal;
+		this.rawEvent = rawEvent;
 	}
 }
 class QuizFinishEvent {
@@ -100,6 +106,7 @@ class QuizFinishEvent {
 		this.rank = rawEvent.rank;
 		this.correct = rawEvent.correct;
 		this.incorrect = rawEvent.incorrect;
+		this.rawEvent = rawEvent;
 	}
 }
 module.exports = {
