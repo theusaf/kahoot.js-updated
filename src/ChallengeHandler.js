@@ -424,7 +424,7 @@ class ChallengeHandler extends EventEmitter {
 				answers: [
 					{
 						bonusPoints: {
-							answerStreakBonus: question.points ? calculateStreakPoints(this.boost) : 0
+							answerStreakBonus: (typeof question.points != "undefined" ? question.points : true) ? calculateStreakPoints(this.boost) : 0
 						},
 						choiceIndex: choiceIndex,
 						isCorrect: correct,
