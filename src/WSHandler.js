@@ -194,8 +194,9 @@ class WSHandler extends EventEmitter {
 					choice: questionChoice,
 					questionIndex: this.kahoot.quiz.currentQuestion.index,
 					meta: {
-						lag: 30
-					}
+						lag: Math.round(Math.random() * 45 + 5)
+					},
+					type: question.type
 				}),
 				gameid: this.gameID,
 				host: consts.ENDPOINT_URI,
@@ -210,8 +211,9 @@ class WSHandler extends EventEmitter {
 				text: String(questionChoice),
 				questionIndex: this.kahoot.quiz.currentQuestion.index,
 				meta: {
-					lag: 30
-				}
+					lag: Math.round(Math.random() * 45 + 5)
+				},
+				type: question.type
 			});
 		}
 		// array
@@ -221,8 +223,9 @@ class WSHandler extends EventEmitter {
 					choice: [0,1,2,3],
 					questionIndex: this.kahoot.quiz.currentQuestion.index,
 					meta: {
-						lag: 30
-					}
+						lag: Math.round(Math.random() * 45 + 5)
+					},
+					type: question.type
 				});
 			}
 		}

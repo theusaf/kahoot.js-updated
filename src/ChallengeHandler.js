@@ -116,21 +116,34 @@ class ChallengeHandler extends EventEmitter {
 		return new Promise((resolve, reject)=>{
 			this.name = String(name);
 			let count = 0;
-			let score = 0;
 			for(let p of this.challengeData.progress.playerProgress.playerProgressEntries){
 				if(!p.questionMetrics){
 					break;
 				}
 				if(this.name in p.questionMetrics){
-					count++;
-					score = p.questionMetrics[this.name];
+					if(this.challengeData.progress.summary.playersUnfinished && this.challengeData.progress.summary.playersUnfinished.filter(o=>{
+						return o.playerId == this.name;
+					}).length){
+						const pl = this.challengeData.progress.summary.playersUnfinished.filter(o=>{
+							return o.playerId == this.name;
+						})[0];
+						this.score = pl.finalScore;
+						this.questionIndex = pl.totalAnswerCount; // should load the next question probably
+						count = pl.totalAnswerCount;
+					}else{ // probably already complete.
+						resolve(this.challengeData);
+						this.emit("joined");
+						setTimeout(()=>{
+							this.emit("quizEnd");
+						},2000);
+						return;
+					}
+					break;
 				}else{
 					break;
 				}
 			}
 			if(count > 0){
-				this.questionIndex = count;
-				this.score = score;
 				for(let u of this.challengeData.challenge.challengeUsersList){
 					if(u.nickname == this.name){
 						this.playerCid = u.playerCId;
@@ -138,6 +151,7 @@ class ChallengeHandler extends EventEmitter {
 					}
 				}
 				this.emit("joined");
+				resolve(this.challengeData);
 				if(this.kahoot.options.ChallengeAutoContinue){
 					setTimeout(()=>{this.next();},5000);
 				}
@@ -220,6 +234,7 @@ class ChallengeHandler extends EventEmitter {
 						this.ti = setTimeout(()=>{
 							// didnt answer
 							this.boost = 0;
+							this.sendSubmit(-1,{rawEvent:q},{points:0,_nocont:true});
 							this.emit("questionEnd",event);
 							this.next();
 						},q.time);
@@ -227,6 +242,7 @@ class ChallengeHandler extends EventEmitter {
 						this.ti = setTimeout(()=>{
 							// didnt answer
 							this.boost = 0;
+							this.sendSubmit(-1,{rawEvent:q},{points:0,_nocont:true});
 							this.emit("questionEnd",event);
 							this.next();
 						},1000 * 120);
@@ -305,6 +321,9 @@ class ChallengeHandler extends EventEmitter {
 			const ent = this.challengeData.progress.playerProgress.playerProgressEntries;
 			let falseScore = 0;
 			for(let q in ent){
+				if(q >= this.questionIndex){
+					break;
+				}
 				if(!ent[q].questionMetrics){
 					break;
 				}
@@ -321,7 +340,7 @@ class ChallengeHandler extends EventEmitter {
 		let correct = false;
 		let text = "";
 		let choiceIndex = Number(choice);
-		let percentCorrect = 0;
+		let correctCount = 0;
 		switch (question.type) {
 			case "quiz":
 				correct = question.choices[choice].correct;
@@ -340,10 +359,9 @@ class ChallengeHandler extends EventEmitter {
 				choiceIndex = -1;
 				break;
 			case "multiple_select_quiz":
-				const totalCorrect = question.choices.filter(ch=>{
+				totalCorrect = question.choices.filter(ch=>{
 					return ch.correct;
 				}).length;
-				let correctCount = 0;
 				for(let ch of choice){
 					if(question.choices[ch].correct){
 						correct = true;
@@ -353,7 +371,6 @@ class ChallengeHandler extends EventEmitter {
 						break;
 					}
 				}
-				percentCorrect = correctCount / totalCorrect;
 				for(let ch of choice){
 					text += question.choices[ch].answer + "|";
 				}
@@ -457,6 +474,9 @@ class ChallengeHandler extends EventEmitter {
 			sessionId: this.kahoot.sessionID,
 			startTime: this.challengeData.progress.timestamp
 		};
+		if(secret && secret._nocont){
+			payload.question.skipped = true;
+		}
 		switch (question.type) {
 			case "open_ended":
 			case "word_cloud":
@@ -464,11 +484,16 @@ class ChallengeHandler extends EventEmitter {
 				payload.question.answers[0].text = text.toLowerCase().replace(/[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|\-\_+=]/gm,"");
 				break;
 			case "jumble":
+				if(choice.length != 4){
+					choice = [3,2,1,0];
+				}
 				payload.question.answers[0].selectedJumbleOrder = choice;
 				break;
 			case "multiple_select_quiz":
 				// currently don't know how multiple_select_quiz works
-				payload.question.answers[0].points = payload.question.answers[0].points * percentCorrect;
+				payload.question.answers[0].points = payload.question.answers[0].points * correctCount;
+				payload.question.answers[0].selectedChoices = choice;
+				payload.question.answers[0].choiceIndex = -5;
 				break;
 			default:
 
@@ -497,6 +522,9 @@ class ChallengeHandler extends EventEmitter {
 			},
 			method: "POST"
 		},this.proxy,false,JSON.stringify(payload)).then(d=>{
+			if(secret && secret._nocont){
+				return;
+			}
 			this.emit("questionSubmit");
 			clearTimeout(this.ti);
 			this.ti = setTimeout(()=>{

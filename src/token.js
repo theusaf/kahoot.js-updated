@@ -68,7 +68,8 @@ class TokenJS {
 			});
 		}).on("error", err => {
 			// TODO: better error handling
-			console.log("request error:", err);
+			// console.log("request error:", err);
+			callback(null,err,null);
 		}).end();
 	}
 	static solveChallenge(challenge) {
