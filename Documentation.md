@@ -16,6 +16,7 @@
     - [2StepSuccess](#kahoot.events.2StepSuccess)
     - [feedback](#kahoot.events.feedback)
     - [invalidName](#kahoot.events.invalidName)
+    - [handshakeFailed](#kahoot.events.handshakeFailed)
   - [Methods](#kahoot.methods)
     - [join](#kahoot.methods.join)
     - [reconnect](#kahoot.methods.reconnect)
@@ -170,6 +171,10 @@ The kahoot client that interacts with kahoot's quiz api.
 <a name="kahoot.events.invalidName"></a>
 `on('invalidName')`
 - Emitted when the join name is a duplicate.
+
+<a name="kahoot.events.handshakeFailed"></a>
+`on('handshakeFailed')`
+- Emitted when the the websocket connection failed/was blocked.
 
 <a name="kahoot.methods"></a>
 #### Methods
