@@ -348,68 +348,70 @@ class ChallengeHandler extends EventEmitter {
 		let text = "";
 		let choiceIndex = Number(choice);
 		let correctCount = 0;
-		switch (question.type) {
-			case "quiz":
-				correct = question.choices[choice].correct;
-				text = question.choices[choice].answer;
-				break;
-			case "jumble":
-				// the answers aren't randomized, so...
-				correct = JSON.stringify(choice) == JSON.stringify([0,1,2,3]);
-				if(typeof choice == "string" || typeof choice == "number"){
-					choice = []
-				}
-				for(let n of choice){
-					text += question.choices[n].answer + "|";
-				}
-				text = text.replace(/\|$/,"");
-				choiceIndex = -1;
-				break;
-			case "multiple_select_quiz":
-				totalCorrect = question.choices.filter(ch=>{
-					return ch.correct;
-				}).length;
-				for(let ch of choice){
-					if(question.choices[ch].correct){
-						correct = true;
-						correctCount++;
-					}else{
-						correct = false;
-						break;
+		if(!secret || !(secret && secret._nocont)){
+			switch (question.type) {
+				case "quiz":
+					correct = question.choices[choice].correct;
+					text = question.choices[choice].answer;
+					break;
+				case "jumble":
+					// the answers aren't randomized, so...
+					correct = JSON.stringify(choice) == JSON.stringify([0,1,2,3]);
+					if(typeof choice == "string" || typeof choice == "number"){
+						choice = []
 					}
-				}
-				for(let ch of choice){
-					text += question.choices[ch].answer + "|";
-				}
-				text = text.replace(/\|$/,"");
-				break;
-			case "open_ended":
-				text = String(choice);
-				let spe = [];
-				const invalid = /[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|\-\_+=]/gm;
-				const test = text.replace(invalid,"");
-				for(let choice of question.choices){
-					// has text besides emojis
-					if(choice.answer.replace(consts.EMOJI_REGEX,"").length){
-						correct = test.replace(consts.EMOJI_REGEX,"").toLowerCase() == choice.answer.replace(consts.EMOJI_REGEX,"").replace(invalid,"").toLowerCase();
-					}else{
-						// only has emojis
-						correct = test == choice;
+					for(let n of choice){
+						text += question.choices[n].answer + "|";
 					}
-					if(correct){
-						choiceIndex = question.choices.indexOf(choice);
-						break;
+					text = text.replace(/\|$/,"");
+					choiceIndex = -1;
+					break;
+				case "multiple_select_quiz":
+					totalCorrect = question.choices.filter(ch=>{
+						return ch.correct;
+					}).length;
+					for(let ch of choice){
+						if(question.choices[ch].correct){
+							correct = true;
+							correctCount++;
+						}else{
+							correct = false;
+							break;
+						}
 					}
-				}
-				break;
-			case "word_cloud":
-				text = String(choice);
-				choiceIndex = -1;
-				correct = true;
-				break;
-			default:
-				choiceIndex = choice || 0;
-				correct = true;
+					for(let ch of choice){
+						text += question.choices[ch].answer + "|";
+					}
+					text = text.replace(/\|$/,"");
+					break;
+				case "open_ended":
+					text = String(choice);
+					let spe = [];
+					const invalid = /[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|\-\_+=]/gm;
+					const test = text.replace(invalid,"");
+					for(let choice of question.choices){
+						// has text besides emojis
+						if(choice.answer.replace(consts.EMOJI_REGEX,"").length){
+							correct = test.replace(consts.EMOJI_REGEX,"").toLowerCase() == choice.answer.replace(consts.EMOJI_REGEX,"").replace(invalid,"").toLowerCase();
+						}else{
+							// only has emojis
+							correct = test == choice;
+						}
+						if(correct){
+							choiceIndex = question.choices.indexOf(choice);
+							break;
+						}
+					}
+					break;
+				case "word_cloud":
+					text = String(choice);
+					choiceIndex = -1;
+					correct = true;
+					break;
+				default:
+					choiceIndex = choice || 0;
+					correct = true;
+			}
 		}
 		// random debug stuff
 		if(secret){
