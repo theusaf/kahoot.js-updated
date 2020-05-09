@@ -40,7 +40,9 @@ class ChallengeHandler extends EventEmitter {
       on: ()=>{},
       once: ()=>{},
       send: ()=>{},
-      close: ()=>{},
+      close: ()=>{
+				this.stop = true;
+			},
       terminate: ()=>{},
       readyState: 3,
       addEventListener: ()=>{}
@@ -170,6 +172,10 @@ class ChallengeHandler extends EventEmitter {
   }
   // handles the logic of continuing to the next steps.
   next(){
+		if(this.stop){
+			// then wait to be garbage disposed.
+			return;
+		}
 		switch (this.phase) {
 			case "start":
 				// start quiz
@@ -302,6 +308,7 @@ class ChallengeHandler extends EventEmitter {
     }
   }
   leave(){
+		this.stop = true;
     return;
   }
   sendSubmit(choice,question,secret){
