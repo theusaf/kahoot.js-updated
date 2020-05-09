@@ -32,6 +32,11 @@ class WSHandler extends EventEmitter {
 			this.connected = false;
 			this.close();
 		});
+		this.ws.on("error",e=>{
+			this.connected = false;
+			this.emit("error",e);
+			this.close();
+		});
 		this.dataHandler = {
 			1: (data, content) => {
 				try {

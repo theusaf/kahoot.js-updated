@@ -550,3 +550,5 @@ Proxies must be in this format in order to work:<br/>
 - This can be prevented by using the nopath option.
 
 The options is the [HTTP Request Options](https://nodejs.org/api/http.html#http_http_request_options_callback), which should only be used if the proxy service requires special headers to work. You can also set the method used.
+
+**Proxies are only used to specify HTTP requests for the tokens and for challenge games. If the websocket connection is blocked, you need to use a proxy/vpn for your server.**
