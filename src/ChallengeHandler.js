@@ -348,6 +348,7 @@ class ChallengeHandler extends EventEmitter {
 		let text = "";
 		let choiceIndex = Number(choice);
 		let correctCount = 0;
+		let totalCorrect = 0;
 		if(!secret || !(secret && secret._nocont)){
 			switch (question.type) {
 				case "quiz":
