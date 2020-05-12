@@ -347,6 +347,9 @@ class WSHandler extends EventEmitter {
 					}
 				}
 			}
+		} else if (data.channel == consts.CHANNEL_HANDSHAKE && data.error) {
+			this.emit("handshakeFailed");
+			this.close();
 		}
 		if (data.ext && data.channel == "/meta/connect" && !data.advice && this.ready) {
 			var packet = this.getPacket(data)[0];

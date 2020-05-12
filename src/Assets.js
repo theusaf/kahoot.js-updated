@@ -27,11 +27,11 @@ class Question {
 		this.quiz.currentQuestion = this;
 		this.rawEvent = rawEvent;
 	}
-	answer(number) {
+	answer(number,secret) {
 		return new Promise((fulfill, reject) => {
 			if (!number && number !== 0) reject(console.log("Question answer is missing question number!"));
 			else {
-				this.client.answerQuestion(number,this).then(() => {
+				this.client.answerQuestion(number,this,secret).then(() => {
 					fulfill();
 				}).catch(e => {
 					reject();
