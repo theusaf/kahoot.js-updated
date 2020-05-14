@@ -107,7 +107,11 @@ class ChallengeHandler extends EventEmitter {
 					const data = Buffer.concat(chunks);
 					const body = data.toString("utf8");
           if(isJSON){
-            return resolve(JSON.parse(body));
+						try{
+            	return resolve(JSON.parse(body));
+						}catch(e){
+							return;
+						}
           }
           resolve(body);
 				});
