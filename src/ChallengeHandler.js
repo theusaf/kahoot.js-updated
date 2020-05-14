@@ -102,8 +102,10 @@ class ChallengeHandler extends EventEmitter {
 				let chunks = [];
         res.on("data",data=>{
 					chunks.push(data);
+					console.log(chunks.length);
         });
 				res.on("end",()=>{
+					console.log(chunks.length);
 					const data = Buffer.concat(chunks);
 					const body = data.toString("utf8");
           if(isJSON){
