@@ -102,16 +102,15 @@ class ChallengeHandler extends EventEmitter {
 				let chunks = [];
         res.on("data",data=>{
 					chunks.push(data);
-					console.log(chunks.length);
         });
 				res.on("end",()=>{
-					console.log(chunks.length);
 					const data = Buffer.concat(chunks);
 					const body = data.toString("utf8");
           if(isJSON){
 						try{
             	return resolve(JSON.parse(body));
 						}catch(e){
+							resolve({});
 							return;
 						}
           }
@@ -201,7 +200,9 @@ class ChallengeHandler extends EventEmitter {
 				break;
 			case "ready":
 				this.getProgress(this.questionIndex).then(inf=>{
-					this.challengeData.progress = inf;
+					if(Object.keys(inf).length != 0){
+						this.challengeData.progress = inf;
+					}
 					this.phase = "answer";
 					var q = this.challengeData.kahoot.questions[this.questionIndex];
 					this.emit("quizUpdate",Object.assign(q,{
