@@ -165,8 +165,12 @@ class TokenJS {
 			proto = http;
 		}
 		return proto.request(uri,options, res => {
+			let chunks = [];
 			res.on("data", chunk => {
-				var body = chunk.toString("utf8");
+				chunks.push(chunk);
+			});
+			res.on("end", ()=>{
+				const body = Buffer.concat(chunks).toString("utf8");
 				var bodyObject;
 				try {
 					bodyObject = JSON.parse(body);
