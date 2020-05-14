@@ -48,6 +48,9 @@ class ChallengeHandler extends EventEmitter {
       addEventListener: ()=>{}
     };
     this.getProgress().then(inf=>{
+			if(Object.keys(inf.progress).length == 0){
+				return this.emit("quizEnd");
+			}
       this.challengeData = inf;
 			if(inf.challenge.endTime <= Date.now() || inf.challenge.challengeUsersList.length >= inf.challenge.maxPlayers){
 				// quiz already ended or is full
