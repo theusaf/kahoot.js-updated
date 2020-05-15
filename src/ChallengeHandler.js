@@ -225,9 +225,11 @@ class ChallengeHandler extends EventEmitter {
 				if(this.kahoot.options.ChallengeAutoContinue){
 					const question = q;
 					let c = [];
-					for(let choice of question.choices){
-						if(choice.correct){
-							c.push(choice.answer);
+					if(question.choices){
+						for(let choice of question.choices){
+							if(choice.correct){
+								c.push(choice.answer);
+							}
 						}
 					}
 					const event = {
