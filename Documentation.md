@@ -227,9 +227,9 @@ The kahoot client that interacts with kahoot's quiz api.
   - ***recommend (Number)***
     - A number to rate if you would recommend (1 or 0)
   - ***overall (Number)***
-    - A Number to rate how you felt (1-3)
+    - A Number to rate how you felt (-1 - 1)
         - 1 = good
-        - 3 = bad
+        - -1 = bad
 - Returns: `Promise`
 
 <a name="kahoot.properties"></a>

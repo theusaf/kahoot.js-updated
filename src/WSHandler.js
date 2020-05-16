@@ -250,10 +250,10 @@ class WSHandler extends EventEmitter {
 	}
 	sendSubmit(questionChoice,question) {
 		const time = Date.now() - this.receivedQuestionTime;
-		if(time < 500){
+		if(time < 250){
 			setTimeout(()=>{
 				this.sendSubmit(questionChoice,question);
-			},500 - time);
+			},250 - time);
 			return;
 		}
 		var packet = this.getSubmitPacket(questionChoice,question);
@@ -394,7 +394,9 @@ class WSHandler extends EventEmitter {
 			},
 			id: this.msgID + ""
 		}];
-		this.send(packet);
+		setTimeout(()=>{
+			this.send(packet);
+		},1000);
 	}
 	relog(cid) {
 		if (!this.ready) {
