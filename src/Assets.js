@@ -81,7 +81,7 @@ class Nemesis {
 			this.score = rawData.totalScore;
 			this.isGhost = rawData.isGhost;
 			this.exists = true;
-			this.rawEvent = rawData
+			this.rawEvent = rawData;
 		} else {
 			this.name = null;
 			this.score = null;

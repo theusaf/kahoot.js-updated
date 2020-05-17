@@ -8,11 +8,11 @@ client.on("joined", () => {
 });
 client.on("quiz", quiz => {
 	console.log("quiz has started. waiting for questions..");
-  //console.log(quiz);
+	//console.log(quiz);
 });
 client.on("questionStart", question => {
 	console.log("question started. answering.");
-  // find correct answer
+	// find correct answer
 	const choices = question.rawEvent.choices;
 	let foo = [];
 	for(let i in choices){
@@ -40,23 +40,23 @@ client.on("questionStart", question => {
 	}
 });
 client.on("question",question=>{
-  console.log("recieved question");
-  //console.log(question);
+	console.log("recieved question");
+	//console.log(question);
 });
 client.on("questionEnd",q=>{
-  console.log("question ended");
-  //console.log(q);
+	console.log("question ended");
+	//console.log(q);
 });
 client.on("questionSubmit",()=>{
-  console.log("submitted");
+	console.log("submitted");
 });
 client.on("finish", (o) => {
 	console.log("the quiz has finished.");
-  console.log(o);
+	console.log(o);
 });
 client.on("finishText",t=>{
-  console.log(t);
+	console.log(t);
 });
 client.on("quizEnd",()=>{
-  console.log("diconnected");
+	console.log("diconnected");
 });
