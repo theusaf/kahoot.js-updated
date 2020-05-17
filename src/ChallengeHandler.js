@@ -111,7 +111,7 @@ class ChallengeHandler extends EventEmitter {
 					const body = data.toString("utf8");
 					if(isJSON){
 						try{
-            	return resolve(JSON.parse(body));
+							return resolve(JSON.parse(body));
 						}catch(e){
 							resolve({});
 							return;
@@ -185,7 +185,7 @@ class ChallengeHandler extends EventEmitter {
 			return;
 		}
 		switch (this.phase) {
-		case "start":
+		case "start":{
 			// start quiz
 			this.phase = "ready";
 			const kahoot = this.challengeData.kahoot;
@@ -201,7 +201,8 @@ class ChallengeHandler extends EventEmitter {
 			}));
 			setTimeout(()=>{this.next();},5000);
 			break;
-		case "ready":
+		}
+		case "ready":{
 			this.getProgress(this.questionIndex).then(inf=>{
 				if(Object.keys(inf).length != 0){
 					this.challengeData.progress = inf;
@@ -217,57 +218,57 @@ class ChallengeHandler extends EventEmitter {
 				setTimeout(()=>{this.next();},5000);
 			});
 			break;
-		case "answer":
+		}
+		case "answer":{
 			var q = this.challengeData.kahoot.questions[this.questionIndex];
 			this.receivedQuestionTime = Date.now();
 			this.emit("questionStart");
 			this.phase = "leaderboard";
-			if(this.kahoot.options.ChallengeAutoContinue){
-				const question = q;
-				let c = [];
-				if(question.choices){
-					for(let choice of question.choices){
-						if(choice.correct){
-							c.push(choice.answer);
-						}
+			const question = q;
+			let c = [];
+			if(question.choices){
+				for(let choice of question.choices){
+					if(choice.correct){
+						c.push(choice.answer);
 					}
-				}
-				const event = {
-					correctAnswers: c,
-					correctAnswer: c[0],
-					text: c.join("|"),
-					correct: false,
-					nemesis: this._getNemesis(),
-					points: 0,
-					rank: this._getRank(),
-					totalScore: this.score,
-					pointsData: {
-						answerStreakPoints: {
-							answerStreakBonus: 0,
-							streakLevel: 0
-						}
-					}
-				};
-				if(this.challengeData.challenge.game_options.question_timer){
-					this.ti = setTimeout(()=>{
-						// didnt answer
-						this.boost = 0;
-						this.sendSubmit(-1,{rawEvent:q},{points:0,_nocont:true});
-						this.emit("questionEnd",event);
-						this.next();
-					},q.time);
-				}else{
-					this.ti = setTimeout(()=>{
-						// didnt answer
-						this.boost = 0;
-						this.sendSubmit(-1,{rawEvent:q},{points:0,_nocont:true});
-						this.emit("questionEnd",event);
-						this.next();
-					},1000 * 120);
 				}
 			}
+			const event = {
+				correctAnswers: c,
+				correctAnswer: c[0],
+				text: c.join("|"),
+				correct: false,
+				nemesis: this._getNemesis(),
+				points: 0,
+				rank: this._getRank(),
+				totalScore: this.score,
+				pointsData: {
+					answerStreakPoints: {
+						answerStreakBonus: 0,
+						streakLevel: 0
+					}
+				}
+			};
+			if(this.challengeData.challenge.game_options.question_timer){
+				this.ti = setTimeout(()=>{
+					// didnt answer
+					this.boost = 0;
+					this.sendSubmit(-1,{rawEvent:q},{points:0,_nocont:true});
+					this.emit("questionEnd",event);
+					this.next();
+				},q.time);
+			}else{
+				this.ti = setTimeout(()=>{
+					// didnt answer
+					this.boost = 0;
+					this.sendSubmit(-1,{rawEvent:q},{points:0,_nocont:true});
+					this.emit("questionEnd",event);
+					this.next();
+				},1000 * 120);
+			}
 			break;
-		case "leaderboard":
+		}
+		case "leaderboard":{
 			this.questionIndex++;
 			this.phase = "ready";
 			if(this.questionIndex == this.challengeData.kahoot.questions.length){
@@ -281,7 +282,8 @@ class ChallengeHandler extends EventEmitter {
 				setTimeout(()=>{this.next();},5000);
 			}
 			break;
-		case "close":
+		}
+		case "close":{
 			this.phase = "complete";
 			this.emit("finish",{
 				playerCount: this.challengeData.challenge.challengeUsersList.length + 1,
@@ -297,10 +299,11 @@ class ChallengeHandler extends EventEmitter {
 				setTimeout(()=>{this.next();},5000);
 			}
 			break;
-		case "complete":
+		}
+		case "complete":{
 			this.emit("quizEnd");
 			break;
-		}
+		}}
 	}
 	getProgress(question){
 		if(typeof question != "undefined"){
@@ -328,7 +331,7 @@ class ChallengeHandler extends EventEmitter {
 		// TODO: figure out what happens if you run out of time
 		// calculate scores, then send http request.
 		question = question.rawEvent;
-		const tick = Date.now() - this.receivedQuestionTime;
+		let tick = Date.now() - this.receivedQuestionTime;
 		if(this.kahoot.options.ChallengeGetFullScore){
 			tick = 1;
 		}
@@ -360,14 +363,14 @@ class ChallengeHandler extends EventEmitter {
 		let text = "";
 		let choiceIndex = Number(choice);
 		let correctCount = 0;
-		let totalCorrect = 0;
 		if(!secret || !(secret && secret._nocont)){
 			switch (question.type) {
-			case "quiz":
+			case "quiz":{
 				correct = question.choices[choice].correct;
 				text = question.choices[choice].answer;
 				break;
-			case "jumble":
+			}
+			case "jumble": {
 				// the answers aren't randomized, so...
 				correct = JSON.stringify(choice) == JSON.stringify([0,1,2,3]);
 				if(typeof choice == "string" || typeof choice == "number"){
@@ -379,10 +382,8 @@ class ChallengeHandler extends EventEmitter {
 				text = text.replace(/\|$/,"");
 				choiceIndex = -1;
 				break;
-			case "multiple_select_quiz":
-				totalCorrect = question.choices.filter(ch=>{
-					return ch.correct;
-				}).length;
+			}
+			case "multiple_select_quiz": {
 				for(let ch of choice){
 					if(question.choices[ch].correct){
 						correct = true;
@@ -397,10 +398,10 @@ class ChallengeHandler extends EventEmitter {
 				}
 				text = text.replace(/\|$/,"");
 				break;
-			case "open_ended":
+			}
+			case "open_ended": {
 				text = String(choice);
-				let spe = [];
-				const invalid = /[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|\-\_+=]/gm;
+				const invalid = /[~`!@#$%^&*(){}[\];:"'<,.>?/\\|\-_+=]/gm;
 				const test = text.replace(invalid,"");
 				for(let choice of question.choices){
 					// has text besides emojis
@@ -416,15 +417,17 @@ class ChallengeHandler extends EventEmitter {
 					}
 				}
 				break;
-			case "word_cloud":
+			}
+			case "word_cloud": {
 				text = String(choice);
 				choiceIndex = -1;
 				correct = true;
 				break;
-			default:
+			}
+			default: {
 				choiceIndex = choice || 0;
 				correct = true;
-			}
+			}}
 		}
 		// random debug stuff
 		if(secret){
@@ -503,7 +506,7 @@ class ChallengeHandler extends EventEmitter {
 		case "open_ended":
 		case "word_cloud":
 			payload.question.answers[0].originalText = text;
-			payload.question.answers[0].text = text.toLowerCase().replace(/[~`\!@#\$%\^&*\(\)\{\}\[\];:"'<,.>\?\/\\\|\-\_+=]/gm,"");
+			payload.question.answers[0].text = text.toLowerCase().replace(/[~`!@#$%^&*(){}[\];:"'<,.>?/\\|\-_+=]/gm,"");
 			break;
 		case "jumble":
 			if(choice.length != 4){
