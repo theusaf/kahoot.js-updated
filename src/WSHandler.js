@@ -293,6 +293,11 @@ class WSHandler extends EventEmitter {
 			console.log("DWN: " + msg);
 		}
 		var data = JSON.parse(msg)[0];
+		if (data.channel == consts.CHANNEL_HANDSHAKE && data.error) {
+			this.emit("error");
+			this.close();
+			return;
+		}
 		if (data.channel == consts.CHANNEL_HANDSHAKE && data.clientId) { // The server sent a handshake packet
 			this.clientID = data.clientId;
 			var r = this.getPacket(data)[0];
@@ -347,9 +352,6 @@ class WSHandler extends EventEmitter {
 					}
 				}
 			}
-		} else if (data.channel == consts.CHANNEL_HANDSHAKE && data.error) {
-			this.emit("handshakeFailed");
-			this.close();
 		}
 		if (data.ext && data.channel == "/meta/connect" && !data.advice && this.ready) {
 			var packet = this.getPacket(data)[0];
