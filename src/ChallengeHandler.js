@@ -445,9 +445,11 @@ class ChallengeHandler extends EventEmitter {
 		}
 		// get correct answers
 		let c = [];
-		for(let choice of question.choices){
-			if(choice.correct){
-				c.push(choice.answer);
+		if(typeof question.choices !== "undefined"){
+			for(let choice of question.choices){
+				if(choice.correct){
+					c.push(choice.answer);
+				}
 			}
 		}
 		// send the packet!
