@@ -251,12 +251,21 @@ class ChallengeHandler extends EventEmitter {
 			};
 			if(this.challengeData.challenge.game_options.question_timer){
 				this.ti = setTimeout(()=>{
+					if(q.type == "content"){
+						this.questionIndex++;
+						this.phase = "ready";
+						if(this.questionIndex == this.challengeData.kahoot.questions.length){
+							this.phase = "close";
+						}
+						this.next();
+						return;
+					}
 					// didnt answer
 					this.boost = 0;
 					this.sendSubmit(-1,{rawEvent:q},{points:0,_nocont:true});
 					this.emit("questionEnd",event);
 					this.next();
-				},q.time);
+				},q.time || 5000);
 			}else{
 				this.ti = setTimeout(()=>{
 					// didnt answer
