@@ -211,7 +211,7 @@ class ChallengeHandler extends EventEmitter {
 				var q = this.challengeData.kahoot.questions[this.questionIndex];
 				this.emit("quizUpdate",Object.assign(q,{
 					questionIndex: this.questionIndex,
-					timeLeft: 5000,
+					timeLeft: 5,
 					type: q.type,
 					useStoryBlocks: false
 				}));
