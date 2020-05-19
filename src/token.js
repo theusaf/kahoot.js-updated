@@ -178,12 +178,16 @@ class TokenJS {
 					callback(null, e, null);
 					return;
 				}
-				callback(true,Object.assign({
-					twoFactorAuth: false,
-					gameMode: bodyObject.challenge.type,
-					kahootData: bodyObject.kahoot,
-					rawChallengeData: bodyObject.challenge
-				},bodyObject.challenge.game_options));
+				try{
+					callback(true,Object.assign({
+						twoFactorAuth: false,
+						gameMode: bodyObject.challenge.type,
+						kahootData: bodyObject.kahoot,
+						rawChallengeData: bodyObject.challenge
+					},bodyObject.challenge.game_options));
+				}catch(e){
+					callback(null,e,null);
+				}
 			});
 		}).on("error", err => {
 			// TODO: better error handling
