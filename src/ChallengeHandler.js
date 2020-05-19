@@ -257,21 +257,30 @@ class ChallengeHandler extends EventEmitter {
 						if(this.questionIndex == this.challengeData.kahoot.questions.length){
 							this.phase = "close";
 						}
-						this.next();
-						return;
 					}
 					// didnt answer
 					this.boost = 0;
 					this.sendSubmit(-1,{rawEvent:q},{points:0,_nocont:true});
-					this.emit("questionEnd",event);
+					if(q.type != "content"){
+						this.emit("questionEnd",event);
+					}
 					this.next();
 				},q.time || 5000);
 			}else{
 				this.ti = setTimeout(()=>{
+					if(q.type == "content"){
+						this.questionIndex++;
+						this.phase = "ready";
+						if(this.questionIndex == this.challengeData.kahoot.questions.length){
+							this.phase = "close";
+						}
+					}
 					// didnt answer
 					this.boost = 0;
 					this.sendSubmit(-1,{rawEvent:q},{points:0,_nocont:true});
-					this.emit("questionEnd",event);
+					if(q.type != "content"){
+						this.emit("questionEnd",event);
+					}
 					this.next();
 				},1000 * 120);
 			}
@@ -448,9 +457,13 @@ class ChallengeHandler extends EventEmitter {
 			}
 		}
 		if(correct){
-			this.boost++;
+			if(question.type != "content"){
+				this.boost++;
+			}
 		}else{
-			this.boost = 0;
+			if(!question.type != "content"){
+				this.boost = 0;
+			}
 		}
 		// get correct answers
 		let c = [];
@@ -531,10 +544,23 @@ class ChallengeHandler extends EventEmitter {
 			payload.question.answers[0].selectedChoices = choice;
 			payload.question.answers[0].choiceIndex = -5;
 			break;
+		case "content":
+			payload.question.answers[0] = {
+				choiceIndex: -2,
+				isCorrect: true,
+				playerCid: this.clientID,
+				playerId: this.name,
+				points: 0,
+				reactionTime: 0,
+				recievedTime: this.receivedQuestionTime
+			}
+			break;
 		default:
 
 		}
-		this.score += payload.question.answers[0].points + payload.question.answers[0].bonusPoints.answerStreakBonus;
+		if(question.type != "content"){
+			this.score += payload.question.answers[0].points + payload.question.answers[0].bonusPoints.answerStreakBonus;
+		}
 		const event = {
 			correctAnswers: c,
 			correctAnswer: c[0],
