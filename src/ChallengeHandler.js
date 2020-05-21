@@ -67,8 +67,8 @@ class ChallengeHandler extends EventEmitter {
 			proxy = proxy || "";
 		}else if(proxy && proxy.proxy){
 			proxyOptions = proxy.options || {};
-			proxy = proxy.proxy;
 			nopath = proxy.nopath;
+			proxy = proxy.proxy;
 		}else{
 			proxy = "";
 		}
