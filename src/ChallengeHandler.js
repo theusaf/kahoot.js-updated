@@ -602,6 +602,9 @@ class ChallengeHandler extends EventEmitter {
 		return;
 	}
 	_getNemesis(){
+		if(!this.challengeData.progress.playerProgress){
+			return null;
+		}
 		const scores = Array.from(this.challengeData.progress.playerProgress.playerProgressEntries);
 		const latest = scores.reverse()[0].questionMetrics;
 		let rank = 0;
