@@ -20,7 +20,7 @@ class Question {
 		this.index = rawEvent.questionIndex;
 		this.timeLeft = rawEvent.timeLeft;
 		this.type = rawEvent.type;
-		this.usesStoryBlocks = rawEvent.useStoryBlocks;
+		this.layout = rawEvent.layout;
 		this.ended = false;
 		this.quiz.questions.push(this);
 		this.number = this.quiz.questions.length;

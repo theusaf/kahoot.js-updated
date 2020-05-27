@@ -57,7 +57,7 @@
     - [index](#question.properties.index)
     - [timeLeft](#question.properties.timeLeft)
     - [type](#question.properties.type)
-    - [~~usesStoryBlocks~~](#question.properties.usesStoryBlocks)
+    - [layout](#question.properties.layout)
     - [ended](#question.properties.ended)
     - [number](#question.properties.number)
     - [gamemode](#question.properties.gamemode)
@@ -363,10 +363,10 @@ The kahoot client that interacts with kahoot's quiz api.
   - "open_ended" is a free response question; send text.
   - "word_cloud" is a free response poll; send text.
 
-<a name="question.properties.usesStoryBlocks"></a>
-`usesStoryBlocks (Boolean)`
-- Whether or not the question uses 'Story Blocks'.
-- I still don't know what this means.
+<a name="question.properties.layout"></a>
+`layout (String)`
+- The layout of the question.
+- Example values: "TRUE_FALSE", "CLASSIC"
 
 <a name="question.properties.ended"></a>
 `ended (Boolean)`

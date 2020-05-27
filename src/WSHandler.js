@@ -55,16 +55,14 @@ class WSHandler extends EventEmitter {
 							questionIndex: content.questionIndex,
 							timeLeft: content.timeLeft,
 							type: content.gameBlockType,
-							useStoryBlocks: content.canAccessStoryBlocks,
-							ansMap: content.answerMap
+							layout: content.gameBlockLayout
 						});
 					} else if (content.questionIndex > this.kahoot.quiz.currentQuestion.index) {
 						this.emit("quizUpdate", {
 							questionIndex: content.questionIndex,
 							timeLeft: content.timeLeft,
 							type: content.gameBlockType,
-							useStoryBlocks: content.canAccessStoryBlocks,
-							ansMap: content.answerMap
+							layout: content.gameBlockLayout
 						});
 					}
 				} catch (e) {
