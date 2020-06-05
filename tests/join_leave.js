@@ -15,6 +15,9 @@ client.on("invalidName",()=>{
 	console.log("bad");
 	setTimeout(()=>{client.join(PIN,"testing2");},5000);
 });
+client.on("locked",()=>{
+	console.log("locked out");
+});
 client.on("handshakeFailed",e=>{
 	console.log("fail");
 	console.log(e);

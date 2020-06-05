@@ -16,6 +16,7 @@
     - [2StepSuccess](#kahoot.events.2StepSuccess)
     - [feedback](#kahoot.events.feedback)
     - [invalidName](#kahoot.events.invalidName)
+    - [locked](#kahoot.events.locked)
     - [handshakeFailed](#kahoot.events.handshakeFailed)
   - [Methods](#kahoot.methods)
     - [join](#kahoot.methods.join)
@@ -171,6 +172,10 @@ The kahoot client that interacts with kahoot's quiz api.
 <a name="kahoot.events.invalidName"></a>
 `on('invalidName')`
 - Emitted when the join name is a duplicate.
+
+<a name="kahoot.events.locked"></a>
+`on('locked')`
+- Emitted when joining a game that is locked.
 
 <a name="kahoot.events.handshakeFailed"></a>
 `on('handshakeFailed')`

@@ -340,6 +340,12 @@ class WSHandler extends EventEmitter {
 				// "/service/controller"
 				this.kahoot.cid = data.data.cid;
 				this.emit("joined");
+			} else if (data.data.type == "status") {
+				if(data.data.status == "LOCKED"){
+					this.emit("locked");
+					this.close();
+					this.ws.close();
+				}
 			} else {
 				if (data.data.content) {
 					var cont = JSON.parse(data.data.content);

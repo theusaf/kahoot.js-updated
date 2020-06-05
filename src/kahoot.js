@@ -48,6 +48,9 @@ class Kahoot extends EventEmitter {
 				this._wsHandler.on("invalidName", () => {
 					this.emit("invalidName");
 				});
+				this._wsHandler.on("locked",()=>{
+					this.emit("locked");
+				});
 				this._wsHandler.on("2StepFail",()=>{
 					this.emit("2StepFail");
 				});
@@ -145,6 +148,9 @@ class Kahoot extends EventEmitter {
 				this._wsHandler.on("invalidName", () => {
 					this.emit("invalidName");
 					reject();
+				});
+				this._wsHandler.on("locked",()=>{
+					this.emit("locked");
 				});
 				this._wsHandler.on("2StepFail",()=>{
 					this.emit("2StepFail");
