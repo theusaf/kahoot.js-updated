@@ -226,6 +226,10 @@ class ChallengeHandler extends EventEmitter {
 			this.phase = "leaderboard";
 			const question = q;
 			let c = [];
+			if(!question){ // don't know why this would happen, but it has caused crashes.
+				this.emit("quizEnd");
+				return;
+			}
 			if(question.choices){
 				for(let choice of question.choices){
 					if(choice.correct){
