@@ -170,8 +170,10 @@ The kahoot client that interacts with kahoot's quiz api.
 - Emitted when the host requests to see feedback.
 
 <a name="kahoot.events.invalidName"></a>
-`on('invalidName')`
+`on('invalidName',Error)`
 - Emitted when the join name is a duplicate.
+- Error is a String that describes the error.
+  - Sometimes, `invalidName` is emitted when the pin provided is broken.
 
 <a name="kahoot.events.locked"></a>
 `on('locked')`

@@ -328,7 +328,7 @@ class WSHandler extends EventEmitter {
 		} else if (data.data) {
 			if (data.data.error) {
 				if (data.data.type && data.data.type == "loginResponse") {
-					return this.emit("invalidName");
+					return this.emit("invalidName",data.data.error);
 				}
 				try {
 					this.emit("error", data.data.error); //error here if stuff

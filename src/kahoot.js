@@ -45,8 +45,8 @@ class Kahoot extends EventEmitter {
 					this.emit("handshakeFailed",e);
 					// reject(e);
 				});
-				this._wsHandler.on("invalidName", () => {
-					this.emit("invalidName");
+				this._wsHandler.on("invalidName", (err) => {
+					this.emit("invalidName",err);
 				});
 				this._wsHandler.on("locked",()=>{
 					this.emit("locked");
