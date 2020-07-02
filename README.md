@@ -14,7 +14,7 @@ client.on("joined", () => {
     console.log("I joined the Kahoot!");
 });
 client.on("quizStart", quiz => {
-    console.log("The quiz has started! The quiz's name is:", quiz.name);
+    console.log("The quiz has started!");
 });
 client.on("questionStart", question => {
     console.log("A new question has started, answering the first answer.");

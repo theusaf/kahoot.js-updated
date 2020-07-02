@@ -43,7 +43,6 @@
 3. [Quiz](#quiz)
   - [Properties](#quiz.properties)
     - [client](#quiz.properties.client)
-    - [name](#quiz.properties.name)
     - [type](#quiz.properties.type)
     - [currentQuestion](#quiz.properties.currentQuestion)
     - [questions](#quiz.properties.questions)
@@ -309,8 +308,7 @@ The kahoot client that interacts with kahoot's quiz api.
 
 <a name="quiz.properties.name"></a>
 `name (String)`
-- The name of the quiz.
-  - Note: this value may be `null` if you joined the quiz after it started
+- The name of the quiz. This has been removed by Kahoot and will always be `null` now.
 
 <a name="quiz.properties.type"></a>
 `type (String)`

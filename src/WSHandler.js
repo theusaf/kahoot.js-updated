@@ -43,7 +43,6 @@ class WSHandler extends EventEmitter {
 					//if joining during the quiz
 					if (!this.kahoot.quiz) {
 						this.emit("quizData", {
-							name: null,
 							type: content.quizType,
 							qCount: content.quizQuestionAnswers[0],
 							totalQ: content.quizQuestionAnswers.length,
@@ -102,7 +101,6 @@ class WSHandler extends EventEmitter {
 				if (!this.firstQuizEvent) {
 					this.firstQuizEvent = true;
 					this.emit("quizData", {
-						name: content.quizName,
 						type: content.quizType,
 						qCount: content.quizQuestionAnswers[0],
 						totalQ: content.quizQuestionAnswers.length,
