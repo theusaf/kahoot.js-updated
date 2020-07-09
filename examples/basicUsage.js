@@ -1,7 +1,9 @@
 var Kahoot = require("kahoot.js-updated");
 var client = new Kahoot;
 console.log("Joining kahoot...");
-client.join(9802345 /* Or any other kahoot token */, "kahoot.js");
+client.join(9802345 /* Or any other kahoot token */, "kahoot.js").catch(e=>{
+	console.log("Failed to join the game. Error: " + e);
+});
 client.on("joined", () => {
 	console.log("I joined the Kahoot!");
 });
