@@ -125,6 +125,21 @@ class WSHandler extends EventEmitter {
 			12: (data, content) => {
 				this.emit("feedback");
 			},
+			14: (data, content) => {
+				this.send([{
+					channel: "/service/controller",
+					clientId: this.clientID,
+					ext: {},
+					id: ++this.msgID,
+					data: {
+						content: "",
+						gameid: this.gameID,
+						host: "kahoot.it",
+						id: 16,
+						type: "message"
+					}
+				}]);
+			},
 			52: () => {
 				if(!this.finished2Step){
 					this.finished2Step = true;
