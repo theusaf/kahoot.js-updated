@@ -161,7 +161,7 @@ The kahoot client that interacts with kahoot's quiz api.
 - Emitted when the 2 Step Auth is incorrect
 
 <a name="kahoot.events.2StepSuccess"></a>
-`on('2Step')`
+`on('2StepSuccess')`
 - Emitted when the 2 Step Auth is correct
 
 <a name="kahoot.events.feedback"></a>
