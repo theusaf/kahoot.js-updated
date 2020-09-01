@@ -1,256 +1,189 @@
 const EventEmitter = require("events");
-var Assets = require("./Assets.js");
-var WSHandler = require("./WSHandler.js");
-const ChallengeHandler = require("./ChallengeHandler.js");
-var token = require("./token.js");
+const token = require("./util/token.js");
+const ws = require("ws");
 
-class Kahoot extends EventEmitter {
-	constructor(proxies,options) {
-		super();
-		this._wsHandler = null;
-		this._qFulfill = null;
-		this.sendingAnswer = false;
-		this.token = null;
-		this.sessionID = null;
-		this.name = null;
-		this.quiz = null;
-		this.nemesis = null;
-		this.nemeses = [];
-		this.totalScore = 0;
-		this.gamemode = null;
-		this.cid = "";
-		this.proxies = proxies;
-		this.loggingMode = false;
-		this.options = Object.assign({
-			ChallengeAutoContinue: true,
-			ChallengeGetFullScore: false
-		},options);
-	}
-	reconnect() {
-		if (this.sessionID && this.cid && this._wsHandler && this._wsHandler.ws.readyState >= 2) {
-			if(this.sessionID[0] == "0"){
-				return;
-			}
-			token.resolve(this.sessionID, (resolvedToken, content) => {
-				if(!resolvedToken){
-					return;
-				}
-				this.gamemode = content.gameMode || "classic";
-				this.hasTwoFactorAuth = content.twoFactorAuth || false;
-				this.usesNamerator = content.namerator || false;
-				this.token = resolvedToken;
-				this._wsHandler = new WSHandler(this.sessionID, this.token, this);
-				this._wsHandler.on("error", e => {
-					this.emit("handshakeFailed",e);
-					// reject(e);
-				});
-				this._wsHandler.on("invalidName", (err) => {
-					this.emit("invalidName",err);
-				});
-				this._wsHandler.on("locked",()=>{
-					this.emit("locked");
-				});
-				this._wsHandler.on("2StepFail",()=>{
-					this.emit("2StepFail");
-				});
-				this._wsHandler.on("2StepSuccess",()=>{
-					this.emit("2StepSuccess");
-				});
-				this._wsHandler.on("2Step", () => {
-					this.emit("2Step");
-				});
-				this._wsHandler.on("ready", () => {
-					this._wsHandler.relog(this.cid);
-				});
-				this._wsHandler.on("joined", () => {
-					this.emit("ready");
-					this.emit("joined");
-					//fulfill();
-				});
-				this._wsHandler.on("quizData", quizInfo => {
-					this.quiz = new Assets.Quiz(quizInfo.type, quizInfo.qCount, this, quizInfo.totalQ, quizInfo.quizQuestionAnswers, quizInfo);
-					this.emit("quizStart", this.quiz);
-					this.emit("quiz", this.quiz);
-				});
-				this._wsHandler.on("quizUpdate", updateInfo => {
-					this.quiz.currentQuestion = new Assets.Question(updateInfo, this);
-					this.emit("question", this.quiz.currentQuestion);
-				});
-				this._wsHandler.on("questionEnd", endInfo => {
-					var e = new Assets.QuestionEndEvent(endInfo, this);
-					this.totalScore = e.total;
-					this.emit("questionEnd", e);
-				});
-				this._wsHandler.on("quizEnd", () => {
-					this.emit("quizEnd");
-					this.emit("disconnect");
-				});
-				this._wsHandler.on("questionStart", () => {
-					try {
-						this.emit("questionStart", this.quiz.currentQuestion);
-					} catch (e) {
-						//joined during quiz (fixed v 1.1.1)
-					}
-				});
-				this._wsHandler.on("questionSubmit", message => {
-					this.sendingAnswer = false;
-					var e = new Assets.QuestionSubmitEvent(message, this);
-					this.emit("questionSubmit", e);
-					try {
-						this._qFulfill(e);
-					} catch (e) {}
-				});
-				this._wsHandler.on("finishText", data => {
-					var e = new Assets.FinishTextEvent(data);
-					this.emit("finishText", e);
-				});
-				this._wsHandler.on("finish", data => {
-					var e = new Assets.QuizFinishEvent(data, this);
-					this.emit("finish", e);
-				});
-				this._wsHandler.on("feedback", () => {
-					this.emit("feedback");
-				});
-			}, this.proxies);
-		}
-	}
-	join(session, name, team) {
-		return new Promise((fulfill, reject) => {
-			if (!session) {
-				reject("You need a sessionID to connect to a Kahoot!");
-				return;
-			}
-			if (!name) {
-				reject("You need a name to connect to a Kahoot!");
-				return;
-			}
-			this.sessionID = session;
-			this.name = name;
-			this.team = team;
-			token.resolve(session, (resolvedToken, content) => {
-				if(!resolvedToken){
-					return reject("token_error");
-				}
-				this.gamemode = content.gameMode || "classic";
-				this.hasTwoFactorAuth = content.twoFactorAuth || false;
-				this.usesNamerator = content.namerator || false;
-				this.token = resolvedToken;
-				if(resolvedToken === true){
-					this._wsHandler = new ChallengeHandler(this,content,this.proxies);
-				}else{
-					this._wsHandler = new WSHandler(this.sessionID, this.token, this);
-				}
-				this._wsHandler.on("error", e => {
-					this.emit("handshakeFailed",e);
-					reject(e);
-				});
-				this._wsHandler.on("invalidName", err => {
-					this.emit("invalidName",err);
-					reject();
-				});
-				this._wsHandler.on("locked",()=>{
-					this.emit("locked");
-				});
-				this._wsHandler.on("2StepFail",()=>{
-					this.emit("2StepFail");
-				});
-				this._wsHandler.on("2StepSuccess",()=>{
-					this.emit("2StepSuccess");
-				});
-				this._wsHandler.on("2Step", () => {
-					this.emit("2Step");
-				});
-				this._wsHandler.on("ready", () => {
-					this._wsHandler.login(this.name, this.team);
-				});
-				this._wsHandler.on("joined", () => {
-					this.emit("ready");
-					this.emit("joined");
-					if(this.hasTwoFactorAuth){
-						this.emit("2Step");
-					}
-					fulfill(null);
-				});
-				this._wsHandler.on("quizData", quizInfo => {
-					this.quiz = new Assets.Quiz(quizInfo.type, quizInfo.qCount, this, quizInfo.totalQ, quizInfo.quizQuestionAnswers, quizInfo);
-					this.emit("quizStart", this.quiz);
-					this.emit("quiz", this.quiz);
-				});
-				this._wsHandler.on("quizUpdate", updateInfo => {
-					this.quiz.currentQuestion = new Assets.Question(updateInfo, this);
-					this.emit("question", this.quiz.currentQuestion);
-				});
-				this._wsHandler.on("questionEnd", endInfo => {
-					var e = new Assets.QuestionEndEvent(endInfo, this);
-					this.totalScore = e.total;
-					this.emit("questionEnd", e);
-				});
-				this._wsHandler.on("quizEnd", () => {
-					this.emit("quizEnd");
-					this.emit("disconnect");
-				});
-				this._wsHandler.on("questionStart", () => {
-					try {
-						this.emit("questionStart", this.quiz.currentQuestion);
-					} catch (e) {
-						//joined during quiz (fixed v 1.1.1)
-					}
-				});
-				this._wsHandler.on("questionSubmit", message => {
-					this.sendingAnswer = false;
-					var e = new Assets.QuestionSubmitEvent(message, this);
-					this.emit("questionSubmit", e);
-					try {
-						this._qFulfill(e);
-					} catch (e) {}
-				});
-				this._wsHandler.on("finishText", data => {
-					var e = new Assets.FinishTextEvent(data);
-					this.emit("finishText", e);
-				});
-				this._wsHandler.on("finish", data => {
-					var e = new Assets.QuizFinishEvent(data, this);
-					this.emit("finish", e);
-				});
-				this._wsHandler.on("feedback", () => {
-					this.emit("feedback");
-				});
-			}, this.proxies);
-		});
-	}
-	answer2Step(steps) {
-		return new Promise((fulfill, reject) => {
-			this._qFulfill = fulfill;
-			this._wsHandler.send2Step(steps.join(""));
-		});
-	}
-	answerQuestion(id,question,secret) {
-		return new Promise((fulfill, reject) => {
-			this._qFulfill = fulfill;
-			this.sendingAnswer = true;
-			if(!question){
-				question = this.quiz.currentQuestion;
-			}
-			this._wsHandler.sendSubmit(id,question,secret);
-		});
-	}
-	leave() {
-		return new Promise((fulfill, reject) => {
-			this._wsHandler.leave();
-			fulfill();
-		});
-	}
-	//content: "{"totalScore":0,"fun":5,"learning":1,"recommend":1,"overall":1,"nickname":"oof"}"
-	sendFeedback(fun, learning, recommend, overall) {
-		return new Promise((f, r) => {
-			this._wsHandler.sendFeedback(fun, learning, recommend, overall);
-		});
-	}
-	// challenge-specific functions
-	next(){
-		if(this.gamemode == "challenge"){
-			this._wsHandler.next();
-		}
-	}
+// A Kahoot! client.
+class Client extends EventEmitter{
+
+  /**
+   * constructor - Create a Kahoot! client.
+   *
+   * @param  {Object} options Sets up the client. Options can control what events and methods are available to the client. By default, all options are enabled, besides proxies.
+   * modules:
+   * - feedback: enable feedback events/methods
+   * - gameReset: enable gamereset events
+   * - twoFactor: enable two factor events/methods
+   * - quizEnd: enable quizend events
+   * - podium: enable podium (quiz end) events
+   * - timetrack: enable timetrack events
+   * - timeOver: enable timeover events (question end)
+   * - reconnect: enable reconnect methods
+   * - questionReady: enable question ready events
+   * - questionStart: enable question start events
+   * - questionEnd: enable question end events
+   * - nameAccept: enable name accept events
+   * - teamAccept: enable team accept events
+   * - teamTalk: enable team talk events
+   * - backup: enable backup events
+   * options:
+   * - ChallengeAutoContinue: true (fake events for challenges)
+   * - ChallengeGetFullScore: false (always 1000 points for challenges)
+   * - loggingMode: false (if set to true, it will log all messages to/from the server)
+   * proxy (req):
+   * - A function that takes a [HTTP.request options]{@link https://nodejs.org/api/http.html#http_http_request_options_callback}. The options will be set to lead to one of Kahoot's URIs.
+   * -- This should return the methods/urls needed to complete requests though the proxy
+   * wsproxy (url):
+   * - url (String): The url that kahoot.js would usually send the websocket to.
+   * - A function that returns options used in [ws]{@link https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options}
+   * @example
+   * // output
+   * {
+   *   address: "some_url",
+   *   options: {},
+   *   protocols: []
+   * }
+   */
+  constructor(options){
+    // assign options
+    Object.assign(this._defaults.options,options.options);
+    Object.assign(this._defaults.modules,options.modules);
+    this._defaults.proxy = options.proxy || this._defaults.proxy;
+
+    this.classes = {};
+    this.handlers = {};
+    this.waiting = {};
+
+    // apply modules
+    for(let mod in this._defaults.modules){
+      if(this._defaults.modules[mod] || this._defaults.modules[mod] === undefined){
+        try{require("./modules/" + mod + ".js").call(this)}catch(err){}
+      }
+    }
+
+    // apply main modules
+    require("./modules/main.js").call(this);
+
+    this.messageId = 0;
+  }
+
+  /**
+   * @static defaults - Creates a new Client constructor
+   *
+   * @returns {class}  Returns a new Client constructor which uses new defaults
+   */
+  static defaults(options){
+    let clone = Object.assign(Object.create(Object.getPrototypeOf(Client)),Client);
+    Object.assign(clone.prototype._defaults,options);
+    return clone;
+  }
+
+  /**
+   * @static join - Creates a {@link Client} and joins the game
+   *
+   * @see {@link join}
+   * @returns {Client}      Returns the {@link Client} instead of a Promise.
+   */
+  static join(){
+    const client = new this;
+    client.join.apply(client,arguments);
+    return client;
+  }
+
+  /**
+   * join - Join a game. Also joins with team members.
+   *
+   * @param  {String} name The name of the player
+   * @param  {(String[]|Boolean)} [team=["Player 1","Player 2","Player 3","Player 4"]] The team member names.
+   * if false, the team members will not be added automatically.
+   * @returns {Promise<Object>}      Resolves when join succeeds
+   * If joining fails, this will reject with the error
+   */
+  join(pin,name,team){
+    return new Promise(async (res,rej)=>{
+      this.gameid = pin;
+      try{
+        await this._createHandshake();
+      }catch(e){
+        rej(e);
+      }
+    });
+  }
+
+  // creates the connection to the server
+  _createHandshake(){
+    return new Promise(async (res,rej)=>{
+      const data = await token.resolve(this.gameid,this);
+      const options = this._defaults.wsproxy("");
+      let data = [options.options];
+      if(options.protocols){
+        data.splice(0,0,options.protocols);
+      }
+      this.socket = new ws(options.address,...data);
+      this.socket.on("close",()=>{
+        this.emit("disconnect",this.disconnectReason || {});
+      });
+      this.socket.on("open",()=>{
+        this._send(new this.classes.LiveClientHandshake(0));
+      });
+      this.socket.on("message",(message)=>{
+        this._message(message);
+      });
+      this.on("HandshakeComplete",res);
+      this.on("HandshakeFailed",rej);
+    });
+  }
+
+  _send(message,callback){
+    if(this.socket && this.socket.readyState === 1){
+      if(typeof message === "undefined" || message === null){
+        return new Promise((res,rej)=>{rej("empty_message");});
+      }
+      if(message.length){
+        message[0].id = (++this.messageId) + "";
+        this.socket.send(JSON.stringify(message));
+      }else{
+        message.id = (++this.messageId) + "";
+        this.socket.send(JSON.stringify([message]));
+      }
+      if(callbacks){
+        this.waiting[this.messageId] = callback;
+      }
+    }
+  }
+
+  _message(message){
+    for(let i in handlers){
+      handlers[i](JSON.parse(message))[0];
+    }
+  }
 }
-module.exports = Kahoot;
+
+// default options
+Client.prototype._defaults = {
+  modules: {
+    feedback: true,
+    gameReset: true,
+    twoFactor: true,
+    quizEnd: true,
+    podium: true,
+    timetrack: true,
+    timeOver: true,
+    reconnect: true,
+    questionReady: true,
+    questionStart: true,
+    questionEnd: true,
+    nameAccept: true,
+    teamAccept: true,
+    teamTalk: true,
+    backup: true,
+  },
+  proxy: ()=>{},
+  wsproxy: (url)=>{return {address: url}},
+  options: {
+    ChallengeAutoContinue: true,
+    ChallengeGetFullScore: false,
+    loggingMode: false
+  }
+};
+
+module.exports = Client;
