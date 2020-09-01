@@ -1,5 +1,4 @@
 const EventEmitter = require("events");
-var Promise = require("promise");
 var Assets = require("./Assets.js");
 var WSHandler = require("./WSHandler.js");
 const ChallengeHandler = require("./ChallengeHandler.js");
