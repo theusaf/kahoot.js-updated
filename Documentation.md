@@ -16,6 +16,8 @@
     - [2StepSuccess](#kahoot.events.2StepSuccess)
     - [feedback](#kahoot.events.feedback)
     - [invalidName](#kahoot.events.invalidName)
+    - [locked](#kahoot.events.locked)
+    - [handshakeFailed](#kahoot.events.handshakeFailed)
   - [Methods](#kahoot.methods)
     - [join](#kahoot.methods.join)
     - [reconnect](#kahoot.methods.reconnect)
@@ -41,7 +43,6 @@
 3. [Quiz](#quiz)
   - [Properties](#quiz.properties)
     - [client](#quiz.properties.client)
-    - [name](#quiz.properties.name)
     - [type](#quiz.properties.type)
     - [currentQuestion](#quiz.properties.currentQuestion)
     - [questions](#quiz.properties.questions)
@@ -56,7 +57,7 @@
     - [index](#question.properties.index)
     - [timeLeft](#question.properties.timeLeft)
     - [type](#question.properties.type)
-    - [~~usesStoryBlocks~~](#question.properties.usesStoryBlocks)
+    - [layout](#question.properties.layout)
     - [ended](#question.properties.ended)
     - [number](#question.properties.number)
     - [gamemode](#question.properties.gamemode)
@@ -160,7 +161,7 @@ The kahoot client that interacts with kahoot's quiz api.
 - Emitted when the 2 Step Auth is incorrect
 
 <a name="kahoot.events.2StepSuccess"></a>
-`on('2Step')`
+`on('2StepSuccess')`
 - Emitted when the 2 Step Auth is correct
 
 <a name="kahoot.events.feedback"></a>
@@ -168,8 +169,18 @@ The kahoot client that interacts with kahoot's quiz api.
 - Emitted when the host requests to see feedback.
 
 <a name="kahoot.events.invalidName"></a>
-`on('invalidName')`
+`on('invalidName',Error)`
 - Emitted when the join name is a duplicate.
+- Error is a String that describes the error.
+  - Sometimes, `invalidName` is emitted when the pin provided is broken.
+
+<a name="kahoot.events.locked"></a>
+`on('locked')`
+- Emitted when joining a game that is locked.
+
+<a name="kahoot.events.handshakeFailed"></a>
+`on('handshakeFailed')`
+- Emitted when the the websocket connection failed/was blocked.
 
 <a name="kahoot.methods"></a>
 #### Methods
@@ -222,9 +233,9 @@ The kahoot client that interacts with kahoot's quiz api.
   - ***recommend (Number)***
     - A number to rate if you would recommend (1 or 0)
   - ***overall (Number)***
-    - A Number to rate how you felt (1-3)
+    - A Number to rate how you felt (-1 - 1)
         - 1 = good
-        - 3 = bad
+        - -1 = bad
 - Returns: `Promise`
 
 <a name="kahoot.properties"></a>
@@ -297,8 +308,7 @@ The kahoot client that interacts with kahoot's quiz api.
 
 <a name="quiz.properties.name"></a>
 `name (String)`
-- The name of the quiz.
-  - Note: this value may be `null` if you joined the quiz after it started
+- The name of the quiz. This has been removed by Kahoot and will always be `null` now.
 
 <a name="quiz.properties.type"></a>
 `type (String)`
@@ -358,10 +368,10 @@ The kahoot client that interacts with kahoot's quiz api.
   - "open_ended" is a free response question; send text.
   - "word_cloud" is a free response poll; send text.
 
-<a name="question.properties.usesStoryBlocks"></a>
-`usesStoryBlocks (Boolean)`
-- Whether or not the question uses 'Story Blocks'.
-- I still don't know what this means.
+<a name="question.properties.layout"></a>
+`layout (String)`
+- The layout of the question.
+- Example values: "TRUE_FALSE", "CLASSIC"
 
 <a name="question.properties.ended"></a>
 `ended (Boolean)`
@@ -550,3 +560,5 @@ Proxies must be in this format in order to work:<br/>
 - This can be prevented by using the nopath option.
 
 The options is the [HTTP Request Options](https://nodejs.org/api/http.html#http_http_request_options_callback), which should only be used if the proxy service requires special headers to work. You can also set the method used.
+
+**Proxies are only used to specify HTTP requests for the tokens and for challenge games. If the websocket connection is blocked, you need to use a proxy/vpn for your server.**

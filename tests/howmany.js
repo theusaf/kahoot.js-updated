@@ -8,8 +8,19 @@ const r = readline.createInterface({
 
 r.question("How many bots?",n=>{
 	n = Number(n);
-	for(let i = 0;i<n;i++){
+	let i = 0;
+	const a = setInterval(()=>{
+		if(i >= n){
+			clearInterval(a);
+		}
 		const c = new Kahoot;
 		c.join(PIN,"test"+i);
-	}
+		i++;
+		let l = Number(i);
+		c.on("disconnect",()=>{
+			console.log("leaving" + l);
+			c.leave();
+		});
+	},350);
+	r.close();
 });

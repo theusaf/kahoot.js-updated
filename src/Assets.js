@@ -1,9 +1,9 @@
 var Promise = require("promise");
 
 class Quiz {
-	constructor(name, type, answerCount, client, amount, answers, rawData) {
+	constructor(type, answerCount, client, amount, answers, rawData) {
 		this.client = client;
-		this.name = name;
+		this.name = null;
 		this.type = type;
 		this.answerCount = answerCount;
 		this.currentQuestion = null;
@@ -20,18 +20,18 @@ class Question {
 		this.index = rawEvent.questionIndex;
 		this.timeLeft = rawEvent.timeLeft;
 		this.type = rawEvent.type;
-		this.usesStoryBlocks = rawEvent.useStoryBlocks;
+		this.layout = rawEvent.layout;
 		this.ended = false;
 		this.quiz.questions.push(this);
 		this.number = this.quiz.questions.length;
 		this.quiz.currentQuestion = this;
 		this.rawEvent = rawEvent;
 	}
-	answer(number) {
+	answer(number,secret) {
 		return new Promise((fulfill, reject) => {
 			if (!number && number !== 0) reject(console.log("Question answer is missing question number!"));
 			else {
-				this.client.answerQuestion(number,this).then(() => {
+				this.client.answerQuestion(number,this,secret).then(() => {
 					fulfill();
 				}).catch(e => {
 					reject();
@@ -81,7 +81,7 @@ class Nemesis {
 			this.score = rawData.totalScore;
 			this.isGhost = rawData.isGhost;
 			this.exists = true;
-			this.rawEvent = rawData
+			this.rawEvent = rawData;
 		} else {
 			this.name = null;
 			this.score = null;

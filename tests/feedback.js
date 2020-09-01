@@ -17,6 +17,6 @@ client.on("finish", (o) => {
 	console.log("the quiz has finished.");
 });
 client.on("feedback",()=>{
-  console.log("sending feedback");
-  client.sendFeedback(3,1,1,1);
+	console.log("sending feedback");
+	client.sendFeedback(3,1,1,1);
 });

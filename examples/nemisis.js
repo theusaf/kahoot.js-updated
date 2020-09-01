@@ -20,4 +20,6 @@ k.join(9802345 /* Or any other kahoot token */, "kahoot.js").then(() => {
 	k.on("quizEnd", () => {
 		console.log("the quiz ended");
 	});
+}).catch(e=>{
+	console.log(e);
 });

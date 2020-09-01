@@ -14,8 +14,8 @@ class TokenJS {
 			proxy = proxy || "";
 		}else if(proxy && proxy.proxy){
 			proxyOptions = proxy.options || {};
-			proxy = proxy.proxy;
 			nopath = proxy.nopath;
+			proxy = proxy.proxy;
 		}else{
 			proxy = "";
 		}
@@ -68,7 +68,8 @@ class TokenJS {
 			});
 		}).on("error", err => {
 			// TODO: better error handling
-			console.log("request error:", err);
+			// console.log("request error:", err);
+			callback(null,err,null);
 		}).end();
 	}
 	static solveChallenge(challenge) {
@@ -133,8 +134,8 @@ class TokenJS {
 			proxy = proxy || "";
 		}else if(proxy && proxy.proxy){
 			proxyOptions = proxy.options || {};
-			proxy = proxy.proxy;
 			nopath = proxy.nopath;
+			proxy = proxy.proxy;
 		}else{
 			proxy = "";
 		}
@@ -164,8 +165,12 @@ class TokenJS {
 			proto = http;
 		}
 		return proto.request(uri,options, res => {
+			let chunks = [];
 			res.on("data", chunk => {
-				var body = chunk.toString("utf8");
+				chunks.push(chunk);
+			});
+			res.on("end", ()=>{
+				const body = Buffer.concat(chunks).toString("utf8");
 				var bodyObject;
 				try {
 					bodyObject = JSON.parse(body);
@@ -173,12 +178,16 @@ class TokenJS {
 					callback(null, e, null);
 					return;
 				}
-				callback(true,Object.assign({
-					twoFactorAuth: false,
-					gameMode: bodyObject.challenge.type,
-					kahootData: bodyObject.kahoot,
-					rawChallengeData: bodyObject.challenge
-				},bodyObject.challenge.game_options));
+				try{
+					callback(true,Object.assign({
+						twoFactorAuth: false,
+						gameMode: bodyObject.challenge.type,
+						kahootData: bodyObject.kahoot,
+						rawChallengeData: bodyObject.challenge
+					},bodyObject.challenge.game_options));
+				}catch(e){
+					callback(null,e,null);
+				}
 			});
 		}).on("error", err => {
 			// TODO: better error handling

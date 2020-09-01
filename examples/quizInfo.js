@@ -10,4 +10,6 @@ k.join(7877502 /* or any other kahoot token */, "kahoot.js").then(() => {
 		// Leave the Kahoot after the info has been printed
 		k.leave();
 	});
+}).catch(e=>{
+	console.log(e);
 });

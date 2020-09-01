@@ -33,13 +33,23 @@ class Kahoot extends EventEmitter {
 				return;
 			}
 			token.resolve(this.sessionID, (resolvedToken, content) => {
-				this.gamemode = content.gamemode || "classic";
+				if(!resolvedToken){
+					return;
+				}
+				this.gamemode = content.gameMode || "classic";
 				this.hasTwoFactorAuth = content.twoFactorAuth || false;
 				this.usesNamerator = content.namerator || false;
 				this.token = resolvedToken;
 				this._wsHandler = new WSHandler(this.sessionID, this.token, this);
-				this._wsHandler.on("invalidName", () => {
-					this.emit("invalidName");
+				this._wsHandler.on("error", e => {
+					this.emit("handshakeFailed",e);
+					// reject(e);
+				});
+				this._wsHandler.on("invalidName", (err) => {
+					this.emit("invalidName",err);
+				});
+				this._wsHandler.on("locked",()=>{
+					this.emit("locked");
 				});
 				this._wsHandler.on("2StepFail",()=>{
 					this.emit("2StepFail");
@@ -59,7 +69,7 @@ class Kahoot extends EventEmitter {
 					//fulfill();
 				});
 				this._wsHandler.on("quizData", quizInfo => {
-					this.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, this, quizInfo.totalQ, quizInfo.quizQuestionAnswers, quizInfo);
+					this.quiz = new Assets.Quiz(quizInfo.type, quizInfo.qCount, this, quizInfo.totalQ, quizInfo.quizQuestionAnswers, quizInfo);
 					this.emit("quizStart", this.quiz);
 					this.emit("quiz", this.quiz);
 				});
@@ -120,7 +130,7 @@ class Kahoot extends EventEmitter {
 			this.team = team;
 			token.resolve(session, (resolvedToken, content) => {
 				if(!resolvedToken){
-					return reject();
+					return reject("token_error");
 				}
 				this.gamemode = content.gameMode || "classic";
 				this.hasTwoFactorAuth = content.twoFactorAuth || false;
@@ -131,9 +141,16 @@ class Kahoot extends EventEmitter {
 				}else{
 					this._wsHandler = new WSHandler(this.sessionID, this.token, this);
 				}
-				this._wsHandler.on("invalidName", () => {
-					this.emit("invalidName");
+				this._wsHandler.on("error", e => {
+					this.emit("handshakeFailed",e);
+					reject(e);
+				});
+				this._wsHandler.on("invalidName", err => {
+					this.emit("invalidName",err);
 					reject();
+				});
+				this._wsHandler.on("locked",()=>{
+					this.emit("locked");
 				});
 				this._wsHandler.on("2StepFail",()=>{
 					this.emit("2StepFail");
@@ -156,7 +173,7 @@ class Kahoot extends EventEmitter {
 					fulfill(null);
 				});
 				this._wsHandler.on("quizData", quizInfo => {
-					this.quiz = new Assets.Quiz(quizInfo.name, quizInfo.type, quizInfo.qCount, this, quizInfo.totalQ, quizInfo.quizQuestionAnswers);
+					this.quiz = new Assets.Quiz(quizInfo.type, quizInfo.qCount, this, quizInfo.totalQ, quizInfo.quizQuestionAnswers, quizInfo);
 					this.emit("quizStart", this.quiz);
 					this.emit("quiz", this.quiz);
 				});

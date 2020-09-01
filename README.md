@@ -1,6 +1,7 @@
 # About
-Kahoot.js is a library to interact with the Kahoot API. kahoot.js supports joining and interacting with quizzes and challenges.  
-**Installation requires Node.js 6.0.0 or higher.**
+Kahoot.js is a library to interact with the Kahoot API. kahoot.js supports joining and interacting with quizzes and challenges.
+**Installation requires Node.js 10.9.0 or higher.**
+
 ![NPM](https://nodei.co/npm/kahoot.js-updated.png)
 
 # Basic Example
@@ -13,7 +14,7 @@ client.on("joined", () => {
     console.log("I joined the Kahoot!");
 });
 client.on("quizStart", quiz => {
-    console.log("The quiz has started! The quiz's name is:", quiz.name);
+    console.log("The quiz has started!");
 });
 client.on("questionStart", question => {
     console.log("A new question has started, answering the first answer.");

@@ -9,6 +9,9 @@ client.on("joined", () => {
 client.on("quiz", quiz => {
 	console.log("quiz has started. waiting for questions..");
 });
+client.on("question",()=>{
+	console.log("question preparation started");
+})
 client.on("questionStart", question => {
 	console.log("question started. answering 0.");
 	question.answer(0);
