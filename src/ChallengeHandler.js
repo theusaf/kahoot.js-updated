@@ -1,7 +1,6 @@
 const consts = require("./consts.js");
 const userAgents = require("user-agents");
 const EventEmitter = require("events");
-const Promise = require("promise");
 const http = require("http");
 const https = require("https");
 

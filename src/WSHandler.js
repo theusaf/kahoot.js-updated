@@ -1,5 +1,4 @@
 const EventEmitter = require("events");
-var Promise = require("promise");
 var WebSocket = require("ws");
 const userAgents = require("user-agents");
 var consts = require("./consts.js");
