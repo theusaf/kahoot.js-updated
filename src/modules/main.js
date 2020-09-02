@@ -64,8 +64,6 @@ module.exports = function(){
   this.handlers.TwoFactor = (message)=>{
     if(!this.settings.twoFactorAuth){
       delete this.handlers.TwoFactor;
-      this.removeListener("TwoFactorReset",reset);
-      this.removeListener("TwoFactorCorrect",correct);
       return;
     }
     if(message.channel === "/service/player" && message.data){

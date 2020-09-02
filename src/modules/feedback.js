@@ -11,6 +11,7 @@ module.exports = function(){
        * @type {Object}
        * @property {String} quizType
        */
+      this.feedbackTime = Date.now();
       this._emit("Feedback",JSON.parse(message.data.content));
     }
   };
@@ -24,12 +25,16 @@ module.exports = function(){
    * @param {Number} overall -1 - 1. The overall feeling of the client.
    */
   this.sendFeedback = async (fun,learn,recommend,overall)=>{
+    const wait = Date.now() - this.feedbackTime;
+    if(wait < 500){
+      await sleep(500 - wait);
+    }
     return new Promise((resolve, reject)=>{
       this._send(new LiveFeedbackPacket(this,fun,learn,recommend,overall),(result)=>{
-        if(!r || !r.successful){
-          reject(r);
+        if(!result || !result.successful){
+          reject(result);
         }else{
-          resolve(r);
+          resolve(result);
         }
       });
     });

@@ -87,7 +87,7 @@ class Client extends EventEmitter{
     var self = this;
     function Clone(){
       return new self(options);
-    };
+    }
     Clone.defaults = this.defaults.bind(Clone);
     Clone.join = this.join.bind(Clone);
     return Clone;

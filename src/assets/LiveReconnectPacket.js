@@ -17,4 +17,4 @@ module.exports = class LiveReconnectPacket extends LiveBaseMessage{
       type: "relogin"
     });
   }
-}
+};
