@@ -39,7 +39,7 @@ class Decoder{
         path: `/reserve/challenges/${pin}/?${Date.now()}`,
         protocol: "https:"
       };
-      const proxyOptions = client._defaults.proxy(options);
+      const proxyOptions = client.defaults.proxy(options);
       options = proxyOptions || options;
       let req;
       if(options.protocol === "https:"){

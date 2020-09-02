@@ -46,19 +46,26 @@ class Client extends EventEmitter{
    * }
    */
   constructor(options){
+    options = options || {};
+    console.log(options)
     super();
     // assign options
-    Object.assign(this._defaults.options,options.options);
-    Object.assign(this._defaults.modules,options.modules);
-    this._defaults.proxy = options.proxy || this._defaults.proxy;
+    this.defaults = {};
+    for(let i in this._defaults){
+      this.defaults[i] = {};
+      Object.assign(this.defaults[i],this._defaults[i]);
+    }
+    Object.assign(this.defaults.options,options.options);
+    Object.assign(this.defaults.modules,options.modules);
+    this.defaults.proxy = options.proxy || this.defaults.proxy;
 
     this.classes = {};
     this.handlers = {};
     this.waiting = {};
 
     // apply modules
-    for(let mod in this._defaults.modules){
-      if(this._defaults.modules[mod] || this._defaults.modules[mod] === undefined){
+    for(let mod in this.defaults.modules){
+      if(this.defaults.modules[mod] || this.defaults.modules[mod] === undefined){
         try{require("./modules/" + mod + ".js").call(this);}catch(err){}
       }
     }
@@ -76,9 +83,13 @@ class Client extends EventEmitter{
    * @returns {class}  Returns a new Client constructor which uses new defaults
    */
   static defaults(options){
-    let clone = Object.assign(Object.create(Object.getPrototypeOf(Client)),Client);
-    Object.assign(clone.prototype._defaults,options);
-    return clone;
+    var self = this;
+    function Clone(){
+      return new self(options);
+    };
+    Clone.defaults = this.defaults.bind(Clone);
+    Clone.join = this.join.bind(Clone);
+    return Clone;
   }
 
   /**
