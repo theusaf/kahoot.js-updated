@@ -9,4 +9,4 @@ module.exports = class LiveJoinTeamPacket extends LiveBaseMessage{
       type: "message"
     });
   }
-}
+};

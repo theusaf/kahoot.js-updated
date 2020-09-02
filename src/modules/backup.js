@@ -27,42 +27,42 @@ module.exports = function(){
       this.emit("RecoveryData",recover);
       const data = recover.data;
       switch (recover.defaultQuizData.state) {
-        case 0:{
-          if(!this.quiz){
-            this.quiz = {
-              get questionCount(){return (this.quizQuestionAnswers && this.quizQuestionAnswers.length) || 10;}
-            };
-          }
-          this.quiz.quizQuestionAnswers = recover.defaultQuizData.quizQuestionAnswers;
-          break;
+      case 0:{
+        if(!this.quiz){
+          this.quiz = {
+            get questionCount(){return (this.quizQuestionAnswers && this.quizQuestionAnswers.length) || 10;}
+          };
         }
-        case 1:{
-          this._emit("QuizStart",data);
-          break;
+        this.quiz.quizQuestionAnswers = recover.defaultQuizData.quizQuestionAnswers;
+        break;
+      }
+      case 1:{
+        this._emit("QuizStart",data);
+        break;
+      }
+      case 2:{
+        this._emit("QuestionReady",data.getReady);
+        break;
+      }
+      case 3:{
+        this._emit("QuestionStart",data);
+        break;
+      }
+      case 4:{
+        this._emit("TimeUp",data);
+        if(data.revealAnswer){
+          this._emit("QuestionEnd",data.revealAnswer);
         }
-        case 2:{
-          this._emit("QuestionReady",data.getReady);
-          break;
-        }
-        case 3:{
-          this._emit("QuestionStart",data);
-          break;
-        }
-        case 4:{
-          this._emit("TimeUp",data);
-          if(data.revealAnswer){
-            this._emit("QuestionEnd",data.revealAnswer);
-          }
-          break;
-        }
-        case 6:{
-          this._emit("QuizEnd",data);
-          break;
-        }
-        case 7:{
-          this._emit("Feedback");
-          break;
-        }
+        break;
+      }
+      case 6:{
+        this._emit("QuizEnd",data);
+        break;
+      }
+      case 7:{
+        this._emit("Feedback");
+        break;
+      }
       }
     }
   };

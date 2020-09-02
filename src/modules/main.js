@@ -30,7 +30,7 @@ module.exports = function(){
         this.socket.close();
       }
     }
-  };;
+  };
   this.handlers.PingChecker = (message)=>{
     if(message.channel === "/meta/connect" && message.ext){
       if(message.reconnect === "retry"){

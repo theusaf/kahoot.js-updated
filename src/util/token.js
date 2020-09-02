@@ -4,7 +4,7 @@ const ua = require("user-agents");
 
 class Decoder{
   static requestToken(pin,client){
-    return new Promise((req,rej)=>{
+    return new Promise((resolve,rej)=>{
       function handleRequest(res){
         const chunks = [];
         res.on("data",(chunk)=>{
@@ -18,7 +18,7 @@ class Decoder{
           try{
             token = Buffer.from(token,"base64").toString("ascii");
             const data = JSON.parse(Buffer.concat(chunks).toString("utf8"));
-            res({
+            resolve({
               token,
               data
             });
@@ -56,17 +56,17 @@ class Decoder{
   static solveChallenge(challenge){
     let solved = "";
     challenge = challenge.replace(/(\u0009|\u2003)/mg, "");
-		challenge = challenge.replace(/this /mg, "this");
-		challenge = challenge.replace(/ *\. */mg, ".");
-		challenge = challenge.replace(/ *\( */mg, "(");
-		challenge = challenge.replace(/ *\) */mg, ")");
-		// Prevent any logging from the challenge, by default it logs some debug info
-		challenge = challenge.replace("console.", "");
-		// Make a few if-statements always return true as the functions are currently missing
-		challenge = challenge.replace("this.angular.isObject(offset)", "true");
-		challenge = challenge.replace("this.angular.isString(offset)", "true");
-		challenge = challenge.replace("this.angular.isDate(offset)", "true");
-		challenge = challenge.replace("this.angular.isArray(offset)", "true");
+    challenge = challenge.replace(/this /mg, "this");
+    challenge = challenge.replace(/ *\. */mg, ".");
+    challenge = challenge.replace(/ *\( */mg, "(");
+    challenge = challenge.replace(/ *\) */mg, ")");
+    // Prevent any logging from the challenge, by default it logs some debug info
+    challenge = challenge.replace("console.", "");
+    // Make a few if-statements always return true as the functions are currently missing
+    challenge = challenge.replace("this.angular.isObject(offset)", "true");
+    challenge = challenge.replace("this.angular.isString(offset)", "true");
+    challenge = challenge.replace("this.angular.isDate(offset)", "true");
+    challenge = challenge.replace("this.angular.isArray(offset)", "true");
     (() => {
       const EVAL_ = `var _ = {
         replace: function() {
@@ -77,42 +77,37 @@ class Decoder{
       };
       var log = function(){};return `;
       // Concat the method needed in order to solve the challenge, then eval the string
-			const solver = Function(EVAL_ + challenge);
-			// Execute the string, and get back the solved token
-			solved = solver().toString();
-		})();
+      const solver = Function(EVAL_ + challenge);
+      // Execute the string, and get back the solved token
+      solved = solver().toString();
+    })();
     return solved;
   }
   static concatTokens(headerToken, challengeToken) {
-		// Combine the session token and the challenge token together to get the string needed to connect to the websocket endpoint
-		for (let token = "", i = 0; i < headerToken.length; i++) {
-			let char = headerToken.charCodeAt(i);
-			let mod = challengeToken.charCodeAt(i % challengeToken.length);
-			let decodedChar = char ^ mod;
-			token += String.fromCharCode(decodedChar);
-		}
-		return token;
-	}
+    // Combine the session token and the challenge token together to get the string needed to connect to the websocket endpoint
+    for (var token = "", i = 0; i < headerToken.length; i++) {
+      let char = headerToken.charCodeAt(i);
+      let mod = challengeToken.charCodeAt(i % challengeToken.length);
+      let decodedChar = char ^ mod;
+      token += String.fromCharCode(decodedChar);
+    }
+    return token;
+  }
   static resolve(pin,client){
-    return new Promise(async (resolve, reject)=>{
-      if(isNaN(pin)){
-        return reject("Invalid/Missing PIN");
-      }
-      if(pin[0] === "0"){
-        // challenges
-        return resolve(await this.requestChallenge(pin,client));
-      }
-      try{
-        const data = await this.requestToken(pin,client);
-        const token2 = this.solveChallenge(data.data.challenge);
-        const token = this.concatTokens(data.token,token2);
-        resolve({
-          token,
-          data: data.data
-        });
-      }catch(e){
-        reject(e);
-      }
+    if(pin[0] === "0"){
+      // challenges
+      return this.requestChallenge(pin,client);
+    }
+    if(isNaN(pin)){
+      return new Promise((res,reject)=>{reject("Invalid/Missing PIN");});
+    }
+    return this.requestToken(pin,client).then(data=>{
+      const token2 = this.solveChallenge(data.data.challenge);
+      const token = this.concatTokens(data.token,token2);
+      return {
+        token,
+        data: data.data
+      };
     });
   }
 }

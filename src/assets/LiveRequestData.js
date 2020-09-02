@@ -9,4 +9,4 @@ module.exports = class LiveRequestData extends LiveBaseMessage{
       content: ""
     });
   }
-}
+};
