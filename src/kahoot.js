@@ -269,6 +269,17 @@ class Client extends EventEmitter{
     });
   }
 
+  /**
+   * leave - Leave the game.
+   */
+  leave(){
+    this.send(new this.classes.LiveLeavePacket(this));
+    !arguments[0] && this.disconnectReason = "Client Left";
+    setTimeout(()=>{
+      this.socket.close();
+    },500);
+  }
+
   // creates the connection to the server
   async _createHandshake(){
     // already connected to server (probably trying to join again after an invalid name)

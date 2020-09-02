@@ -2,12 +2,14 @@ const LiveClientHandshake = require("../assets/LiveClientHandshake.js");
 const LiveJoinPacket = require("../assets/LiveJoinPacket.js");
 const LiveJoinTeamPacket = require("../assets/LiveJoinTeamPacket.js");
 const LiveTwoStepAnswer = require("../assets/LiveTwoStepAnswer.js");
+const LiveLeavePacket = require("../assets/LiveLeavePacket.js");
 
 module.exports = function(){
   this.classes.LiveTwoStepAnswer = LiveTwoStepAnswer;
   this.classes.LiveJoinPacket = LiveJoinPacket;
   this.classes.LiveClientHandshake = LiveClientHandshake;
   this.classes.LiveJoinTeamPacket = LiveJoinTeamPacket;
+  this.classes.LiveLeavePacket = LiveLeavePacket;
   this.handlers.HandshakeChecker = (message)=>{
     if(message.channel === "/meta/handshake"){
       if(message.clientId){
@@ -100,6 +102,17 @@ module.exports = function(){
         delete this.twoFactorResetTime;
         delete this.handlers.TwoFactor;
       }
+    }
+  };
+  this.handlers.Disconnect = (message)=>{
+    if(message.channel === "/service/player" && message.data && message.data.id === 10){
+      const content = JSON.parse(message.data.content);
+      if(content.kickCode){
+        this.disconnectReason = "Kicked";
+      }else{
+        this.disconnectReason = "Session Ended";
+      }
+      this.socket.leave(true);
     }
   };
 };

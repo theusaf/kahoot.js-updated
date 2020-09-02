@@ -56,9 +56,8 @@ function Injector(){
           }else{
 						joined(0);
 						setTimeout(()=>{
-							this.socket.emit("close",{
-                reason: "Quiz Ended"
-              });
+              this.disconnectReason = "Session Ended";
+							this.socket.emit("close");
 						},2000);
 						return this.challengeData;
           }
@@ -137,15 +136,13 @@ function Injector(){
 
   this._getProgress().then(inf=>{
     if(Object.keys(inf.progress).length == 0){
-			return this.socket.emit("close",{
-        reason: "Invalid challenge"
-      });
+      this.disconnectReason = "Invalid Challenge";
+			return this.socket.emit("close");
 		}
     this.challengeData = inf;
     if(inf.challenge.endTime <= Date.now() || inf.challenge.challengeUsersList.length >= inf.challenge.maxPlayers){
-      return this.socket.emit("close",{
-        reason: "Challenge Ended/Full"
-      });
+      this.disconnectReason = "Challenge Ended/Full"
+      return this.socket.emit("close");
     }else{
       this.socket.emit("HandshakeComplete");
     }
