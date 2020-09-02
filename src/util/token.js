@@ -3,6 +3,57 @@ const http = require("http");
 const ua = require("user-agents");
 
 class Decoder{
+  static requestChallenge(pin,client){
+    return new Promise((resolve, reject)=>{
+      function handleRequest(res){
+        const chunks = [];
+        res.on("data",(chunk)=>{
+          chunks.push(chunk);
+        });
+        res.on("end",()=>{
+          const body = Buffer.concat(chunks).toString("utf8");
+          let bodyObject;
+          try{
+            bodyObject = JSON.parse(body);
+            resolve({
+              data: Object.assign({
+                gameMode: "Challenge",
+                twoFactorAuth: false,
+                kahootData: bodyObject.kahoot,
+                rawChallengeData: bodyObject.challenge
+              },bodyObject.challenge.game_options)
+            });
+          }catch(e){
+            return reject(e);
+          }
+        });
+      }
+      let options = {
+        headers: {
+          "User-Agent": (new ua).toString(),
+          "Host": "kahoot.it",
+          "Referer": "https://kahoot.it/",
+          "Accept-Language": "en-US,en;q=0.8",
+          "Accept": "*/*"
+        },
+        host: "kahoot.it",
+        protocol: "https:",
+        path: `/rest/challenges/pin/${pin}`
+      }
+      const proxyOptions = client.defaults.proxy(options);
+      options = proxyOptions || options;
+      let req;
+      if(options.protocol === "https:"){
+        req = https.request(options,handleRequest);
+      }else{
+        req = http.request(options,handleRequest);
+      }
+      req.on("error",(e)=>{
+        reject(e);
+      });
+      req.end();
+    });
+  }
   static requestToken(pin,client){
     return new Promise((resolve,rej)=>{
       function handleRequest(res){
@@ -36,7 +87,7 @@ class Decoder{
           "Accept": "*/*"
         },
         host: "kahoot.it",
-        path: `/reserve/challenges/${pin}/?${Date.now()}`,
+        path: `/reserve/session/${pin}/?${Date.now()}`,
         protocol: "https:"
       };
       const proxyOptions = client.defaults.proxy(options);

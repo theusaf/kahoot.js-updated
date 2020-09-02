@@ -3,6 +3,7 @@ const token = require("./util/token.js");
 const ws = require("ws");
 const sleep = require("./util/sleep.js");
 const ua = require("user-agents");
+const ChallengeHandler = require("./util/ChallengeHandler.js");
 
 // A Kahoot! client.
 class Client extends EventEmitter{
@@ -117,6 +118,9 @@ class Client extends EventEmitter{
    * @returns {Promise} Resolves when the message is sent and received. Rejects if the message fails to send.
    */
   async answerTwoFactorAuth(steps){
+    if(this.gameid[0] == "0"){
+      throw "Cannot answer two steps in Challenges";
+    }
     steps = steps || [0,1,2,3];
     const wait = Date.now() - this.twoFactorResetTime;
     if(wait < 250){
@@ -241,6 +245,9 @@ class Client extends EventEmitter{
    * - see {@link https://kahoot.js.org/#/enum/LiveEventTimetrack}
    */
   async joinTeam(team,s){
+    if(this.gameid[0] === "0" || this.settings.gameMode !== "team" || !this.socket || this.socket.readyState !== 1){
+      throw "Failed to send the team.";
+    }
     team = team || ["Player 1","Player 2","Player 3","Player 4"];
     if(this.settings.gameMode !== "team"){
       throw "The gameMode is not 'team'.";
@@ -270,12 +277,16 @@ class Client extends EventEmitter{
     }
     const data = await token.resolve(this.gameid,this);
     return new Promise((res,rej)=>{
-      const options = this._defaults.wsproxy(`wss://kahoot.it/cometd/${this.gameid}/${data.token}`);
-      let info = [options.options];
-      if(options.protocols){
-        info.splice(0,0,options.protocols);
+      if(data.gameMode !== "Challenge"){
+        const options = this._defaults.wsproxy(`wss://kahoot.it/cometd/${this.gameid}/${data.token}`);
+        let info = [options.options];
+        if(options.protocols){
+          info.splice(0,0,options.protocols);
+        }
+        this.socket = new ws(options.address,...info);
+      }else{
+        this.socket = new ChallengeHandler(this,data);
       }
-      this.socket = new ws(options.address,...info);
       this.socket.on("close",()=>{
         this.emit("disconnect",this.disconnectReason || "Lost Connection");
       });
@@ -370,9 +381,13 @@ Client.prototype._defaults = {
   },
   proxy: ()=>{},
   wsproxy: (url)=>{return {address: url};},
-  options: {
-    ChallengeAutoContinue: true,
-    ChallengeGetFullScore: false
+  options: { // challenge and other options
+    ChallengeAutoContinue: true, // automatically cause events
+    ChallengeGetFullScore: false, // always get the max score possible
+    ChallengeAlwaysCorrect: false, // always get the answer "correct"
+    ChallengeUseSteakBonus: false, // enable streak bonuses
+    ChallengeWaitForInput: false, // wait for answering, disable auto question end.
+    ChallengeScore: null // set score
   }
 };
 

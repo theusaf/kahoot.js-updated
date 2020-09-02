@@ -14,6 +14,9 @@ module.exports = function(){
     }
     pin = pin || this.gameid;
     cid = cid || this.cid;
+    if(pin[0] === "0"){
+      throw "Cannot reconnect to a Challenge.";
+    }
     const settings = await this._createHandshake();
     this.settings = settings;
     // reconnect

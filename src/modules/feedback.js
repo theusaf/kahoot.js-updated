@@ -25,6 +25,9 @@ module.exports = function(){
    * @param {Number} overall -1 - 1. The overall feeling of the client.
    */
   this.sendFeedback = async (fun,learn,recommend,overall)=>{
+    if(this.gameid[0] === "0"){
+      throw "Cannot send feedback in Challenges";
+    }
     const wait = Date.now() - this.feedbackTime;
     if(wait < 500){
       await sleep(500 - wait);
