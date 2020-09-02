@@ -54,12 +54,17 @@ class Client extends EventEmitter{
     // assign options
     this.defaults = {};
     for(let i in this._defaults){
+      if(typeof this._defaults[i] === "function"){
+        this.defaults[i] = this._defaults[i].bind({});
+        continue;
+      }
       this.defaults[i] = {};
       Object.assign(this.defaults[i],this._defaults[i]);
     }
     Object.assign(this.defaults.options,options.options);
     Object.assign(this.defaults.modules,options.modules);
     this.defaults.proxy = options.proxy || this.defaults.proxy;
+    this.defaults.wsproxy = options.wsproxy || this.defaults.wsproxy;
 
     this.classes = {};
     this.handlers = {};
@@ -124,7 +129,7 @@ class Client extends EventEmitter{
     steps = steps || [0,1,2,3];
     const wait = Date.now() - this.twoFactorResetTime;
     if(wait < 250){
-      await sleep(250 - wait);
+      await sleep((250 - wait) / 1000);
     }
     return new Promise((resolve,reject)=>{
       this._send(new this.classes.LiveTwoStepAnswer(this,steps),(r)=>{
@@ -153,7 +158,7 @@ class Client extends EventEmitter{
     const settings = await this._createHandshake();
     this.settings = settings;
     // now join
-    await sleep(0.5);
+    await sleep(1);
     await this._send(new this.classes.LiveJoinPacket(this,name));
     return new Promise((resolve,reject)=>{
       this.handlers.JoinFinish = async (message)=>{
@@ -273,7 +278,7 @@ class Client extends EventEmitter{
    * leave - Leave the game.
    */
   leave(){
-    this.send(new this.classes.LiveLeavePacket(this));
+    this._send(new this.classes.LiveLeavePacket(this));
     if(!arguments[0]){this.disconnectReason = "Client Left";}
     setTimeout(()=>{
       this.socket.close();
@@ -299,7 +304,7 @@ class Client extends EventEmitter{
         this.socket = new ChallengeHandler(this,data);
       }
       this.socket.on("close",()=>{
-        this.emit("disconnect",this.disconnectReason || "Lost Connection");
+        this.emit("Disconnect",this.disconnectReason || "Lost Connection");
       });
       this.socket.on("open",()=>{
         this._send(new this.classes.LiveClientHandshake(0));
@@ -327,7 +332,7 @@ class Client extends EventEmitter{
           message.id = (++this.messageId) + "";
           this.socket.send(JSON.stringify([message]),res);
         }
-        if(this.loggingMode){console.log("SEND: " + JSON.stringify(message));}
+        if(this.loggingMode){console.log("SEND: " + JSON.stringify([message]));}
         if(callback){
           this.waiting[this.messageId] = callback;
           setTimeout(()=>{
@@ -343,9 +348,9 @@ class Client extends EventEmitter{
   }
 
   _message(message){
-    if(this.loggingMode){console.log("RECV: " + JSON.stringify(message));}
+    if(this.loggingMode){console.log("RECV: " + message);}
     for(let i in this.handlers){
-      this.handlers[i](JSON.parse(message))[0];
+      this.handlers[i](JSON.parse(message)[0]);
     }
   }
 
@@ -355,10 +360,10 @@ class Client extends EventEmitter{
         get questionCount(){return (this.quizQuestionAnswers && this.quizQuestionAnswers.length) || 10;}
       };
     }
-    if(payload.quizQuestionAnswers){
+    if(payload && payload.quizQuestionAnswers){
       this.quiz.quizQuestionAnswers = payload.quizQuestionAnswers;
     }
-    if(payload.questionIndex !== undefined){
+    if(payload && payload.questionIndex !== undefined){
       if(!this.quiz.currentQuestion){this.quiz.currentQuestion = {};}
       Object.assign(this.quiz.currentQuestion,payload);
     }
@@ -373,7 +378,7 @@ class Client extends EventEmitter{
 // default options
 Client.prototype._defaults = {
   modules: {
-    extraData: true,
+    extraData: true, // Adds shortcuts/functions/aliases to various events.
     feedback: true, // Allows the "Feedback" event and the sendFeedback method.
     gameReset: true, // Allows the "GameReset" event.
     quizStart: true, // Allows the "QuizStart" event.

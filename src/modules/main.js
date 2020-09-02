@@ -24,7 +24,7 @@ module.exports = function(){
             return Date.now();
           }
         };
-        this._send(new LiveClientHandshake(1,this._timesync));
+        this._send(new LiveClientHandshake(1,this._timesync,this));
         delete this.handlers.HandshakeChecker; // no more need.
       }else{
         // error!
@@ -35,7 +35,7 @@ module.exports = function(){
   };
   this.handlers.PingChecker = (message)=>{
     if(message.channel === "/meta/connect" && message.ext){
-      if(message.reconnect === "retry"){
+      if(message.advice && message.advice.reconnect === "retry"){
         this.emit("HandshakeComplete");
       }
       this._send(new LiveClientHandshake(2,message,this));
@@ -64,7 +64,7 @@ module.exports = function(){
     }
   };
   this.handlers.TwoFactor = (message)=>{
-    if(!this.settings.twoFactorAuth){
+    if(this.settings && !this.settings.twoFactorAuth){
       delete this.handlers.TwoFactor;
       return;
     }
@@ -112,7 +112,7 @@ module.exports = function(){
       }else{
         this.disconnectReason = "Session Ended";
       }
-      this.socket.leave(true);
+      this.leave(true);
     }
   };
 };

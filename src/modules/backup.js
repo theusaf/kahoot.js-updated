@@ -1,4 +1,5 @@
 const LiveRequestData = require("../assets/LiveRequestData.js");
+const sleep = require("../util/sleep.js");
 module.exports = function(){
 
   /**
@@ -6,7 +7,8 @@ module.exports = function(){
    *
    * @returns {Promise} Resolves when request is sent and received.
    */
-  this.requestRecoveryData = ()=>{
+  this.requestRecoveryData = async()=>{
+    await sleep(0.5);
     return new Promise((resolve)=>{
       this._send(new LiveRequestData(this),(r)=>{
         resolve();

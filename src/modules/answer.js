@@ -14,8 +14,11 @@ module.exports = function(){
    */
   this.answer = async (choice)=>{
     const wait = Date.now() - this.questionStartTime;
+    if(wait === NaN){
+      wait = 0;
+    }
     if(wait < 250){
-      await sleep(wait - 250);
+      await sleep((250 - wait) / 1000);
     }
     return new Promise((resolve, reject)=>{
       this._send(new LiveQuestionAnswer(this,choice),(result)=>{

@@ -30,7 +30,7 @@ module.exports = function(){
     }
     const wait = Date.now() - this.feedbackTime;
     if(wait < 500){
-      await sleep(500 - wait);
+      await sleep((500 - wait) / 1000);
     }
     return new Promise((resolve, reject)=>{
       this._send(new LiveFeedbackPacket(this,fun,learn,recommend,overall),(result)=>{

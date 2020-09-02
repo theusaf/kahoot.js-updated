@@ -1,7 +1,7 @@
 const LiveTimesyncData = require("./LiveTimesyncData.js");
 module.exports = class LiveClientHandshake{
   constructor(n,m,c){
-    switch (n) {
+    switch (n+"") {
     // ping
     case "2":{
       this.channel = "/meta/connect";
@@ -9,6 +9,7 @@ module.exports = class LiveClientHandshake{
         ack: m.ext.ack,
         timesync: c._timesync
       };
+      this.clientId = c.clientId;
       break;
     }
     // second handshake
@@ -21,6 +22,7 @@ module.exports = class LiveClientHandshake{
         ack: 0,
         timesync: new LiveTimesyncData(n,m.l,m.o)
       };
+      this.clientId = c.clientId;
       break;
     }
     // First handshake
