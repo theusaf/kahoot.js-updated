@@ -51,6 +51,8 @@ module.exports = function(){
   this.handlers.TwoFactor = (message)=>{
     if(!this.settings.twoFactorAuth){
       delete this.handlers.TwoFactor;
+      this.removeListener("TwoFactorReset",reset);
+      this.removeListener("TwoFactorCorrect",correct);
       return;
     }
     if(message.channel === "/service/player" && message.data){
@@ -85,12 +87,13 @@ module.exports = function(){
   const reset = ()=>{
     this.twoFactorResetTime = Date.now();
   };
-  this.on("TwoFactorReset",reset);
-  this.once("TwoFactorCorrect",()=>{
+  const correct = ()=>{
     this.removeListener("TwoFactorReset",reset);
     this.connected = true;
     if(this.lastEvent){
       this.emit.apply(this,this.lastEvent);
     }
-  });
+  };
+  this.on("TwoFactorReset",reset);
+  this.once("TwoFactorCorrect",correct);
 };
