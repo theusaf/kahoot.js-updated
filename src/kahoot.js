@@ -93,6 +93,29 @@ class Client extends EventEmitter{
   }
 
   /**
+   * answerTwoFactorAuth - Answer the Two Factor Authentification
+   *
+   * @param  {Number[]} [steps=[0,1,2,3]] A list of four numbers (0,1,2,3). Each number represents one of the four colors in the two-factor code (red,blue,yellow,green) respectively
+   * @returns {Promise} Resolves when the message is sent and received. Rejects if the message fails to send.
+   */
+  answerTwoFactorAuth(steps){
+    return new Promise(async (resolve,reject)=>{
+      steps = steps || [0,1,2,3];
+      const wait = Date.now() - this.twoFactorResetTime;
+      if(wait < 250){
+        await sleep(250 - wait);
+      }
+      await this._send(new this.classes.LiveTwoStepAnswer(this,steps),(r)=>{
+        if(r === null){
+          reject();
+        }else{
+          resolve();
+        }
+      });
+    });
+  }
+
+  /**
    * join - Join a game. Also joins with team members.
    *
    * @param  {String} name The name of the player
@@ -131,28 +154,36 @@ class Client extends EventEmitter{
                   team = team || ["Player 1","Player 2","Player 3","Player 4"];
                   // send team!
                   try{
-                    await this.joinTeam(team);
+                    await this.joinTeam(team,true);
                   }catch(e){
                     // This should not happen.
                     // Needs testing: Does the client need to re-send team members?
-                    console.log("ERR! Failed to send team members.");
+                    console.log("ERR! Failed to send team members. Retrying");
+                    try{
+                      await this.joinTeam(team,true);
+                    }catch(e){
+                      console.log("ERR! Failed to send team members a second time. Assuming the best.");
+                    }
                   }
                   this.emit("joined",settings);
-                  this.connected = true;
+                  if(!this.settings.twoFactorAuth){
+                    this.connected = true;
+                  }else{
+                    this.emit("TwoFactorReset");
+                  }
                   resolve(settings);
                 }else{
+                  this.emit("joined",settings);
+                  if(this.settings.twoFactorAuth){
+                    this.emit("TwoFactorReset");
+                  }
                   resolve(settings);
                 }
               }else{
 
                 /**
-                 * Whether the client is ready to receive events
-                 * @type {Boolean}
-                 */
-                this.connected = true;
-
-                /**
                  * Join event
+                 * Emitted when the client joins the game
                  *
                  * @event Client#join
                  * @type {Object}
@@ -164,6 +195,18 @@ class Client extends EventEmitter{
                  * @property {String|undefined} gameMode If the gameMode is 'team,' then it is team mode, else it is the normal classic mode.
                  */
                 this.emit("joined",settings);
+                if(!this.settings.twoFactorAuth){
+
+                  /**
+                   * Whether the client is ready to receive events
+                   * This means that the client has joined the game
+                   *
+                   * @type {Boolean}
+                   */
+                  this.connected = true;
+                }else{
+                  this.emit("TwoFactorReset");
+                }
                 resolve(settings);
               }
             }
@@ -183,7 +226,7 @@ class Client extends EventEmitter{
    * @returns {Promise<Object>} Resolves when the team members are sent. Rejects if for some reason the message was not received by Kahoot!'s server.
    * - see {@link https://kahoot.js.org/#/enum/LiveEventTimetrack}
    */
-  joinTeam(team){
+  joinTeam(team,s){
     team = team || ["Player 1","Player 2","Player 3","Player 4"];
     return new Promise(async (resolve,reject)=>{
       if(this.settings.gameMode !== "team"){
@@ -193,6 +236,12 @@ class Client extends EventEmitter{
         if(r === null){
           reject();
         }else{
+          !s && this.emit("joined",this.settings);
+          if(!this.settings.twoFactorAuth){
+            this.connected = true;
+          }else{
+            !s && this.emit("TwoFactorReset");
+          }
           resolve(r);
         }
       }));
@@ -203,6 +252,10 @@ class Client extends EventEmitter{
   _createHandshake(){
     return new Promise(async (res,rej)=>{
       try{
+        // already connected to server (probably trying to join again after an invalid name)
+        if(this.socket && this.socket.readyState === 1 && this.settings){
+          return res(this.settings);
+        }
         const data = await token.resolve(this.gameid,this);
         const options = this._defaults.wsproxy(`wss://kahoot.it/cometd/${this.gameid}/${data.token}`);
         let info = [options.options];
@@ -270,7 +323,6 @@ Client.prototype._defaults = {
   modules: {
     feedback: true,
     gameReset: true,
-    twoFactor: true,
     quizEnd: true,
     podium: true,
     timeOver: true,
@@ -282,6 +334,7 @@ Client.prototype._defaults = {
     teamAccept: true,
     teamTalk: true,
     backup: true,
+    answer: true
   },
   proxy: ()=>{},
   wsproxy: (url)=>{return {address: url}},

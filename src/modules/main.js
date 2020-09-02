@@ -1,8 +1,10 @@
 const LiveClientHandshake = require("../assets/LiveClientHandshake.js");
 const LiveJoinPacket = require("../assets/LiveJoinPacket.js");
 const LiveJoinTeamPacket = require("../assets/LiveJoinTeamPacket.js");
+const LiveTwoStepAnswer = require("../assets/LiveTwoStepAnswer.js");
 
 module.exports = function(){
+  this.classes.LiveTwoStepAnswer = LiveTwoStepAnswer;
   this.classes.LiveJoinPacket = LiveJoinPacket;
   this.classes.LiveClientHandshake = LiveClientHandshake;
   this.classes.LiveJoinTeamPacket = LiveJoinTeamPacket;
@@ -46,4 +48,27 @@ module.exports = function(){
       }
     }
   };
+  this.handlers.TwoFactor = (message)=>{
+    if(!this.settings.twoFactorAuth){
+      delete this.handlers.TwoFactor;
+      return;
+    }
+    if(message.channel === "/service/player" && message.data){
+      if(message.data.id === 53){
+        this.emit("TwoFactorReset");
+      }else if(message.data.id === 51){
+        this.emit("TwoFactorWrong");
+      }else if(message.data.id === 52){
+        this.emit("TwoFactorCorrect");
+        delete this.handlers.TwoFactor;
+      }
+    }
+  };
+  const reset = ()=>{
+    this.twoFactorResetTime = Date.now();
+  };
+  this.on("TwoFactorReset",reset);
+  this.once("TwoFactorCorrect",()=>{
+    this.removeListener("TwoFactorReset",reset);
+  });
 };
