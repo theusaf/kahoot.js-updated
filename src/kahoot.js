@@ -277,7 +277,7 @@ class Client extends EventEmitter{
       }
       this.socket = new ws(options.address,...info);
       this.socket.on("close",()=>{
-        this.emit("disconnect",this.disconnectReason || {});
+        this.emit("disconnect",this.disconnectReason || "Lost Connection");
       });
       this.socket.on("open",()=>{
         this._send(new this.classes.LiveClientHandshake(0));
@@ -352,12 +352,12 @@ class Client extends EventEmitter{
 Client.prototype._defaults = {
   modules: {
     extraData: true,
-    feedback: true,
-    gameReset: true,
-    quizStart: true,
-    quizEnd: true,
-    podium: true,
-    timeOver: true,
+    feedback: true, // Allows the "Feedback" event and the sendFeedback method.
+    gameReset: true, // Allows the "GameReset" event.
+    quizStart: true, // Allows the "QuizStart" event.
+    quizEnd: true, // Allows the "QuizEnd" event.
+    podium: true, // Allows the "Podium" event.
+    timeOver: true, // Allows the "TimeOver" event.
     reconnect: true, // Allows reconnecting
     questionReady: true, // Allows the "QuestionReady" event.
     questionStart: true, // Allows the "QuestionStart" event.
