@@ -94,12 +94,12 @@ class Decoder{
     return token;
   }
   static resolve(pin,client){
+    if(isNaN(pin)){
+      return new Promise((res,reject)=>{reject("Invalid/Missing PIN");});
+    }
     if(pin[0] === "0"){
       // challenges
       return this.requestChallenge(pin,client);
-    }
-    if(isNaN(pin)){
-      return new Promise((res,reject)=>{reject("Invalid/Missing PIN");});
     }
     return this.requestToken(pin,client).then(data=>{
       const token2 = this.solveChallenge(data.data.challenge);

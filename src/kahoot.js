@@ -47,7 +47,6 @@ class Client extends EventEmitter{
    */
   constructor(options){
     options = options || {};
-    console.log(options)
     super();
     // assign options
     this.defaults = {};
@@ -96,12 +95,17 @@ class Client extends EventEmitter{
    * @static join - Creates a {@link Client} and joins the game
    *
    * @see {@link join}
-   * @returns {Client}      Returns the {@link Client} instead of a Promise.
+   * @returns {Object}      Returns the {@link Client} instead of a Promise.
+   * @param {Client} client The newly created client joining the game
+   * @param {Promise<Object>} event @see {@link join}
    */
   static join(){
     const client = new this;
-    client.join.apply(client,arguments);
-    return client;
+    const event = client.join.apply(client,arguments);
+    return {
+      client,
+      event
+    };
   }
 
   /**
