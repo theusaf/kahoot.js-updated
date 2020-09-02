@@ -275,10 +275,10 @@ class Client extends EventEmitter{
     });
   }
 
-  _send(message,callback){
+  async _send(message,callback){
     if(this.socket && this.socket.readyState === 1){
       if(typeof message === "undefined" || message === null){
-        return new Promise((res,rej)=>{rej("empty_message");});
+        throw "empty_message";
       }
       return new Promise((res)=>{
         if(message.length){
