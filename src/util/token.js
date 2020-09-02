@@ -17,7 +17,7 @@ class Decoder{
             bodyObject = JSON.parse(body);
             resolve({
               data: Object.assign({
-                gameMode: "Challenge",
+                isChallenge: true,
                 twoFactorAuth: false,
                 kahootData: bodyObject.kahoot,
                 rawChallengeData: bodyObject.challenge
@@ -39,7 +39,7 @@ class Decoder{
         host: "kahoot.it",
         protocol: "https:",
         path: `/rest/challenges/pin/${pin}`
-      }
+      };
       const proxyOptions = client.defaults.proxy(options);
       options = proxyOptions || options;
       let req;

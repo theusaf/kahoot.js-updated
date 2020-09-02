@@ -274,7 +274,7 @@ class Client extends EventEmitter{
    */
   leave(){
     this.send(new this.classes.LiveLeavePacket(this));
-    !arguments[0] && this.disconnectReason = "Client Left";
+    if(!arguments[0]){this.disconnectReason = "Client Left";}
     setTimeout(()=>{
       this.socket.close();
     },500);
@@ -288,7 +288,7 @@ class Client extends EventEmitter{
     }
     const data = await token.resolve(this.gameid,this);
     return new Promise((res,rej)=>{
-      if(data.gameMode !== "Challenge"){
+      if(!data.isChallenge){
         const options = this._defaults.wsproxy(`wss://kahoot.it/cometd/${this.gameid}/${data.token}`);
         let info = [options.options];
         if(options.protocols){
@@ -396,7 +396,7 @@ Client.prototype._defaults = {
     ChallengeAutoContinue: true, // automatically cause events
     ChallengeGetFullScore: false, // always get the max score possible
     ChallengeAlwaysCorrect: false, // always get the answer "correct"
-    ChallengeUseSteakBonus: false, // enable streak bonuses
+    ChallengeUseStreakBonus: false, // enable streak bonuses
     ChallengeWaitForInput: false, // wait for answering, disable auto question end.
     ChallengeScore: null // set score
   }
