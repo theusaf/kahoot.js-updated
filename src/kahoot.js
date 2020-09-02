@@ -316,6 +316,26 @@ class Client extends EventEmitter{
       handlers[i](JSON.parse(message))[0];
     }
   }
+
+  _emit(evt,payload){
+    if(!this.quiz){
+      this.quiz = {
+        get questionCount(){return (this.quizQuestionAnswers && this.quizQuestionAnswers.length) || 10;}
+      };
+    }
+    if(payload.quizQuestionAnswers){
+      this.quiz.quizQuestionAnswers = payload.quizQuestionAnswers;
+    }
+    if(payload.questionIndex !== undefined){
+      if(!this.quiz.currentQuestion){this.quiz.currentQuestion = {};}
+      Object.assign(this.quiz.currentQuestion,payload);
+    }
+    if(!this.connected){
+      this.lastEvent = arguments;
+    }else{
+      this.emit.apply(this,arguments);
+    }
+  }
 }
 
 // default options

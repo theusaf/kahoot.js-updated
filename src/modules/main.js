@@ -55,10 +55,28 @@ module.exports = function(){
     }
     if(message.channel === "/service/player" && message.data){
       if(message.data.id === 53){
+
+        /**
+         * TwoFactorReset Event. Emitted when the two-factor auth resets and hasn't been answered correctly yet
+         *
+         * @event Client#TwoFactorReset
+         */
         this.emit("TwoFactorReset");
       }else if(message.data.id === 51){
+
+        /**
+         * TwoFactorWrong Event. Emitted when the two-factor auth was answered incorrectly.
+         *
+         * @event Client#TwoFactorWrong
+         */
         this.emit("TwoFactorWrong");
       }else if(message.data.id === 52){
+
+        /**
+         * TwoFactorCorrect Event. Emitted when the two-factor auth was answered correctly. Enables other events to start.
+         *
+         * @event Client#TwoFactorCorrect
+         */
         this.emit("TwoFactorCorrect");
         delete this.handlers.TwoFactor;
       }
@@ -70,5 +88,9 @@ module.exports = function(){
   this.on("TwoFactorReset",reset);
   this.once("TwoFactorCorrect",()=>{
     this.removeListener("TwoFactorReset",reset);
+    this.connected = true;
+    if(this.lastEvent){
+      this.emit.apply(this,this.lastEvent);
+    }
   });
 };

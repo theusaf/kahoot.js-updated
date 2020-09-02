@@ -17,7 +17,10 @@ module.exports = class LiveClientHandshake{
           timeout: 0
         };
         this.channel = "/meta/connect";
-        this.ext = new LiveTimesyncData(n,m.l,m.o);
+        this.ext = {
+          ack: 0,
+          timesync: new LiveTimesyncData(n,m.l,m.o)
+        }
         break;
       }
       // First handshake
