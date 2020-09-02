@@ -1,6 +1,8 @@
 const EventEmitter = require("events");
 const token = require("./util/token.js");
 const ws = require("ws");
+const sleep = require("./util/sleep.js");
+const ua = require("user-agents");
 
 // A Kahoot! client.
 class Client extends EventEmitter{
@@ -63,6 +65,7 @@ class Client extends EventEmitter{
     // apply main modules
     require("./modules/main.js").call(this);
 
+    this.userAgent = (new ua()).toString();
     this.messageId = 0;
   }
 
@@ -95,41 +98,134 @@ class Client extends EventEmitter{
    * @param  {String} name The name of the player
    * @param  {(String[]|Boolean)} [team=["Player 1","Player 2","Player 3","Player 4"]] The team member names.
    * if false, the team members will not be added automatically.
-   * @returns {Promise<Object>}      Resolves when join succeeds
+   * @returns {Promise<Object>}      Resolves when join + team (if applicable) succeeds
+   * The resolved object should contain information about twoFactor, namerator, and gameMode
    * If joining fails, this will reject with the error
    */
   join(pin,name,team){
     return new Promise(async (res,rej)=>{
       this.gameid = pin;
+      this.name = name;
       try{
-        await this._createHandshake();
+        const settings = await this._createHandshake();
+        this.settings = settings;
+        // now join
+        await sleep(0.5);
+        await this._send(new this.classes.LiveJoinPacket(this,name));
+        this.handlers.JoinFinish = async (message)=>{
+          if(message.channel === "/service/status"){
+            this.emit("status",message.data);
+            if(message.data.status === "LOCKED"){
+              reject(message.data);
+              delete this.handlers.JoinFinish;
+              return;
+            }
+          }
+          if(message.channel === "/service/controller" && message.data && message.data.type === "loginResponse"){
+            if(message.data.error){
+              reject(message.data);
+            }else{
+              this.cid = message.data.cid;
+              if(settings.gameMode === "team"){
+                if(team !== false){
+                  team = team || ["Player 1","Player 2","Player 3","Player 4"];
+                  // send team!
+                  try{
+                    await this.joinTeam(team);
+                  }catch(e){
+                    // This should not happen.
+                    // Needs testing: Does the client need to re-send team members?
+                    console.log("ERR! Failed to send team members.");
+                  }
+                  this.emit("joined",settings);
+                  this.connected = true;
+                  resolve(settings);
+                }else{
+                  resolve(settings);
+                }
+              }else{
+
+                /**
+                 * Whether the client is ready to receive events
+                 * @type {Boolean}
+                 */
+                this.connected = true;
+
+                /**
+                 * Join event
+                 *
+                 * @event Client#join
+                 * @type {Object}
+                 * @property {String<Function>} challenge The challenge function. (Pointless)
+                 * @property {Boolean} namerator Whether the game has the friendly name generator on.
+                 * @property {Boolean} participantId
+                 * @property {Boolean} smartPractice
+                 * @property {Boolean} twoFactorAuth Whether the game has twoFactorAuth enabled
+                 * @property {String|undefined} gameMode If the gameMode is 'team,' then it is team mode, else it is the normal classic mode.
+                 */
+                this.emit("joined",settings);
+                resolve(settings);
+              }
+            }
+            delete this.handlers.JoinFinish;
+          }
+        };
       }catch(e){
         rej(e);
       }
     });
   }
 
+  /**
+   * joinTeam - Send team members
+   *
+   * @param  {String[]} [team=["Player 1","Player 2","Player 3","Player 4"]] A list of team members names
+   * @returns {Promise<Object>} Resolves when the team members are sent. Rejects if for some reason the message was not received by Kahoot!'s server.
+   * - see {@link https://kahoot.js.org/#/enum/LiveEventTimetrack}
+   */
+  joinTeam(team){
+    team = team || ["Player 1","Player 2","Player 3","Player 4"];
+    return new Promise(async (resolve,reject)=>{
+      if(this.settings.gameMode !== "team"){
+        return reject("The gameMode is not 'team'.");
+      }
+      await this._send(new this.classes.LiveJoinTeamPacket(this,team),(r)=>{
+        if(r === null){
+          reject();
+        }else{
+          resolve(r);
+        }
+      }));
+    });
+  }
+
   // creates the connection to the server
   _createHandshake(){
     return new Promise(async (res,rej)=>{
-      const data = await token.resolve(this.gameid,this);
-      const options = this._defaults.wsproxy("");
-      let data = [options.options];
-      if(options.protocols){
-        data.splice(0,0,options.protocols);
+      try{
+        const data = await token.resolve(this.gameid,this);
+        const options = this._defaults.wsproxy(`wss://kahoot.it/cometd/${this.gameid}/${data.token}`);
+        let info = [options.options];
+        if(options.protocols){
+          info.splice(0,0,options.protocols);
+        }
+        this.socket = new ws(options.address,...info);
+        this.socket.on("close",()=>{
+          this.emit("disconnect",this.disconnectReason || {});
+        });
+        this.socket.on("open",()=>{
+          this._send(new this.classes.LiveClientHandshake(0));
+        });
+        this.socket.on("message",(message)=>{
+          this._message(message);
+        });
+        this.on("HandshakeComplete",()=>{
+          res(data.data);
+        });
+        this.on("HandshakeFailed",rej);
+      }catch(e){
+        rej(e);
       }
-      this.socket = new ws(options.address,...data);
-      this.socket.on("close",()=>{
-        this.emit("disconnect",this.disconnectReason || {});
-      });
-      this.socket.on("open",()=>{
-        this._send(new this.classes.LiveClientHandshake(0));
-      });
-      this.socket.on("message",(message)=>{
-        this._message(message);
-      });
-      this.on("HandshakeComplete",res);
-      this.on("HandshakeFailed",rej);
     });
   }
 
@@ -138,20 +234,31 @@ class Client extends EventEmitter{
       if(typeof message === "undefined" || message === null){
         return new Promise((res,rej)=>{rej("empty_message");});
       }
-      if(message.length){
-        message[0].id = (++this.messageId) + "";
-        this.socket.send(JSON.stringify(message));
-      }else{
-        message.id = (++this.messageId) + "";
-        this.socket.send(JSON.stringify([message]));
-      }
-      if(callbacks){
-        this.waiting[this.messageId] = callback;
-      }
+      return new Promise((res)=>{
+        if(message.length){
+          message[0].id = (++this.messageId) + "";
+          this.socket.send(JSON.stringify(message),res);
+        }else{
+          message.id = (++this.messageId) + "";
+          this.socket.send(JSON.stringify([message]),res);
+        }
+        if(this.loggingMode){console.log("SEND: " + JSON.stringify(message));}
+        if(callback){
+          this.waiting[this.messageId] = callback;
+          setTimeout(()=>{
+            if(this.waiting[this.messageId]){
+              // event timed out? (took over 10 seconds)
+              callback(null);
+              delete this.waiting[this.messageId];
+            }
+          },10e3);
+        }
+      });
     }
   }
 
   _message(message){
+    if(this.loggingMode){console.log("RECV: " + JSON.stringify(message));}
     for(let i in handlers){
       handlers[i](JSON.parse(message))[0];
     }
@@ -166,7 +273,6 @@ Client.prototype._defaults = {
     twoFactor: true,
     quizEnd: true,
     podium: true,
-    timetrack: true,
     timeOver: true,
     reconnect: true,
     questionReady: true,
@@ -181,8 +287,7 @@ Client.prototype._defaults = {
   wsproxy: (url)=>{return {address: url}},
   options: {
     ChallengeAutoContinue: true,
-    ChallengeGetFullScore: false,
-    loggingMode: false
+    ChallengeGetFullScore: false
   }
 };
 

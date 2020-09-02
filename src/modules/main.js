@@ -1,7 +1,11 @@
 const LiveClientHandshake = require("../assets/LiveClientHandshake.js");
+const LiveJoinPacket = require("../assets/LiveJoinPacket.js");
+const LiveJoinTeamPacket = require("../assets/LiveJoinTeamPacket.js");
 
 module.exports = function(){
+  this.classes.LiveJoinPacket = LiveJoinPacket;
   this.classes.LiveClientHandshake = LiveClientHandshake;
+  this.classes.LiveJoinTeamPacket = LiveJoinTeamPacket;
   this.handlers.HandshakeChecker = (message)=>{
     if(message.channel === "/meta/handshake"){
       if(message.clientId){
@@ -31,6 +35,15 @@ module.exports = function(){
         this.emit("HandshakeComplete");
       }
       this._send(new LiveClientHandshake(2,message,this));
+    }
+  };
+  this.handlers.timetrack = (message)=>{
+    if(this.waiting){
+      if(this.waiting[message.id]){
+        // hooray
+        this.waiting[message.id](message);
+        delete this.waiting[message.id];
+      }
     }
   };
 };
