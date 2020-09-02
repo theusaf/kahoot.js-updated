@@ -40,6 +40,19 @@ module.exports = function(){
     }
   };
   this.handlers.timetrack = (message)=>{
+
+    /**
+     * @namespace {Object} LiveEventTimetrack An object about the time events were received
+     *
+     * @property {String} channel The channel the message is responding to
+     * @property {Object} ext An object that looks like this:
+     * @example
+     * {
+     *   "timetrack": 265834652 // date received
+     * }
+     * @property {String<Number>} id The message id this message is responding to
+     * @property {Boolean} successful Whether the message was successful
+     */
     if(this.waiting){
       if(this.waiting[message.id]){
         // hooray
@@ -63,6 +76,7 @@ module.exports = function(){
          *
          * @event Client#TwoFactorReset
          */
+        this.twoFactorResetTime = Date.now();
         this.emit("TwoFactorReset");
       }else if(message.data.id === 51){
 
@@ -79,21 +93,15 @@ module.exports = function(){
          *
          * @event Client#TwoFactorCorrect
          */
+        this.connected = true;
         this.emit("TwoFactorCorrect");
+        if(this.lastEvent){
+          this.emit.apply(this,this.lastEvent);
+        }
+        delete this.lastEvent;
+        delete this.twoFactorResetTime;
         delete this.handlers.TwoFactor;
       }
     }
   };
-  const reset = ()=>{
-    this.twoFactorResetTime = Date.now();
-  };
-  const correct = ()=>{
-    this.removeListener("TwoFactorReset",reset);
-    this.connected = true;
-    if(this.lastEvent){
-      this.emit.apply(this,this.lastEvent);
-    }
-  };
-  this.on("TwoFactorReset",reset);
-  this.once("TwoFactorCorrect",correct);
 };

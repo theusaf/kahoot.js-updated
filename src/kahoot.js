@@ -12,10 +12,12 @@ class Client extends EventEmitter{
    *
    * @param  {Object} options Sets up the client. Options can control what events and methods are available to the client. By default, all options are enabled, besides proxies.
    * modules:
+   * - extraData: enable extra aliases, functions, and data
    * - feedback: enable feedback events/methods
    * - gameReset: enable gamereset events
    * - twoFactor: enable two factor events/methods
    * - quizEnd: enable quizend events
+   * - quizStart: enable quizstart events
    * - podium: enable podium (quiz end) events
    * - timetrack: enable timetrack events
    * - timeOver: enable timeover events (question end)
@@ -97,7 +99,7 @@ class Client extends EventEmitter{
    * @see {@link join}
    * @returns {Object}      Returns the {@link Client} instead of a Promise.
    * @param {Client} client The newly created client joining the game
-   * @param {Promise<Object>} event @see {@link join}
+   * @param {Promise<LiveEventTimetrack>} event @see {@link join}
    */
   static join(){
     const client = new this;
@@ -122,10 +124,10 @@ class Client extends EventEmitter{
     }
     return new Promise((resolve,reject)=>{
       this._send(new this.classes.LiveTwoStepAnswer(this,steps),(r)=>{
-        if(r === null){
-          reject();
+        if(r === null || !r.successful){
+          reject(r);
         }else{
-          resolve();
+          resolve(r);
         }
       });
     });
@@ -142,7 +144,7 @@ class Client extends EventEmitter{
    * If joining fails, this will reject with the error
    */
   async join(pin,name,team){
-    this.gameid = pin;
+    this.gameid = pin + "";
     this.name = name;
     const settings = await this._createHandshake();
     this.settings = settings;
@@ -245,8 +247,8 @@ class Client extends EventEmitter{
     }
     return new Promise((resolve,reject)=>{
       this._send(new this.classes.LiveJoinTeamPacket(this,team),(r)=>{
-        if(r === null){
-          reject();
+        if(r === null || !r.successful){
+          reject(r);
         }else{
           !s && this.emit("joined",this.settings);
           if(!this.settings.twoFactorAuth){
@@ -349,20 +351,22 @@ class Client extends EventEmitter{
 // default options
 Client.prototype._defaults = {
   modules: {
+    extraData: true,
     feedback: true,
     gameReset: true,
+    quizStart: true,
     quizEnd: true,
     podium: true,
     timeOver: true,
-    reconnect: true,
-    questionReady: true,
-    questionStart: true,
-    questionEnd: true,
-    nameAccept: true,
-    teamAccept: true,
-    teamTalk: true,
-    backup: true,
-    answer: true
+    reconnect: true, // Allows reconnecting
+    questionReady: true, // Allows the "QuestionReady" event.
+    questionStart: true, // Allows the "QuestionStart" event.
+    questionEnd: true, // Allows the "QuestionEnd" event.
+    nameAccept: true, // Allows the "NameAccept" event.
+    teamAccept: true, // Allows the "TeamAccept" event. May emit more events if backup is enabled.
+    teamTalk: true, // Allows the "TeamTalk" event
+    backup: true, // Allows "recovery" events to be emitted. (This will also emit other events based on the recovery info.)
+    answer: true // Allows answering the question.
   },
   proxy: ()=>{},
   wsproxy: (url)=>{return {address: url};},

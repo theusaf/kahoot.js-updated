@@ -1,0 +1,54 @@
+module.exports = function(){
+  this.handlers.questionEnd = (message)=>{
+    if(message.channel === "/service/player" && message.data && message.data.id === 8){
+
+      /**
+       * QuestionEnd Event
+       *
+       * @event Client#QuestionEnd An event emitted at the end of the question. Contains ranking information.
+       * @type {Object}
+       * @property {(Number|Number[]|String)} choice The answer from the client
+       * @property {String} type The question type
+       * @property {Boolean} isCorrect Whether the client answered the question correctly
+       * @property {String} text The text content of correct answers
+       * @property {Number} receivedTime The time (ms) when the answer was received
+       * @property {Booean} pointsQuestion Whether the question offered points
+       * @property {Number} points The amount of points earned from the question
+       * @property {String[]} correctAnswers A list of the text content of the correct answers
+       * @property {Number[]} correctChoices A list of the indexes of correct choices (used in multi select quizzes)
+       * @property {Number} totalScore The total score of the client
+       * @property {Number} rank The current position of the client
+       * @property {PointsData} pointsData Extra information about the points data
+       * @property {Nemesis} nemesis The nemesis
+       */
+      this._emit("QuestionEnd",JSON.parse(message.data.content));
+    }
+  };
+};
+
+/**
+ * @namespace Nemesis
+ * @type {Object}
+ * @property {String} name The nemesis's name
+ * @property {Boolean} isGhost Whether the nemesis is a ghost
+ * @property {Number} totalScore The number of points the nemesis has
+ */
+
+/**
+ * @namespace PointsData
+ * @type {Object}
+ * @property {Number} questionPoints The number of points earned from the question
+ * @property {Number} totalPointsWithBonuses The number of points earned (including bonuses)
+ * @property {Number} totalPointsWithoutBonuses The number of points earned without bonuses
+ * @property {StreakPoints} answerStreakPoints Information abuot answer streaks
+ */
+
+/**
+ * @namespace StreakPoints
+ * @type {Object}
+ * @property {Number} streakLevel How many questions were answered correctly in a row.
+ * @property {Number} streakBonus Bonus points awarded by the streakLevel
+ * @property {Number} totalStreakPoints The total streak points earned.
+ * @property {Number} previousStreakLevel The previous steak level
+ * @property {Number} previousStreakBonus The previous streak bonus
+ */
