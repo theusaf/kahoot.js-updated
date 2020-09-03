@@ -87,7 +87,7 @@ class Client extends EventEmitter{
    * Answer the Two Factor Authentification
    *
    * @param  {Number[]} [steps=[0,1,2,3]] A list of four numbers (0,1,2,3). Each number represents one of the four colors in the two-factor code (red,blue,yellow,green) respectively
-   * @returns {Promise} Resolves when the message is sent and received. Rejects if the message fails to send.
+   * @returns {Promise<LiveEventTimetrack>} Resolves when the message is sent and received. Rejects if the message fails to send.
    */
   async answerTwoFactorAuth(steps){
     if(this.gameid[0] == "0"){
@@ -212,8 +212,7 @@ class Client extends EventEmitter{
    * Send team members
    *
    * @param  {String[]} [team=["Player 1","Player 2","Player 3","Player 4"]] A list of team members names
-   * @returns {Promise<Object>} Resolves when the team members are sent. Rejects if for some reason the message was not received by Kahoot!'s server.
-   * - see {@link https://kahoot.js.org/#/enum/LiveEventTimetrack}
+   * @returns {Promise<LiveEventTimetrack>} Resolves when the team members are sent. Rejects if for some reason the message was not received by Kahoot!'s server.
    */
   async joinTeam(team,s){
     if(this.gameid[0] === "0" || this.settings.gameMode !== "team" || !this.socket || this.socket.readyState !== 1){
@@ -351,18 +350,32 @@ Client.prototype._defaults = {
    * @namespace Client#defaults.modules
    * @type {Object}
    * @property {Boolean} extraData Enable additional shortcuts, functions, and properties on various events.
-   * @property {Boolean} feedback Enable the {@link Client#Feedback} event and the {@link Client.sendFeedback} method
+   * @property {Boolean} feedback Enable the [Feedback]{@link Client#event:Feedback} event and the {@link Client#sendFeedback} method
+   * @property {Boolean} gameReset Enable the [GameReset]{@link Client#event:GameReset} event
+   * @property {Boolean} quizStart Enable the [QuizStart]{@link Client#event:QuizStart} event
+   * @property {Boolean} quizEnd Enable the [QuizEnd]{@link Client#event:QuizEnd} event
+   * @property {Boolean} podium Enable the [Podium]{@link Client#event:Podium} event
+   * @property {Boolean} timeOver Enable the [TimeOver]{@link Client#event:TimeOver} event
+   * @property {Boolean} reconnect Enable the {@link Client#reconnect} method
+   * @property {Boolean} questionReady Enable the [QuestionReady]{@link Client#event:QuestionReady} event
+   * @property {Boolean} questionStart Enable the [QuestionStart]{@link Client#event:QuestionStart} event
+   * @property {Boolean} questionEnd Enable the [QuestionEnd]{@link Client#event:QuestionEnd} event
+   * @property {Boolean} nameAccept Enable the [NameAccept]{@link Client#event:NameAccept} event
+   * @property {Boolean} teamAccept Enable the [TeamAccept]{@link Client#event:TeamAccept} event
+   * @property {Boolean} teamTalk Enable the [TeamTalk]{@link Client#event:TeamTalk} event
+   * @property {Boolean} backup Enable the [RecoveryData]{@link Client#event:RecoveryData} event
+   * @property {Boolean} answer Enable the {@link Client#answer} method
    */
   modules: {
     extraData: true,
-    feedback: true, // Allows the "Feedback" event and the sendFeedback method.
-    gameReset: true, // Allows the "GameReset" event.
-    quizStart: true, // Allows the "QuizStart" event.
-    quizEnd: true, // Allows the "QuizEnd" event.
-    podium: true, // Allows the "Podium" event.
-    timeOver: true, // Allows the "TimeOver" event.
-    reconnect: true, // Allows reconnecting
-    questionReady: true, // Allows the "QuestionReady" event.
+    feedback: true,
+    gameReset: true,
+    quizStart: true,
+    quizEnd: true,
+    podium: true,
+    timeOver: true,
+    reconnect: true,
+    questionReady: true,
     questionStart: true, // Allows the "QuestionStart" event.
     questionEnd: true, // Allows the "QuestionEnd" event.
     nameAccept: true, // Allows the "NameAccept" event.
@@ -389,14 +402,20 @@ Client.prototype._defaults = {
    * A list of options used in Challenges
    * @namespace Client#defaults.options
    * @type {Object}
+   * @property {Boolean} ChallengeAutoContinue Automatically continue through challenge events. Default: <code>true</code>
+   * @property {Boolean} ChallengeGetFullScore Always get the full score. Default: <code>false</code>
+   * @property {Boolean} ChallengeAlwaysCorrect Always get the questions "correct" in challenges. Default: <code>false</code>
+   * @property {Boolean} ChallengeUseStreakBonus Use the answer streak bonuses. Default: <code>false</code>
+   * @property {Boolean} ChallengeWaitForInput Wait for answers before continuing to the next question. Default: <code>false</code>
+   * @property {Number} ChallengeScore A set score to earn each question. (0-1,500) Default: <code>null</code>
    */
-  options: { // challenge and other options
-    ChallengeAutoContinue: true, // automatically cause events
-    ChallengeGetFullScore: false, // always get the max score possible
-    ChallengeAlwaysCorrect: false, // always get the answer "correct"
-    ChallengeUseStreakBonus: false, // enable streak bonuses
-    ChallengeWaitForInput: false, // wait for answering, disable auto question end.
-    ChallengeScore: null // set score
+  options: {
+    ChallengeAutoContinue: true,
+    ChallengeGetFullScore: false,
+    ChallengeAlwaysCorrect: false,
+    ChallengeUseStreakBonus: false,
+    ChallengeWaitForInput: false,
+    ChallengeScore: null
   }
 };
 

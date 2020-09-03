@@ -3,8 +3,8 @@ const LiveReconnectPacket = require("../assets/LiveReconnectPacket.js");
 module.exports = function(){
 
   /**
-   * @function client.reconnect - reconnect to a game
-   *
+   * reconnect to a game
+   * @function Client#reconnect
    * @param {(Number|String)} [pin] The gameid to connect to
    * @param {String<Number>|Number} [cid] The client id to reconnect as
    */

@@ -7,6 +7,7 @@ module.exports = function(){
       /**
        * Emitted when the server has validated the client's name
        *
+       * @event Client#NameAccept
        * @type {Object}
        * @property {String} playerName The player's name (may have changed from original value due to filter)
        * @property {String} quizType

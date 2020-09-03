@@ -18,12 +18,12 @@ module.exports = function(){
 
   /**
    * Send feedback to the host
-   * @function Client.sendFeedback
+   * @function Client#sendFeedback
    * @param {Number} fun 1-5. Rating for how fun the quiz was
    * @param {Number} learn 0/1. Whether the client learned anything from the quiz
    * @param {Number} recommend 0/1. Whether the client would recommend the quiz
    * @param {Number} overall -1 - 1. The overall feeling of the client.
-   * @returns {Promise} Resolves when the feedback has been sent.
+   * @returns {Promise<LiveEventTimetrack>} Resolves when the feedback has been sent.
    */
   this.sendFeedback = async (fun,learn,recommend,overall)=>{
     if(this.gameid[0] === "0"){

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: modules/timeOver.js</title>
+    <title>JSDoc: Source: modules/nameAccept.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: modules/timeOver.js</h1>
+    <h1 class="page-title">Source: modules/nameAccept.js</h1>
 
     
 
@@ -27,17 +27,22 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>module.exports = function(){
-  this.handlers.timeOver = (message)=>{
-    if(message.channel === "/service/player" &amp;&amp; message.data &amp;&amp; message.data.id === 4){
+  this.handlers.nameAccept = (message)=>{
+    if(message.channel === "/service/player" &amp;&amp; message.data &amp;&amp; message.data.id === 14){
+      const data = JSON.parse(message.data.content);
+      this.name = data.playerName;
 
       /**
-       * Emitted when time is over (before QuestionEnd)
+       * Emitted when the server has validated the client's name
        *
-       * @event Client#TimeOver
+       * @event Client#NameAccept
        * @type {Object}
-       * @property {Number} questionNumber The question index.
+       * @property {String} playerName The player's name (may have changed from original value due to filter)
+       * @property {String} quizType
+       * @property {Boolean} playerV2
        */
-      this._emit("TimeOver",JSON.parse(message.data.content));
+      this.emit("NameAccept",data);
+      delete this.handlers.nameAccept;
     }
   };
 };

@@ -4,7 +4,7 @@ module.exports = function(){
 
   /**
    * Answer a question
-   * @function Client.answer
+   * @function Client#answer
    *
    * @param {(Number|String|Number[])} choice The answer to the question
    * - defaults:

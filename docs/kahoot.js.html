@@ -115,7 +115,7 @@ class Client extends EventEmitter{
    * Answer the Two Factor Authentification
    *
    * @param  {Number[]} [steps=[0,1,2,3]] A list of four numbers (0,1,2,3). Each number represents one of the four colors in the two-factor code (red,blue,yellow,green) respectively
-   * @returns {Promise} Resolves when the message is sent and received. Rejects if the message fails to send.
+   * @returns {Promise&lt;LiveEventTimetrack>} Resolves when the message is sent and received. Rejects if the message fails to send.
    */
   async answerTwoFactorAuth(steps){
     if(this.gameid[0] == "0"){
@@ -240,8 +240,7 @@ class Client extends EventEmitter{
    * Send team members
    *
    * @param  {String[]} [team=["Player 1","Player 2","Player 3","Player 4"]] A list of team members names
-   * @returns {Promise&lt;Object>} Resolves when the team members are sent. Rejects if for some reason the message was not received by Kahoot!'s server.
-   * - see {@link https://kahoot.js.org/#/enum/LiveEventTimetrack}
+   * @returns {Promise&lt;LiveEventTimetrack>} Resolves when the team members are sent. Rejects if for some reason the message was not received by Kahoot!'s server.
    */
   async joinTeam(team,s){
     if(this.gameid[0] === "0" || this.settings.gameMode !== "team" || !this.socket || this.socket.readyState !== 1){
@@ -379,18 +378,32 @@ Client.prototype._defaults = {
    * @namespace Client#defaults.modules
    * @type {Object}
    * @property {Boolean} extraData Enable additional shortcuts, functions, and properties on various events.
-   * @property {Boolean} feedback Enable the {@link Client#Feedback} event and the {@link Client.sendFeedback} method
+   * @property {Boolean} feedback Enable the [Feedback]{@link Client#event:Feedback} event and the {@link Client#sendFeedback} method
+   * @property {Boolean} gameReset Enable the [GameReset]{@link Client#event:GameReset} event
+   * @property {Boolean} quizStart Enable the [QuizStart]{@link Client#event:QuizStart} event
+   * @property {Boolean} quizEnd Enable the [QuizEnd]{@link Client#event:QuizEnd} event
+   * @property {Boolean} podium Enable the [Podium]{@link Client#event:Podium} event
+   * @property {Boolean} timeOver Enable the [TimeOver]{@link Client#event:TimeOver} event
+   * @property {Boolean} reconnect Enable the {@link Client#reconnect} method
+   * @property {Boolean} questionReady Enable the [QuestionReady]{@link Client#event:QuestionReady} event
+   * @property {Boolean} questionStart Enable the [QuestionStart]{@link Client#event:QuestionStart} event
+   * @property {Boolean} questionEnd Enable the [QuestionEnd]{@link Client#event:QuestionEnd} event
+   * @property {Boolean} nameAccept Enable the [NameAccept]{@link Client#event:NameAccept} event
+   * @property {Boolean} teamAccept Enable the [TeamAccept]{@link Client#event:TeamAccept} event
+   * @property {Boolean} teamTalk Enable the [TeamTalk]{@link Client#event:TeamTalk} event
+   * @property {Boolean} backup Enable the [RecoveryData]{@link Client#event:RecoveryData} event
+   * @property {Boolean} answer Enable the {@link Client#answer} method
    */
   modules: {
     extraData: true,
-    feedback: true, // Allows the "Feedback" event and the sendFeedback method.
-    gameReset: true, // Allows the "GameReset" event.
-    quizStart: true, // Allows the "QuizStart" event.
-    quizEnd: true, // Allows the "QuizEnd" event.
-    podium: true, // Allows the "Podium" event.
-    timeOver: true, // Allows the "TimeOver" event.
-    reconnect: true, // Allows reconnecting
-    questionReady: true, // Allows the "QuestionReady" event.
+    feedback: true,
+    gameReset: true,
+    quizStart: true,
+    quizEnd: true,
+    podium: true,
+    timeOver: true,
+    reconnect: true,
+    questionReady: true,
     questionStart: true, // Allows the "QuestionStart" event.
     questionEnd: true, // Allows the "QuestionEnd" event.
     nameAccept: true, // Allows the "NameAccept" event.
@@ -417,14 +430,20 @@ Client.prototype._defaults = {
    * A list of options used in Challenges
    * @namespace Client#defaults.options
    * @type {Object}
+   * @property {Boolean} ChallengeAutoContinue Automatically continue through challenge events. Default: &lt;code>true&lt;/code>
+   * @property {Boolean} ChallengeGetFullScore Always get the full score. Default: &lt;code>false&lt;/code>
+   * @property {Boolean} ChallengeAlwaysCorrect Always get the questions "correct" in challenges. Default: &lt;code>false&lt;/code>
+   * @property {Boolean} ChallengeUseStreakBonus Use the answer streak bonuses. Default: &lt;code>false&lt;/code>
+   * @property {Boolean} ChallengeWaitForInput Wait for answers before continuing to the next question. Default: &lt;code>false&lt;/code>
+   * @property {Number} ChallengeScore A set score to earn each question. (0-1,500) Default: &lt;code>null&lt;/code>
    */
-  options: { // challenge and other options
-    ChallengeAutoContinue: true, // automatically cause events
-    ChallengeGetFullScore: false, // always get the max score possible
-    ChallengeAlwaysCorrect: false, // always get the answer "correct"
-    ChallengeUseStreakBonus: false, // enable streak bonuses
-    ChallengeWaitForInput: false, // wait for answering, disable auto question end.
-    ChallengeScore: null // set score
+  options: {
+    ChallengeAutoContinue: true,
+    ChallengeGetFullScore: false,
+    ChallengeAlwaysCorrect: false,
+    ChallengeUseStreakBonus: false,
+    ChallengeWaitForInput: false,
+    ChallengeScore: null
   }
 };
 
@@ -447,13 +466,13 @@ module.exports = Client;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Client_defaults.html">defaults</a></li><li><a href="Client_defaults.modules.html">modules</a></li><li><a href="Client_defaults.options.html">options</a></li><li><a href="Client_defaults.wsproxy.WsProxyReturn.html">WsProxyReturn</a></li><li><a href="LiveEventTimetrack.html">LiveEventTimetrack</a></li><li><a href="Nemesis.html">Nemesis</a></li><li><a href="PointsData.html">PointsData</a></li><li><a href="StreakPoints.html">StreakPoints</a></li></ul><h3>Classes</h3><ul><li><a href="Client.html">Client</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:Feedback">Feedback</a></li><li><a href="Client.html#event:GameReset">GameReset</a></li><li><a href="Client.html#event:joined">joined</a></li><li><a href="Client.html#event:Podium">Podium</a></li><li><a href="Client.html#event:QuestionEnd">QuestionEnd</a></li><li><a href="Client.html#event:QuestionReady">QuestionReady</a></li><li><a href="Client.html#event:QuestionStart">QuestionStart</a></li><li><a href="Client.html#event:QuizEnd">QuizEnd</a></li><li><a href="Client.html#event:QuizStart">QuizStart</a></li><li><a href="Client.html#event:RecoveryData">RecoveryData</a></li><li><a href="Client.html#event:TeamAccept">TeamAccept</a></li><li><a href="Client.html#event:TeamTalk">TeamTalk</a></li><li><a href="Client.html#event:TimeOver">TimeOver</a></li><li><a href="Client.html#event:TwoFactorCorrect">TwoFactorCorrect</a></li><li><a href="Client.html#event:TwoFactorReset">TwoFactorReset</a></li><li><a href="Client.html#event:TwoFactorWrong">TwoFactorWrong</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Client_defaults.html">defaults</a></li><li><a href="Client_defaults.modules.html">modules</a></li><li><a href="Client_defaults.options.html">options</a></li><li><a href="Client_defaults.wsproxy.WsProxyReturn.html">WsProxyReturn</a></li><li><a href="LiveEventTimetrack.html">LiveEventTimetrack</a></li><li><a href="Nemesis.html">Nemesis</a></li><li><a href="PointsData.html">PointsData</a></li><li><a href="StreakPoints.html">StreakPoints</a></li></ul><h3>Classes</h3><ul><li><a href="Client.html">Client</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:Feedback">Feedback</a></li><li><a href="Client.html#event:GameReset">GameReset</a></li><li><a href="Client.html#event:joined">joined</a></li><li><a href="Client.html#event:NameAccept">NameAccept</a></li><li><a href="Client.html#event:Podium">Podium</a></li><li><a href="Client.html#event:QuestionEnd">QuestionEnd</a></li><li><a href="Client.html#event:QuestionReady">QuestionReady</a></li><li><a href="Client.html#event:QuestionStart">QuestionStart</a></li><li><a href="Client.html#event:QuizEnd">QuizEnd</a></li><li><a href="Client.html#event:QuizStart">QuizStart</a></li><li><a href="Client.html#event:RecoveryData">RecoveryData</a></li><li><a href="Client.html#event:TeamAccept">TeamAccept</a></li><li><a href="Client.html#event:TeamTalk">TeamTalk</a></li><li><a href="Client.html#event:TimeOver">TimeOver</a></li><li><a href="Client.html#event:TwoFactorCorrect">TwoFactorCorrect</a></li><li><a href="Client.html#event:TwoFactorReset">TwoFactorReset</a></li><li><a href="Client.html#event:TwoFactorWrong">TwoFactorWrong</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Wed Sep 02 2020 19:15:23 GMT-0700 (Pacific Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Wed Sep 02 2020 20:10:51 GMT-0700 (Pacific Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
