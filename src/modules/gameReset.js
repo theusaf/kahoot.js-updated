@@ -3,9 +3,9 @@ module.exports = function(){
     if(message.channel === "/service/player" && message.data && message.data.id === 5){
 
       /**
-       * GameReset Event
+       * Emitted when the host presses "play again" or continues to the next quiz in the list.
        *
-       * @event Client#GameReset Emitted when the host presses "play again" or continues to the next quiz in the list.
+       * @event Client#GameReset
        */
       this._emit("GameReset");
     }

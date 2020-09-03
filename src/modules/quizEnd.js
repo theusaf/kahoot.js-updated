@@ -3,7 +3,7 @@ module.exports = function(){
     if(message.channel === "/service/player" && message.data && message.data.id === 13){
 
       /**
-       * QuizEnd event
+       * Emitted when the quiz ends.
        *
        * @event Client#QuizEnd
        * @type {Object}

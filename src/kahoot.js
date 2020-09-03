@@ -12,41 +12,6 @@ class Client extends EventEmitter{
    * constructor - Create a Kahoot! client.
    *
    * @param  {Object} options Sets up the client. Options can control what events and methods are available to the client. By default, all options are enabled, besides proxies.
-   * modules:
-   * - extraData: enable extra aliases, functions, and data
-   * - feedback: enable feedback events/methods
-   * - gameReset: enable gamereset events
-   * - twoFactor: enable two factor events/methods
-   * - quizEnd: enable quizend events
-   * - quizStart: enable quizstart events
-   * - podium: enable podium (quiz end) events
-   * - timetrack: enable timetrack events
-   * - timeOver: enable timeover events (question end)
-   * - reconnect: enable reconnect methods
-   * - questionReady: enable question ready events
-   * - questionStart: enable question start events
-   * - questionEnd: enable question end events
-   * - nameAccept: enable name accept events
-   * - teamAccept: enable team accept events
-   * - teamTalk: enable team talk events
-   * - backup: enable backup events
-   * options:
-   * - ChallengeAutoContinue: true (fake events for challenges)
-   * - ChallengeGetFullScore: false (always 1000 points for challenges)
-   * - loggingMode: false (if set to true, it will log all messages to/from the server)
-   * proxy (req):
-   * - A function that takes a [HTTP.request options]{@link https://nodejs.org/api/http.html#http_http_request_options_callback}. The options will be set to lead to one of Kahoot's URIs.
-   * -- This should return the methods/urls needed to complete requests though the proxy
-   * wsproxy (url):
-   * - url (String): The url that kahoot.js would usually send the websocket to.
-   * - A function that returns options used in [ws]{@link https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options}
-   * @example
-   * // output
-   * {
-   *   address: "some_url",
-   *   options: {},
-   *   protocols: []
-   * }
    */
   constructor(options){
     options = options || {};
@@ -103,10 +68,10 @@ class Client extends EventEmitter{
   /**
    * @static join - Creates a {@link Client} and joins the game
    *
-   * @see {@link join}
+   * @see Client#join
    * @returns {Object}      Returns the {@link Client} instead of a Promise.
-   * @param {Client} client The newly created client joining the game
-   * @param {Promise<LiveEventTimetrack>} event @see {@link join}
+   * @property {Client} client The newly created client joining the game
+   * @property {Promise<LiveEventTimetrack>} event See {@link Client#join}
    */
   static join(){
     const client = new this;
@@ -209,10 +174,9 @@ class Client extends EventEmitter{
             }else{
 
               /**
-               * Join event
                * Emitted when the client joins the game
                *
-               * @event Client#join
+               * @event Client#joined
                * @type {Object}
                * @property {String<Function>} challenge The challenge function. (Pointless)
                * @property {Boolean} namerator Whether the game has the friendly name generator on.
@@ -374,7 +338,6 @@ class Client extends EventEmitter{
   }
 }
 
-// default options
 Client.prototype._defaults = {
   modules: {
     extraData: true, // Adds shortcuts/functions/aliases to various events.
@@ -394,8 +357,8 @@ Client.prototype._defaults = {
     backup: true, // Allows "recovery" events to be emitted. (This will also emit other events based on the recovery info.)
     answer: true // Allows answering the question.
   },
-  proxy: ()=>{},
-  wsproxy: (url)=>{return {address: url};},
+  proxy: ()=>{}, // Take in [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback}, return and modify new options for the request for the proxied request
+  wsproxy: (url)=>{return {address: url};}, // Take in [WS Options]{@link https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options}. Return and modify the options for the new proxied websocket connection
   options: { // challenge and other options
     ChallengeAutoContinue: true, // automatically cause events
     ChallengeGetFullScore: false, // always get the max score possible

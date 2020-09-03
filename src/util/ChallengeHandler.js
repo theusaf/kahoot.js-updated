@@ -285,6 +285,8 @@ function Injector(){
 
   /**
    * next - Go to the next part (challenge)
+   *
+   * @function Client#next
    */
   this.next = ()=>{
     if(this.stop){

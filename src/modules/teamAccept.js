@@ -4,7 +4,7 @@ module.exports = function(){
       const data = JSON.parse(message.data.content);
 
       /**
-       * NameAccept event. Emitted when the name was accepted.
+       * Emitted when the team members were accepted.
        *
        * @event Client#TeamAccept
        * @type {Object}

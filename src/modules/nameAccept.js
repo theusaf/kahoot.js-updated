@@ -5,7 +5,7 @@ module.exports = function(){
       this.name = data.playerName;
 
       /**
-       * NameAccept event
+       * Emitted when the server has validated the client's name
        *
        * @type {Object}
        * @property {String} playerName The player's name (may have changed from original value due to filter)

@@ -5,9 +5,9 @@ module.exports = function(){
     if(message.channel === "/service/player" && message.data && message.data.id === 12){
 
       /**
-       * Feedback Event
+       * Emitted when the host requests for feedback
        *
-       * @event Client#Feedback Emitted when the host requests for feedback
+       * @event Client#Feedback
        * @type {Object}
        * @property {String} quizType
        */

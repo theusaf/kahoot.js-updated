@@ -3,9 +3,9 @@ module.exports = function(){
     if(message.channel === "/service/player" && message.data && message.data.id === 1){
 
       /**
-       * QuestionReady Event
+       * Emitted when the question is about to start
        *
-       * @event Client#QuestionReady Emitted when the question is about to start
+       * @event Client#QuestionReady
        * @type {Object}
        * @property {Number} questionIndex The question index
        * @property {String} gameBlockType The question type

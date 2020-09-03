@@ -44,7 +44,8 @@ module.exports = function(){
   this.handlers.timetrack = (message)=>{
 
     /**
-     * @namespace {Object} LiveEventTimetrack An object about the time events were received
+     * An object about the time events were received
+     * @namespace {Object} LiveEventTimetrack
      *
      * @property {String} channel The channel the message is responding to
      * @property {Object} ext An object that looks like this:

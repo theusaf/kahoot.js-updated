@@ -3,7 +3,7 @@ module.exports = function(){
     if(message.channel === "/service/player" && message.data && message.data.id === 20){
 
       /**
-       * TeamTalk Event - Emitted when team talk starts
+       * Emitted when team talk starts
        *
        * @event Client#TeamTalk
        * @type {Object}

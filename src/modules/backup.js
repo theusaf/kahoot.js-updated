@@ -3,7 +3,7 @@ const sleep = require("../util/sleep.js");
 module.exports = function(){
 
   /**
-   * requestRecoveryData - Request recovery information from the server
+   * @function client.requestRecoveryData - Request recovery information from the server
    *
    * @returns {Promise} Resolves when request is sent and received.
    */
@@ -20,7 +20,7 @@ module.exports = function(){
       const recover = JSON.parse(message.data.content);
 
       /**
-       * RecoveryData event. Emitted when the server sends its recovery data.
+       * Emitted when the server sends its recovery data.
        * This event is mostly for debugging.
        *
        * @event Client#RecoveryData

@@ -3,9 +3,9 @@ module.exports = function(){
     if(message.channel === "/service/player" && message.data && message.data.id === 8){
 
       /**
-       * QuestionEnd Event
+       * An event emitted at the end of the question. Contains ranking information.
        *
-       * @event Client#QuestionEnd An event emitted at the end of the question. Contains ranking information.
+       * @event Client#QuestionEnd
        * @type {Object}
        * @property {(Number|Number[]|String)} choice The answer from the client
        * @property {String} type The question type
@@ -27,6 +27,7 @@ module.exports = function(){
 };
 
 /**
+ * Information about a player one rank above the client.
  * @namespace Nemesis
  * @type {Object}
  * @property {String} name The nemesis's name
@@ -35,6 +36,7 @@ module.exports = function(){
  */
 
 /**
+ * Information about the client's points.
  * @namespace PointsData
  * @type {Object}
  * @property {Number} questionPoints The number of points earned from the question
@@ -44,6 +46,7 @@ module.exports = function(){
  */
 
 /**
+ * Detailed information about the client's answer streaks
  * @namespace StreakPoints
  * @type {Object}
  * @property {Number} streakLevel How many questions were answered correctly in a row.

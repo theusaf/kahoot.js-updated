@@ -3,7 +3,7 @@ const sleep = require("../util/sleep.js");
 module.exports = function(){
 
   /**
-   * answer - Answer a question
+   * @function client.answer - Answer a question
    *
    * @param {(Number|String|Number[])} choice The answer to the question
    * - defaults:

@@ -3,9 +3,9 @@ module.exports = function(){
     if(message.channel === "/service/player" && message.data && message.data.id === 2){
 
       /**
-       * QuestionStart Event
+       * Emitted when the question starts
        *
-       * @event Client#QuestionStart Emitted when the question starts
+       * @event Client#QuestionStart
        * @type {Object}
        * @property {Number} questionIndex The question index
        * @property {String} gameBlockType The question type
