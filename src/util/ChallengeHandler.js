@@ -17,16 +17,16 @@ function Injector(){
   });
 
   this.answer = async (choice,empty)=>{
+    clearTimeout(this.ti);
     const question = this.challengeData.kahoot.questions[this.data.questionIndex];
     let tick = Date.now() - this.receivedQuestionTime;
     if(this.defaults.options.ChallengeGetFullScore || this.defaults.options.ChallengeWaitForInput || this.challengeData.challenge.game_options.question_timer){
       tick = 1;
     }
-    const pointsQuestion = question.points || false;
+    const pointsQuestion = question.pointsQuestion || false;
     const timeScore = +this.defaults.options.ChallengeScore || ((Math.round((1 - ((tick / question.time) / 2)) * 1000) * question.pointsMultiplier) * +pointsQuestion);
     if(this.data.streak === -1){
       this.data.streak = 0;
-      console.log(this.challengeData)
       const ent = this.challengeData.progress.playerProgress.playerProgressEntries;
       let falseScore = 0;
       for(let q in ent){
@@ -173,7 +173,7 @@ function Injector(){
             },
             choiceIndex,
             isCorrect: correct,
-            playerCid: this.cid,
+            playerCid: +this.cid,
             playerId: this.name,
             points: +correct * score,
             reactionTime: tick,
@@ -210,6 +210,7 @@ function Injector(){
         originalText: text,
         text: text.toLowerCase().replace(/[~`!@#$%^&*(){}[\];:"'<,.>?/\\|\-_+=]/gm,"")
       });
+      payload.question.choices = [];
       break;
     }
     case "jumble":{
@@ -238,7 +239,6 @@ function Injector(){
     this.data.totalStreak += score - oldScore;
     this.data.totalScoreNoBonus += oldScore;
     this.data.totalScore += score;
-    clearTimeout(this.ti);
     const event = {
       choice,
       type: question.type,
@@ -281,6 +281,8 @@ function Injector(){
         this.next();
       },5000);
       return;
+    }).catch(e=>{
+      throw e;
     });
   };
 
@@ -329,13 +331,6 @@ function Injector(){
     case "answer": {
       let q = this.challengeData.kahoot.questions[this.data.questionIndex];
       this.receivedQuestionTime = Date.now();
-      this.emit("QuestionStart",{
-        questionIndex: this.data.questionIndex,
-        gameBlockType: q.type,
-        gameBlockLayout: q.layout,
-        quizQuestionAnswers: this.quiz.quizQuestionAnswers,
-        timeAvailable: q.time
-      });
       this.data.phase = "leaderboard";
       if(!q){
         this.disconnectReason = "Unknown Error";
@@ -358,7 +353,22 @@ function Injector(){
           }
           this.next();
         },q.time || 5000);
+        this.emit("QuestionStart",Object.assign(q,{
+          questionIndex: this.data.questionIndex,
+          gameBlockType: q.type,
+          gameBlockLayout: q.layout,
+          quizQuestionAnswers: this.quiz.quizQuestionAnswers,
+          timeAvailable: q.time
+        }));
+        return;
       }
+      this.emit("QuestionStart",Object.assign(q,{
+        questionIndex: this.data.questionIndex,
+        gameBlockType: q.type,
+        gameBlockLayout: q.layout,
+        quizQuestionAnswers: this.quiz.quizQuestionAnswers,
+        timeAvailable: q.time
+      }));
       // else, you must do everything yourself.
       break;
     }
@@ -489,15 +499,20 @@ function Injector(){
 
   this._httpRequest = (url,opts,json,packet)=>{
     return new Promise((resolve, reject)=>{
-      function handleRequest(res){
+      const handleRequest = (res)=>{
         const chunks = [];
         res.on("data",(chunk)=>{
           chunks.push(chunk);
         });
         res.on("end",()=>{
           const data = Buffer.concat(chunks).toString("utf8");
+          if(this.loggingMode){
+            console.log("RECV: " + data);
+          }
           if(json){
             resolve(JSON.parse(data));
+          }else{
+            resolve(data);
           }
         });
       }
@@ -514,9 +529,25 @@ function Injector(){
         protocol: parsed.protocol,
         path: parsed.pathname + (parsed.search || "")
       };
-      Object.assign(options,opts);
+      for(let i in opts){
+        if(typeof opts[i] === "object"){
+          if(!options[i]){
+            options[i] = opts[i];
+          }else{
+            Object.assign(options[i],opts[i]);
+          }
+        }else{
+          options[i] = opts[i];
+        }
+      }
       const proxyOptions = this.defaults.proxy(options);
       options = proxyOptions || options;
+      if(this.loggingMode){
+        console.log("SEND: " + JSON.stringify({
+          options,
+          packet
+        }));
+      }
       let req;
       if(options.protocol === "https:"){
         req = https.request(options,handleRequest);
@@ -569,12 +600,12 @@ function Injector(){
   };
 
   this._getProgress = (q)=>{
-    if(q){
+    if(typeof q !== "undefined"){
       return this._httpRequest(`https://kahoot.it/rest/challenges/${this.challengeData.challenge.challengeId}/progress/?upToQuestion=${q}`,null,true);
     }else{
       return this._httpRequest(`https://kahoot.it/rest/challenges/pin/${this.gameid}`,null,true).then((data)=>{
-        return this._httpRequest(`https://kahoot.it/rest/challenges/${data.challenge.challengeId}/progress`,null,true).then((progress)=>{
-          return Object.assign(data,{progress});
+        return this._httpRequest(`https://kahoot.it/rest/challenges/${data.challenge.challengeId}/progress`,null,true).then((data2)=>{
+          return Object.assign(data,{progress:data2});
         });
       });
     }

@@ -24,7 +24,7 @@ class Decoder{
               },bodyObject.challenge.game_options)
             });
           }catch(e){
-            return reject(e);
+            return reject(body || e);
           }
         });
       }
