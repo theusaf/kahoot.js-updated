@@ -12,33 +12,7 @@ client.on("QuizStart", quiz => {
   //console.log(quiz);
 });
 client.on("QuestionStart", question => {
-  console.log("question started. answering.");
-  console.log(question);
-  // find correct answer
-  const choices = question.choices;
-  let foo = [];
-  for(let i in choices){
-    if(choices[i].correct){
-      if(question.type == "open_ended" || question.type == "word_cloud"){
-        question.answer(choices[i].answer);
-        return;
-      }else if(question.type == "jumble"){
-        question.answer([0,1,2,3]);
-        return;
-      }else if(question.type == "multiple_select_quiz"){
-        foo.push(i);
-        continue;
-      }else{
-        question.answer(i);
-      }
-      return;
-    }
-  }
-  if(foo.length){
-    question.answer(foo);
-  }else{
-    question.answer(0);
-  }
+  console.log("question started. not answering.");
 });
 client.on("QuestionReady",question=>{
   console.log("recieved question");
@@ -46,7 +20,7 @@ client.on("QuestionReady",question=>{
 });
 client.on("QuestionEnd",q=>{
   console.log("question ended");
-  //console.log(q);
+  console.log(q);
 });
 client.on("QuizEnd", (o) => {
   console.log("the quiz has finished.");

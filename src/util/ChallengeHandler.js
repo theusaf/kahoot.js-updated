@@ -26,10 +26,9 @@ function Injector(){
     if(this.defaults.options.ChallengeGetFullScore || this.defaults.options.ChallengeWaitForInput || this.challengeData.challenge.game_options.question_timer){
       tick = 1;
     }
-    const pointsQuestion = question.points || false;
+    const pointsQuestion = this.challengeData.progress.questions.reverse()[0].pointsQuestion || false;
     const timeScore = +this.defaults.options.ChallengeScore || ((Math.round((1 - ((tick / question.time) / 2)) * 1000) * question.pointsMultiplier) * +pointsQuestion);
     if(this.data.streak === -1){
-      this.data.streak = 0;
       const ent = this.challengeData.progress.playerProgress.playerProgressEntries;
       let falseScore = 0;
       for(let q in ent){
@@ -51,6 +50,9 @@ function Injector(){
     const alwaysCorrect = this.defaults.options.ChallengeAlwaysCorrect;
     let correct = false;
     let text = "";
+    if(empty === null){
+      choice = -1;
+    }
     let choiceIndex = +choice;
     let c2 = [];
     let score = 0;
@@ -70,8 +72,11 @@ function Injector(){
     }
     case "jumble":{
       correct = JSON.stringify(choice) === JSON.stringify([0,1,2,3]);
-      if(typeof choice.length === "undefined"){
+      if(typeof choice != "object" || typeof choice.length === "undefined"){
         choice = [];
+      }
+      for(let j in choice){
+        choice[j] = +choice[j];
       }
       let tmpList = [];
       for(let n of choice){
@@ -88,22 +93,24 @@ function Injector(){
       break;
     }
     case "multiple_select_quiz":{
-      if(typeof choice.length === "undefined"){
+      if(typeof choice != "object" || typeof choice.length === "undefined"){
         choice = [];
       }
       correct = true;
-      let i = 0;
-      for(let ch of choice){
+      for(let i in choice){
+        choice[i] = +choice[i];
+      }
+      for(let ch in question.choices){
         if(question.choices[ch].correct){
-          c2.push(i);
-        }
-        i++;
-        if((correct && question.choices[ch].correct) || alwaysCorrect){
-          correct = true;
-          score += timeScore;
-        }else{
-          score = 0;
-          correct = false;
+          c2.push(ch);
+          if(choice.includes(+ch) || alwaysCorrect){
+            if(correct){
+              score += timeScore;
+            }
+          }else{
+            score = 0;
+            correct = false;
+          }
         }
       }
       break;
@@ -242,6 +249,9 @@ function Injector(){
     this.data.totalStreak += score - oldScore;
     this.data.totalScoreNoBonus += oldScore;
     this.data.totalScore += score;
+    if(correct){this.data.correctCount++;}
+    if(!correct && empty === null){this.data.unansweredCount++;}
+    if(!correct && empty !== null){this.data.incorrectCount++;}
     const event = {
       choice,
       type: question.type,
@@ -299,7 +309,7 @@ function Injector(){
         this.emit("TimeOver");
         this.emit("QuestionEnd",event);
         this.next();
-      },5000);
+      },1000);
       return;
     });
   };
@@ -355,18 +365,24 @@ function Injector(){
         this.socket.close();
         return;
       }
+      if(q.type === "content"){
+        this.data.questionIndex++;
+        this.data.phase = "ready";
+        if(this.data.questionIndex === this.challengeData.kahoot.questions.length){
+          this.data.phase = "close";
+        }
+        if(this.challengeData.challenge.game_options.question_timer && !this.defaults.options.ChallengeWaitForInput){
+          setTimeout(()=>{
+            this.next();
+          },10000);
+        }
+        return;
+      }
       if(this.challengeData.challenge.game_options.question_timer && !this.defaults.options.ChallengeWaitForInput){
         this.ti = setTimeout(async()=>{
-          if(q.type === "content"){
-            this.data.questionIndex++;
-            this.data.phase = "ready";
-            if(this.data.questionIndex === this.challengeData.kahoot.questions.length){
-              this.data.phase = "close";
-            }
-          }
-          this.data.streak = 0;
           const evt = await this.answer(null,null);
           if(q.type !== "content"){
+            this.emit("TimeOver");
             this.emit("QuestionEnd",evt);
           }
           this.next();
@@ -414,7 +430,7 @@ function Injector(){
       if(this.defaults.options.ChallengeAutoContinue){
         setTimeout(()=>{
           this.next();
-        },5000);
+        },30000);
       }
       break;
     }
@@ -443,12 +459,15 @@ function Injector(){
     this._send = async ()=>{throw "This error should not appear unless you are trying to do something silly.";};
   };
 
-  this._calculateStreakBonus = ()=>{
+  this._calculateStreakBonus = (i)=>{
+    let info = i || this.data.streak;
     if(this.defaults.options.ChallengeUseStreakBonus){
-      if(this.data.streak >= 5){
+      if(info >= 6){
         return 500;
+      }else if(info > 0){
+        return (info - 1) * 100;
       }else{
-        return this.data.streak * 100;
+        return 0;
       }
     }else{
       return 0;
@@ -657,6 +676,7 @@ class ChallengeHandler extends EventEmitter{
     this.readyState = 3;
     this.close = ()=>{
       this.stop = true;
+      clearTimeout(client.ti);
       this.emit("close");
     };
   }

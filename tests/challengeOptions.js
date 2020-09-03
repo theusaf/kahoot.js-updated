@@ -1,9 +1,15 @@
 var Kahoot = require("../index.js");
-var client = new Kahoot;
+var client = new Kahoot({
+  options: {
+    ChallengeUseStreakBonus: true,
+    //ChallengeScore: 1500,
+    //ChallengeAlwaysCorrect: true
+  }
+});
 //client.loggingMode = true;
 const PIN = require("fs").readFileSync("PIN.json");
 console.log("joining game...");
-client.join("0" + parseInt(PIN), Math.random());
+client.join("0" + parseInt(PIN), "ChallengeStreakTest4");
 client.on("Joined", () => {
   console.log("joined the game. waiting for quiz to start");
 });
@@ -12,8 +18,8 @@ client.on("QuizStart", quiz => {
   //console.log(quiz);
 });
 client.on("QuestionStart", question => {
-  console.log("question started. answering.");
-  console.log(question);
+  console.log(`question ${question.questionIndex} started. answering.`);
+  // console.log(question);
   // find correct answer
   const choices = question.choices;
   let foo = [];
