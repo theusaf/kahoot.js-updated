@@ -31,7 +31,7 @@ class Decoder{
       let options = {
         headers: {
           "User-Agent": (new ua).toString(),
-          "Host": "kahoot.it",
+          "Origin": "kahoot.it",
           "Referer": "https://kahoot.it/",
           "Accept-Language": "en-US,en;q=0.8",
           "Accept": "*/*"
@@ -81,7 +81,7 @@ class Decoder{
       let options = {
         headers: {
           "User-Agent": (new ua).toString(),
-          "Host": "kahoot.it",
+          "Origin": "kahoot.it",
           "Referer": "https://kahoot.it/",
           "Accept-Language": "en-US,en;q=0.8",
           "Accept": "*/*"

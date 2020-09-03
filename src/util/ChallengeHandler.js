@@ -501,7 +501,7 @@ function Injector(){
       let options = {
         headers: {
           "User-Agent": this.userAgent,
-          "Host": "kahoot.it",
+          "Origin": "kahoot.it",
           "Referer": "https://kahoot.it/",
           "Accept-Language": "en-US,en;q=0.8",
           "Accept": "*/*"

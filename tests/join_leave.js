@@ -1,24 +1,13 @@
 var Kahoot = require("../index.js");
 var client = new Kahoot;
-const PIN = parseInt(require("fs").readFileSync("PIN.txt"));
+const PIN = require("./PIN.json");
 console.log("joining game...");
 client.join(PIN, "testing",["a","b","c","d"]).then(a=>{
   console.log(a);
 }).catch(e=>{
   console.log(e);
 });
-client.on("ready", () => {
+client.on("joined", () => {
   console.log("joined. leaving..");
   setTimeout(()=>{client.leave();},5000);
-});
-client.on("invalidName",()=>{
-  console.log("bad");
-  setTimeout(()=>{client.join(PIN,"testing2");},5000);
-});
-client.on("locked",()=>{
-  console.log("locked out");
-});
-client.on("handshakeFailed",e=>{
-  console.log("fail");
-  console.log(e);
 });

@@ -269,6 +269,12 @@ class Client extends EventEmitter{
         this.socket = new ChallengeHandler(this,data);
       }
       this.socket.on("close",()=>{
+
+        /**
+         * Emitted when the client is disconnected. Emits a String with the reason the client was disconnected.
+         * @event Client#Disconnect
+         * @type {String}
+         */
         this.emit("Disconnect",this.disconnectReason || "Lost Connection");
       });
       this.socket.on("open",()=>{
@@ -376,13 +382,13 @@ Client.prototype._defaults = {
     timeOver: true,
     reconnect: true,
     questionReady: true,
-    questionStart: true, // Allows the "QuestionStart" event.
-    questionEnd: true, // Allows the "QuestionEnd" event.
-    nameAccept: true, // Allows the "NameAccept" event.
-    teamAccept: true, // Allows the "TeamAccept" event. May emit more events if backup is enabled.
-    teamTalk: true, // Allows the "TeamTalk" event
-    backup: true, // Allows "recovery" events to be emitted. (This will also emit other events based on the recovery info.)
-    answer: true // Allows answering the question.
+    questionStart: true,
+    questionEnd: true,
+    nameAccept: true,
+    teamAccept: true,
+    teamTalk: true,
+    backup: true,
+    answer: true
   },
   /**
    * A function to proxy kahoot.js-updated's http requests

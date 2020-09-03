@@ -12,21 +12,28 @@ module.exports = function(){
         return self.answer;
       },
       get type(){
-        return this.type;
+        return event.type;
       }
     });
   });
   this.on("QuizStart",(event)=>{
     Object.assign(event,{
       get questionCount(){
-        return this.quizQuestionAnswers.length;
+        return event.quizQuestionAnswers.length;
+      }
+    });
+  });
+  this.on("QuestionStart",(event)=>{
+    Object.assign(event,{
+      get type(){
+        return event.gameBlockType;
       }
     });
   });
   this.on("QuestionReady",(event)=>{
     Object.assign(event,{
       get type(){
-        return this.type;
+        return event.gameBlockType;
       }
     });
   });
