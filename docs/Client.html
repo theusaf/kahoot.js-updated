@@ -142,7 +142,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line16">line 16</a>
+        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line17">line 17</a>
     </li></ul></dd>
     
 
@@ -186,11 +186,187 @@
     
 
     
+        <h3 class="subsection-title">Namespaces</h3>
+
+        <dl>
+            <dt><a href="Client_defaults.html">defaults</a></dt>
+            <dd></dd>
+        </dl>
+    
 
     
 
     
         <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".answer"><span class="type-signature">(static) </span>answer<span class="signature">(choice)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="LiveEventTimetrack.html">LiveEventTimetrack</a>>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Answer a question
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>choice</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+|
+
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Array.&lt;Number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The answer to the question
+- defaults:
+- 1 answer, number: 0
+- multi answer: [0,1,2,3]
+- "undefined"</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="modules_answer.js.html">modules/answer.js</a>, <a href="modules_answer.js.html#line5">line 5</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Resolves when answer is received.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;<a href="LiveEventTimetrack.html">LiveEventTimetrack</a>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
 
         
             
@@ -246,7 +422,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line58">line 58</a>
+        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line59">line 59</a>
     </li></ul></dd>
     
 
@@ -427,7 +603,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line76">line 76</a>
+        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line77">line 77</a>
     </li></ul></dd>
     
 
@@ -492,6 +668,234 @@
     
 
     
+    <h4 class="name" id=".sendFeedback"><span class="type-signature">(static) </span>sendFeedback<span class="signature">(fun, learn, recommend, overall)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Send feedback to the host
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fun</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">1-5. Rating for how fun the quiz was</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>learn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">0/1. Whether the client learned anything from the quiz</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>recommend</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">0/1. Whether the client would recommend the quiz</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>overall</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">1 - 1. The overall feeling of the client.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="modules_feedback.js.html">modules/feedback.js</a>, <a href="modules_feedback.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Resolves when the feedback has been sent.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="answerTwoFactorAuth"><span class="type-signature">(async) </span>answerTwoFactorAuth<span class="signature">(steps<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
     
 
@@ -500,7 +904,7 @@
 
 
 <div class="description">
-    answerTwoFactorAuth - Answer the Two Factor Authentification
+    Answer the Two Factor Authentification
 </div>
 
 
@@ -613,7 +1017,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line91">line 91</a>
+        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line92">line 92</a>
     </li></ul></dd>
     
 
@@ -679,7 +1083,7 @@
 
 
 <div class="description">
-    join - Join a game. Also joins with team members.
+    Join a game. Also joins with team members.
 </div>
 
 
@@ -831,7 +1235,7 @@ if false, the team members will not be added automatically.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line121">line 121</a>
+        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line122">line 122</a>
     </li></ul></dd>
     
 
@@ -899,7 +1303,7 @@ If joining fails, this will reject with the error
 
 
 <div class="description">
-    joinTeam - Send team members
+    Send team members
 </div>
 
 
@@ -1012,7 +1416,7 @@ If joining fails, this will reject with the error
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line217">line 217</a>
+        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line218">line 218</a>
     </li></ul></dd>
     
 
@@ -1123,7 +1527,7 @@ If joining fails, this will reject with the error
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line245">line 245</a>
+        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line246">line 246</a>
     </li></ul></dd>
     
 
@@ -1725,7 +2129,7 @@ If joining fails, this will reject with the error
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line176">line 176</a>
+        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line177">line 177</a>
     </li></ul></dd>
     
 
@@ -4403,13 +4807,13 @@ This event is mostly for debugging.
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="LiveEventTimetrack.html">LiveEventTimetrack</a></li><li><a href="Nemesis.html">Nemesis</a></li><li><a href="PointsData.html">PointsData</a></li><li><a href="StreakPoints.html">StreakPoints</a></li></ul><h3>Classes</h3><ul><li><a href="Client.html">Client</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:Feedback">Feedback</a></li><li><a href="Client.html#event:GameReset">GameReset</a></li><li><a href="Client.html#event:joined">joined</a></li><li><a href="Client.html#event:Podium">Podium</a></li><li><a href="Client.html#event:QuestionEnd">QuestionEnd</a></li><li><a href="Client.html#event:QuestionReady">QuestionReady</a></li><li><a href="Client.html#event:QuestionStart">QuestionStart</a></li><li><a href="Client.html#event:QuizEnd">QuizEnd</a></li><li><a href="Client.html#event:QuizStart">QuizStart</a></li><li><a href="Client.html#event:RecoveryData">RecoveryData</a></li><li><a href="Client.html#event:TeamAccept">TeamAccept</a></li><li><a href="Client.html#event:TeamTalk">TeamTalk</a></li><li><a href="Client.html#event:TimeOver">TimeOver</a></li><li><a href="Client.html#event:TwoFactorCorrect">TwoFactorCorrect</a></li><li><a href="Client.html#event:TwoFactorReset">TwoFactorReset</a></li><li><a href="Client.html#event:TwoFactorWrong">TwoFactorWrong</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Client_defaults.html">defaults</a></li><li><a href="Client_defaults.modules.html">modules</a></li><li><a href="Client_defaults.options.html">options</a></li><li><a href="Client_defaults.wsproxy.WsProxyReturn.html">WsProxyReturn</a></li><li><a href="LiveEventTimetrack.html">LiveEventTimetrack</a></li><li><a href="Nemesis.html">Nemesis</a></li><li><a href="PointsData.html">PointsData</a></li><li><a href="StreakPoints.html">StreakPoints</a></li></ul><h3>Classes</h3><ul><li><a href="Client.html">Client</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:Feedback">Feedback</a></li><li><a href="Client.html#event:GameReset">GameReset</a></li><li><a href="Client.html#event:joined">joined</a></li><li><a href="Client.html#event:Podium">Podium</a></li><li><a href="Client.html#event:QuestionEnd">QuestionEnd</a></li><li><a href="Client.html#event:QuestionReady">QuestionReady</a></li><li><a href="Client.html#event:QuestionStart">QuestionStart</a></li><li><a href="Client.html#event:QuizEnd">QuizEnd</a></li><li><a href="Client.html#event:QuizStart">QuizStart</a></li><li><a href="Client.html#event:RecoveryData">RecoveryData</a></li><li><a href="Client.html#event:TeamAccept">TeamAccept</a></li><li><a href="Client.html#event:TeamTalk">TeamTalk</a></li><li><a href="Client.html#event:TimeOver">TimeOver</a></li><li><a href="Client.html#event:TwoFactorCorrect">TwoFactorCorrect</a></li><li><a href="Client.html#event:TwoFactorReset">TwoFactorReset</a></li><li><a href="Client.html#event:TwoFactorWrong">TwoFactorWrong</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Wed Sep 02 2020 18:16:09 GMT-0700 (Pacific Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Wed Sep 02 2020 19:15:23 GMT-0700 (Pacific Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

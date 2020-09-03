@@ -12,6 +12,7 @@ class Client extends EventEmitter{
    * constructor - Create a Kahoot! client.
    *
    * @param  {Object} options Sets up the client. Options can control what events and methods are available to the client. By default, all options are enabled, besides proxies.
+   *
    */
   constructor(options){
     options = options || {};
@@ -83,7 +84,7 @@ class Client extends EventEmitter{
   }
 
   /**
-   * answerTwoFactorAuth - Answer the Two Factor Authentification
+   * Answer the Two Factor Authentification
    *
    * @param  {Number[]} [steps=[0,1,2,3]] A list of four numbers (0,1,2,3). Each number represents one of the four colors in the two-factor code (red,blue,yellow,green) respectively
    * @returns {Promise} Resolves when the message is sent and received. Rejects if the message fails to send.
@@ -109,7 +110,7 @@ class Client extends EventEmitter{
   }
 
   /**
-   * join - Join a game. Also joins with team members.
+   * Join a game. Also joins with team members.
    *
    * @param  {String} name The name of the player
    * @param  {(String[]|Boolean)} [team=["Player 1","Player 2","Player 3","Player 4"]] The team member names.
@@ -208,7 +209,7 @@ class Client extends EventEmitter{
   }
 
   /**
-   * joinTeam - Send team members
+   * Send team members
    *
    * @param  {String[]} [team=["Player 1","Player 2","Player 3","Player 4"]] A list of team members names
    * @returns {Promise<Object>} Resolves when the team members are sent. Rejects if for some reason the message was not received by Kahoot!'s server.
@@ -338,9 +339,22 @@ class Client extends EventEmitter{
   }
 }
 
+/**
+ * The default settings for the client.
+ * @namespace Client#defaults
+ * @type {Object}
+ */
 Client.prototype._defaults = {
+
+  /**
+   * An object containing the modules to load or not load.
+   * @namespace Client#defaults.modules
+   * @type {Object}
+   * @property {Boolean} extraData Enable additional shortcuts, functions, and properties on various events.
+   * @property {Boolean} feedback Enable the {@link Client#Feedback} event and the {@link Client.sendFeedback} method
+   */
   modules: {
-    extraData: true, // Adds shortcuts/functions/aliases to various events.
+    extraData: true,
     feedback: true, // Allows the "Feedback" event and the sendFeedback method.
     gameReset: true, // Allows the "GameReset" event.
     quizStart: true, // Allows the "QuizStart" event.
@@ -357,8 +371,25 @@ Client.prototype._defaults = {
     backup: true, // Allows "recovery" events to be emitted. (This will also emit other events based on the recovery info.)
     answer: true // Allows answering the question.
   },
-  proxy: ()=>{}, // Take in [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback}, return and modify new options for the request for the proxied request
+  /**
+   * A function to proxy kahoot.js-updated's http requests
+   * @function Client#defaults.proxy
+   * @param {Object} options The default [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback} options used by Kahoot.js
+   * @returns {Object} The modified [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback} options to proxy the request.
+   */
+  proxy: (options)=>{}, // Take in [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback}, return and modify new options for the request for the proxied request
+  /**
+   * A function to proxy kahoot.js-updated's websocket requests
+   * @function Client#defaults.wsproxy
+   * @param {String} url The default websocket URI that Kahoot.JS sends the socket to.
+   * @returns {Client#defaults.wsproxy.WsProxyReturn} [WS Options]{@link https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options} used to create the proxied socket
+   */
   wsproxy: (url)=>{return {address: url};}, // Take in [WS Options]{@link https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options}. Return and modify the options for the new proxied websocket connection
+  /**
+   * A list of options used in Challenges
+   * @namespace Client#defaults.options
+   * @type {Object}
+   */
   options: { // challenge and other options
     ChallengeAutoContinue: true, // automatically cause events
     ChallengeGetFullScore: false, // always get the max score possible
@@ -370,3 +401,11 @@ Client.prototype._defaults = {
 };
 
 module.exports = Client;
+
+ /**
+  * @namespace Client#defaults.wsproxy.WsProxyReturn
+  * @type {Object}
+  * @property {String} address The websocket URL
+  * @property {String[]} protocols The list of protocols to use
+  * @property {Object} options The websocket options to use (see above link).
+  */

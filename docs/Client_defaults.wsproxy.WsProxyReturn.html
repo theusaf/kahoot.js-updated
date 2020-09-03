@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: PointsData</title>
+    <title>JSDoc: Namespace: WsProxyReturn</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: PointsData</h1>
+    <h1 class="page-title">Namespace: WsProxyReturn</h1>
 
     
 
@@ -28,7 +28,8 @@
 
 <header>
     
-        <h2>PointsData</h2>
+        <h2>
+            <span class="ancestors"><a href="Client.html">Client</a><a href="Client_defaults.html">#defaults</a><a href="Client_defaults.html#.wsproxy">.wsproxy</a>.</span>WsProxyReturn</h2>
         
     
 </header>
@@ -36,8 +37,6 @@
 <article>
     <div class="container-overview">
     
-        
-            <div class="description">Information about the client's points.</div>
         
 
         
@@ -69,13 +68,13 @@
 
         <tr>
             
-                <td class="name"><code>questionPoints</code></td>
+                <td class="name"><code>address</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Number</span>
+<span class="param-type">String</span>
 
 
             
@@ -85,20 +84,20 @@
 
             
 
-            <td class="description last">The number of points earned from the question</td>
+            <td class="description last">The websocket URL</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>totalPointsWithBonuses</code></td>
+                <td class="name"><code>protocols</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Number</span>
+<span class="param-type">Array.&lt;String></span>
 
 
             
@@ -108,20 +107,20 @@
 
             
 
-            <td class="description last">The number of points earned (including bonuses)</td>
+            <td class="description last">The list of protocols to use</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>totalPointsWithoutBonuses</code></td>
+                <td class="name"><code>options</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Number</span>
+<span class="param-type">Object</span>
 
 
             
@@ -131,30 +130,7 @@
 
             
 
-            <td class="description last">The number of points earned without bonuses</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>answerStreakPoints</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="StreakPoints.html">StreakPoints</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Information abuot answer streaks</td>
+            <td class="description last">The websocket options to use (see above link).</td>
         </tr>
 
     
@@ -193,7 +169,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_questionEnd.js.html">modules/questionEnd.js</a>, <a href="modules_questionEnd.js.html#line38">line 38</a>
+        <a href="kahoot.js.html">kahoot.js</a>, <a href="kahoot.js.html#line405">line 405</a>
     </li></ul></dd>
     
 
