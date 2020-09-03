@@ -27,6 +27,8 @@ module.exports = function(){
         if(message.channel === "/service/controller" && message.data && message.data.type === "loginResponse"){
           if(message.data.error){
             reject(message.data);
+            this.disconnectReason = message.description;
+            this.leave(true);
           }else{
             this.cid = message.data.cid || cid;
             this.emit("Joined",settings);

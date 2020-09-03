@@ -140,6 +140,10 @@ class Client extends EventEmitter{
         if(message.channel === "/service/controller" && message.data && message.data.type === "loginResponse"){
           if(message.data.error){
             reject(message.data);
+            if(message.data.description.toLowerCase() !== "duplicate name"){
+              this.disconnectReason = message.description;
+              this.leave(true);
+            }
           }else{
             this.cid = message.data.cid;
             if(settings.gameMode === "team"){
