@@ -13,7 +13,10 @@ function Injector(){
     totalStreak: 0,
     streak: -1,
     phase: "start",
-    questionIndex: 0
+    questionIndex: 0,
+    correctCount: 0,
+    incorrectCount: 0,
+    unansweredCount: 0
   });
 
   this.answer = async (choice,empty)=>{
@@ -23,7 +26,7 @@ function Injector(){
     if(this.defaults.options.ChallengeGetFullScore || this.defaults.options.ChallengeWaitForInput || this.challengeData.challenge.game_options.question_timer){
       tick = 1;
     }
-    const pointsQuestion = question.pointsQuestion || false;
+    const pointsQuestion = question.points || false;
     const timeScore = +this.defaults.options.ChallengeScore || ((Math.round((1 - ((tick / question.time) / 2)) * 1000) * question.pointsMultiplier) * +pointsQuestion);
     if(this.data.streak === -1){
       this.data.streak = 0;
@@ -177,7 +180,7 @@ function Injector(){
             playerId: this.name,
             points: +correct * score,
             reactionTime: tick,
-            receivedTime: this.receivedQuestionTime,
+            receivedTime: Date.now(),
             text
           }
         ],
@@ -190,7 +193,7 @@ function Injector(){
         playerCount: 1,
         pointsQuestion,
         skipped: (empty === null),
-        startTime: 0,
+        startTime: this.receivedQuestionTime,
         title: question.question,
         type: question.type,
         video: question.video
@@ -265,6 +268,23 @@ function Injector(){
         }
       }
     };
+    this.data.finalResult = {
+      rank: event.rank,
+      cid: this.cid,
+      correctCount: this.data.correctCount,
+      incorrectCount: this.data.incorrectCount,
+      unansweredCount: this.data.unansweredCount,
+      isKicked: false,
+      isGhost: false,
+      playerCount: this.challengeData.challenge.challengeUsersList.length + 1,
+      startTime: this.challengeData.progress.timestamp,
+      quizId: this.challengeData.kahoot.uuid,
+      name: this.name,
+      totalScore: this.data.totalScore,
+      hostId: "",
+      challengeId: "",
+      isOnlyNonPointGameBlockKahoot: false
+    };
     return this._httpRequest(`https://kahoot.it/rest/challenges/${this.challengeData.challenge.challengeId}/answers`,{
       headers: {
         "Content-Type": "application/json",
@@ -281,8 +301,6 @@ function Injector(){
         this.next();
       },5000);
       return;
-    }).catch(e=>{
-      throw e;
     });
   };
 
@@ -510,7 +528,11 @@ function Injector(){
             console.log("RECV: " + data);
           }
           if(json){
-            resolve(JSON.parse(data));
+            try{
+              resolve(JSON.parse(data));
+            }catch(e){
+              reject(data);
+            }
           }else{
             resolve(data);
           }
