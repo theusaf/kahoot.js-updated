@@ -7,7 +7,7 @@ module.exports = class LiveTwoStepAnswer extends LiveBaseMessage{
       gameid: client.gameid,
       host: "kahoot.it",
       content: JSON.stringify({
-        sequence: sequence.join(",")
+        sequence: sequence.join("")
       })
     });
   }

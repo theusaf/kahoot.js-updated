@@ -6,6 +6,12 @@ module.exports = function(){
   this.data.totalScore = 0;
   this.data.streak = 0;
   this.data.rank = 1;
+  this.on("GameReset",()=>{
+    this.data.totalScore = 0;
+    this.data.rank = 0;
+    this.data.streak = 0;
+    delete this.quiz;
+  });
   this.on("QuestionStart",(event)=>{
     Object.assign(event,{
       get answer(){

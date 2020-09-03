@@ -134,6 +134,8 @@ class Client extends EventEmitter{
           if(message.data.status === "LOCKED"){
             reject(message.data);
             delete this.handlers.JoinFinish;
+            this.disconnectReason = "Quiz Locked";
+            this.leave(true);
             return;
           }
         }
