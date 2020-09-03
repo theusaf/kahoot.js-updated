@@ -8,7 +8,7 @@ module.exports = function(){
        * @event Client#TeamTalk
        * @type {Object}
        * @property {Number} questionIndex The current question index
-       * @property {(Number|null)[]} quizQuestionAnswers A list about the number of choices per question.
+       * @property {Number[]} quizQuestionAnswers A list about the number of choices per question.
        * @property {String} gameBlockType The question type
        * @property {String} gameBlockLayout The layout of the question
        * @property {Number} teamTalkDuration The number (in seconds) for team talk

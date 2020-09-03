@@ -13,8 +13,8 @@ module.exports = function(){
    * @returns {Promise<LiveEventTimetrack>} Resolves when answer is received.
    */
   this.answer = async (choice)=>{
-    const wait = Date.now() - this.questionStartTime;
-    if(wait === NaN){
+    let wait = Date.now() - this.questionStartTime;
+    if(isNaN(wait)){
       wait = 0;
     }
     if(wait < 250){

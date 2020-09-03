@@ -69,6 +69,7 @@ class Client extends EventEmitter{
     this.classes = {};
     this.handlers = {};
     this.waiting = {};
+    this.data = {};
 
     // apply modules
     for(let mod in this.defaults.modules){
@@ -356,9 +357,7 @@ class Client extends EventEmitter{
 
   _emit(evt,payload){
     if(!this.quiz){
-      this.quiz = {
-        get questionCount(){return (this.quizQuestionAnswers && this.quizQuestionAnswers.length) || 10;}
-      };
+      this.quiz = {};
     }
     if(payload && payload.quizQuestionAnswers){
       this.quiz.quizQuestionAnswers = payload.quizQuestionAnswers;

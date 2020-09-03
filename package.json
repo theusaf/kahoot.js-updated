@@ -32,7 +32,7 @@
     "url": "https://github.com/theusaf/kahoot.js-updated/issues"
   },
   "devDependencies": {
-    "eslint": "^7.8.0",
+    "eslint": "^7.8.1",
     "jsdoc-to-markdown": "^6.0.1"
   }
 }

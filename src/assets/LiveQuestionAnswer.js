@@ -35,7 +35,7 @@ module.exports = class LiveQuestionAnswer extends LiveBaseMessage{
       host: "kahoot.it",
       id: 45,
       type: "message"
-    }
+    };
     if(text){
       content.content = JSON.stringify({
         text,

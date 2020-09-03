@@ -7,7 +7,11 @@ module.exports = function(){
        *
        * @event Client#QuestionReady Emitted when the question is about to start
        * @type {Object}
-       * @property {Number}      
+       * @property {Number} questionIndex The question index
+       * @property {String} gameBlockType The question type
+       * @property {String} gameBlockLayout The question layout
+       * @property {Number[]} quizQuestionAnswers An array of numbers, signifying the number of answer choices in each question
+       * @property {Number} timeLeft The time in seconds before the quiz starts
        */
       this._emit("QuestionReady",JSON.parse(message.data.content));
     }
