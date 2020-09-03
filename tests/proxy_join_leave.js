@@ -12,7 +12,7 @@ var client = new Kahoot({
 
 client.join(require("./PIN.json"));
 
-client.on("joined",()=>{
+client.on("Joined",()=>{
   console.log("Joined the game! Leaving");
   setTimeout(()=>{
     client.leave();

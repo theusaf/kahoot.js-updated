@@ -186,7 +186,7 @@ class Client extends EventEmitter{
                     console.log("ERR! Failed to send team members a second time. Assuming the best.");
                   }
                 }
-                this.emit("joined",settings);
+                this.emit("Joined",settings);
                 if(!this.settings.twoFactorAuth){
                   this.connected = true;
                 }else{
@@ -194,7 +194,7 @@ class Client extends EventEmitter{
                 }
                 resolve(settings);
               }else{
-                this.emit("joined",settings);
+                this.emit("Joined",settings);
                 if(this.settings.twoFactorAuth){
                   this.emit("TwoFactorReset");
                 }
@@ -205,7 +205,7 @@ class Client extends EventEmitter{
               /**
                * Emitted when the client joins the game
                *
-               * @event Client#joined
+               * @event Client#Joined
                * @type {Object}
                * @property {String&lt;Function>} challenge The challenge function. (Pointless)
                * @property {Boolean} namerator Whether the game has the friendly name generator on.
@@ -214,7 +214,7 @@ class Client extends EventEmitter{
                * @property {Boolean} twoFactorAuth Whether the game has twoFactorAuth enabled
                * @property {String|undefined} gameMode If the gameMode is 'team,' then it is team mode, else it is the normal classic mode.
                */
-              this.emit("joined",settings);
+              this.emit("Joined",settings);
               if(!this.settings.twoFactorAuth){
 
                 /**
@@ -255,7 +255,7 @@ class Client extends EventEmitter{
         if(r === null || !r.successful){
           reject(r);
         }else{
-          !s &amp;&amp; this.emit("joined",this.settings);
+          !s &amp;&amp; this.emit("Joined",this.settings);
           if(!this.settings.twoFactorAuth){
             this.connected = true;
           }else{
@@ -286,7 +286,7 @@ class Client extends EventEmitter{
     }
     const data = await token.resolve(this.gameid,this);
     return new Promise((res,rej)=>{
-      if(!data.isChallenge){
+      if(data.data &amp;&amp; !data.data.isChallenge){
         const options = this._defaults.wsproxy(`wss://kahoot.it/cometd/${this.gameid}/${data.token}`);
         let info = [options.options];
         if(options.protocols){
@@ -472,13 +472,13 @@ module.exports = Client;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Client_defaults.html">defaults</a></li><li><a href="Client_defaults.modules.html">modules</a></li><li><a href="Client_defaults.options.html">options</a></li><li><a href="Client_defaults.wsproxy.WsProxyReturn.html">WsProxyReturn</a></li><li><a href="LiveEventTimetrack.html">LiveEventTimetrack</a></li><li><a href="Nemesis.html">Nemesis</a></li><li><a href="PointsData.html">PointsData</a></li><li><a href="StreakPoints.html">StreakPoints</a></li></ul><h3>Classes</h3><ul><li><a href="Client.html">Client</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:Disconnect">Disconnect</a></li><li><a href="Client.html#event:Feedback">Feedback</a></li><li><a href="Client.html#event:GameReset">GameReset</a></li><li><a href="Client.html#event:joined">joined</a></li><li><a href="Client.html#event:NameAccept">NameAccept</a></li><li><a href="Client.html#event:Podium">Podium</a></li><li><a href="Client.html#event:QuestionEnd">QuestionEnd</a></li><li><a href="Client.html#event:QuestionReady">QuestionReady</a></li><li><a href="Client.html#event:QuestionStart">QuestionStart</a></li><li><a href="Client.html#event:QuizEnd">QuizEnd</a></li><li><a href="Client.html#event:QuizStart">QuizStart</a></li><li><a href="Client.html#event:RecoveryData">RecoveryData</a></li><li><a href="Client.html#event:TeamAccept">TeamAccept</a></li><li><a href="Client.html#event:TeamTalk">TeamTalk</a></li><li><a href="Client.html#event:TimeOver">TimeOver</a></li><li><a href="Client.html#event:TwoFactorCorrect">TwoFactorCorrect</a></li><li><a href="Client.html#event:TwoFactorReset">TwoFactorReset</a></li><li><a href="Client.html#event:TwoFactorWrong">TwoFactorWrong</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Client_defaults.html">defaults</a></li><li><a href="Client_defaults.modules.html">modules</a></li><li><a href="Client_defaults.options.html">options</a></li><li><a href="Client_defaults.wsproxy.WsProxyReturn.html">WsProxyReturn</a></li><li><a href="LiveEventTimetrack.html">LiveEventTimetrack</a></li><li><a href="Nemesis.html">Nemesis</a></li><li><a href="PointsData.html">PointsData</a></li><li><a href="StreakPoints.html">StreakPoints</a></li></ul><h3>Classes</h3><ul><li><a href="Client.html">Client</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:Disconnect">Disconnect</a></li><li><a href="Client.html#event:Feedback">Feedback</a></li><li><a href="Client.html#event:GameReset">GameReset</a></li><li><a href="Client.html#event:Joined">Joined</a></li><li><a href="Client.html#event:NameAccept">NameAccept</a></li><li><a href="Client.html#event:Podium">Podium</a></li><li><a href="Client.html#event:QuestionEnd">QuestionEnd</a></li><li><a href="Client.html#event:QuestionReady">QuestionReady</a></li><li><a href="Client.html#event:QuestionStart">QuestionStart</a></li><li><a href="Client.html#event:QuizEnd">QuizEnd</a></li><li><a href="Client.html#event:QuizStart">QuizStart</a></li><li><a href="Client.html#event:RecoveryData">RecoveryData</a></li><li><a href="Client.html#event:TeamAccept">TeamAccept</a></li><li><a href="Client.html#event:TeamTalk">TeamTalk</a></li><li><a href="Client.html#event:TimeOver">TimeOver</a></li><li><a href="Client.html#event:TwoFactorCorrect">TwoFactorCorrect</a></li><li><a href="Client.html#event:TwoFactorReset">TwoFactorReset</a></li><li><a href="Client.html#event:TwoFactorWrong">TwoFactorWrong</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Wed Sep 02 2020 20:58:44 GMT-0700 (Pacific Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Wed Sep 02 2020 21:50:29 GMT-0700 (Pacific Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

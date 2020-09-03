@@ -158,7 +158,7 @@ class Client extends EventEmitter{
                     console.log("ERR! Failed to send team members a second time. Assuming the best.");
                   }
                 }
-                this.emit("joined",settings);
+                this.emit("Joined",settings);
                 if(!this.settings.twoFactorAuth){
                   this.connected = true;
                 }else{
@@ -166,7 +166,7 @@ class Client extends EventEmitter{
                 }
                 resolve(settings);
               }else{
-                this.emit("joined",settings);
+                this.emit("Joined",settings);
                 if(this.settings.twoFactorAuth){
                   this.emit("TwoFactorReset");
                 }
@@ -177,7 +177,7 @@ class Client extends EventEmitter{
               /**
                * Emitted when the client joins the game
                *
-               * @event Client#joined
+               * @event Client#Joined
                * @type {Object}
                * @property {String<Function>} challenge The challenge function. (Pointless)
                * @property {Boolean} namerator Whether the game has the friendly name generator on.
@@ -186,7 +186,7 @@ class Client extends EventEmitter{
                * @property {Boolean} twoFactorAuth Whether the game has twoFactorAuth enabled
                * @property {String|undefined} gameMode If the gameMode is 'team,' then it is team mode, else it is the normal classic mode.
                */
-              this.emit("joined",settings);
+              this.emit("Joined",settings);
               if(!this.settings.twoFactorAuth){
 
                 /**
@@ -227,7 +227,7 @@ class Client extends EventEmitter{
         if(r === null || !r.successful){
           reject(r);
         }else{
-          !s && this.emit("joined",this.settings);
+          !s && this.emit("Joined",this.settings);
           if(!this.settings.twoFactorAuth){
             this.connected = true;
           }else{
@@ -258,7 +258,7 @@ class Client extends EventEmitter{
     }
     const data = await token.resolve(this.gameid,this);
     return new Promise((res,rej)=>{
-      if(!data.isChallenge){
+      if(data.data && !data.data.isChallenge){
         const options = this._defaults.wsproxy(`wss://kahoot.it/cometd/${this.gameid}/${data.token}`);
         let info = [options.options];
         if(options.protocols){

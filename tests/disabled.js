@@ -21,7 +21,7 @@ var client = new Kahoot({
 });
 const PIN = require("./PIN.json");
 client.join(PIN,"I am disabled",["hi"]);
-client.on("joined",()=>{
+client.on("Joined",()=>{
   console.log("I'm in!");
 });
 client.on("Disconnect",r=>{
@@ -34,7 +34,7 @@ client.on("QuestionStart",(q)=>{
 // not disabled
 var client2 = new Kahoot;
 client2.join(PIN,"",["bye"]);
-client2.on("joined",()=>{
+client2.on("Joined",()=>{
   console.log("I'm in!");
 });
 client2.on("Disconnect",r=>{

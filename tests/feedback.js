@@ -3,7 +3,7 @@ var client = new Kahoot;
 const PIN = require("./PIN.js");
 console.log("joining game...");
 client.join(PIN, "kahoot.js");
-client.on("joined", () => {
+client.on("Joined", () => {
   console.log("joined the game. waiting for quiz to start");
 });
 client.on("QuestionStart", question => {

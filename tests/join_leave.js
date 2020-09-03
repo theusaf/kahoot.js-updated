@@ -7,7 +7,7 @@ client.join(PIN, "testing",["a","b","c","d"]).then(a=>{
 }).catch(e=>{
   console.log(e);
 });
-client.on("joined", () => {
+client.on("Joined", () => {
   console.log("joined. leaving..");
   setTimeout(()=>{client.leave();},5000);
 });

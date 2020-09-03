@@ -1,19 +1,21 @@
 var Kahoot = require("../index.js");
 var client = new Kahoot;
-const PIN = require("fs").readFileSync("PIN.txt").toString("utf8").replace("\n","");
+client.loggingMode = true;
+const PIN = require("fs").readFileSync("PIN.json");
 console.log("joining game...");
-client.join(PIN, "welp");
-client.on("joined", () => {
+client.join("0" + parseInt(PIN), Math.random());
+client.on("Joined", () => {
   console.log("joined the game. waiting for quiz to start");
 });
-client.on("quiz", quiz => {
+client.on("QuizStart", quiz => {
   console.log("quiz has started. waiting for questions..");
-  //console.log(quiz);
+  console.log(quiz);
 });
-client.on("questionStart", question => {
+client.on("QuestionStart", question => {
   console.log("question started. answering.");
+  console.log(question);
   // find correct answer
-  const choices = question.rawEvent.choices;
+  const choices = question.choices;
   let foo = [];
   for(let i in choices){
     if(choices[i].correct){
@@ -39,24 +41,21 @@ client.on("questionStart", question => {
     question.answer(0);
   }
 });
-client.on("question",question=>{
+client.on("QuestionReady",question=>{
   console.log("recieved question");
-  //console.log(question);
+  console.log(question);
 });
-client.on("questionEnd",q=>{
+client.on("QuestionEnd",q=>{
   console.log("question ended");
-  //console.log(q);
+  console.log(q);
 });
-client.on("questionSubmit",()=>{
-  console.log("submitted");
-});
-client.on("finish", (o) => {
+client.on("QuizEnd", (o) => {
   console.log("the quiz has finished.");
   console.log(o);
 });
-client.on("finishText",t=>{
+client.on("Podium",t=>{
   console.log(t);
 });
-client.on("quizEnd",()=>{
-  console.log("diconnected");
+client.on("Disconnect",(r)=>{
+  console.log("diconnected: " + r);
 });

@@ -29,7 +29,7 @@ module.exports = function(){
             reject(message.data);
           }else{
             this.cid = message.data.cid || cid;
-            this.emit("joined",settings);
+            this.emit("Joined",settings);
             resolve(settings);
           }
           delete this.handlers.ReconnectFinish;

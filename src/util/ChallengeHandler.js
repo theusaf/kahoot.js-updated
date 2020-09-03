@@ -19,13 +19,14 @@ function Injector(){
   this.answer = async (choice,empty)=>{
     const question = this.challengeData.kahoot.questions[this.data.questionIndex];
     let tick = Date.now() - this.receivedQuestionTime;
-    if(this.settings.options.ChallengeGetFullScore || this.settings.options.ChallengeWaitForInput || this.challengeData.challenge.game_options.question_timer){
+    if(this.defaults.options.ChallengeGetFullScore || this.defaults.options.ChallengeWaitForInput || this.challengeData.challenge.game_options.question_timer){
       tick = 1;
     }
     const pointsQuestion = question.points || false;
-    const timeScore = +this.settings.options.ChallengeScore || ((Math.round((1 - ((tick / question.time) / 2)) * 1000) * question.pointsMultiplier) * +pointsQuestion);
+    const timeScore = +this.defaults.options.ChallengeScore || ((Math.round((1 - ((tick / question.time) / 2)) * 1000) * question.pointsMultiplier) * +pointsQuestion);
     if(this.data.streak === -1){
       this.data.streak = 0;
+      console.log(this.challengeData)
       const ent = this.challengeData.progress.playerProgress.playerProgressEntries;
       let falseScore = 0;
       for(let q in ent){
@@ -44,7 +45,7 @@ function Injector(){
         this.data.score = falseScore;
       }
     }
-    const alwaysCorrect = this.settings.options.ChallengeAlwaysCorrect;
+    const alwaysCorrect = this.defaults.options.ChallengeAlwaysCorrect;
     let correct = false;
     let text = "";
     let choiceIndex = +choice;
@@ -127,7 +128,7 @@ function Injector(){
       text = choice + "";
       choiceIndex = -1;
       correct = true;
-      if(this.settings.options.ChallengeScore){
+      if(this.defaults.options.ChallengeScore){
         score += timeScore;
       }
       break;
@@ -135,7 +136,7 @@ function Injector(){
     default:{
       choiceIndex = +choice || 0;
       correct = true;
-      if(this.settings.options.ChallengeScore){
+      if(this.defaults.options.ChallengeScore){
         score += timeScore;
       }
     }
@@ -172,7 +173,7 @@ function Injector(){
             },
             choiceIndex,
             isCorrect: correct,
-            playerCId: this.cid,
+            playerCid: this.cid,
             playerId: this.name,
             points: +correct * score,
             reactionTime: tick,
@@ -294,7 +295,7 @@ function Injector(){
     }
     switch (this.data.phase) {
     case "start": {
-      this.phase = "ready";
+      this.data.phase = "ready";
       const kahoot = this.challengeData.kahoot;
       let qqa = [];
       for(let question of kahoot.questions){
@@ -312,8 +313,8 @@ function Injector(){
         if(Object.keys(inf).length !== 0){
           this.challengeData.progress = inf;
         }
-        this.phase = "answer";
-        let q = this.challengeData.kahoot.questions[this.data.quesquestionIndex];
+        this.data.phase = "answer";
+        let q = this.challengeData.kahoot.questions[this.data.questionIndex];
         this.emit("QuestionReady",Object.assign(q,{
           questionIndex: this.data.questionIndex,
           timeLeft: 5,
@@ -326,7 +327,7 @@ function Injector(){
       break;
     }
     case "answer": {
-      let q = this.challengeData.kahoot.questions[this.data.questiquestionIndex];
+      let q = this.challengeData.kahoot.questions[this.data.questionIndex];
       this.receivedQuestionTime = Date.now();
       this.emit("QuestionStart",{
         questionIndex: this.data.questionIndex,
@@ -335,19 +336,19 @@ function Injector(){
         quizQuestionAnswers: this.quiz.quizQuestionAnswers,
         timeAvailable: q.time
       });
-      this.phase = "leaderboard";
+      this.data.phase = "leaderboard";
       if(!q){
         this.disconnectReason = "Unknown Error";
-        this.emit("close");
+        this.socket.close();
         return;
       }
-      if(this.challengeData.challenge.game_options.question_timer && !this.settings.options.ChallengeWaitForInput){
+      if(this.challengeData.challenge.game_options.question_timer && !this.defaults.options.ChallengeWaitForInput){
         this.ti = setTimeout(async()=>{
           if(q.type === "content"){
             this.data.questionIndex++;
-            this.phase = "ready";
+            this.data.phase = "ready";
             if(this.data.questionIndex === this.challengeData.kahoot.questions.length){
-              this.phase = "close";
+              this.data.phase = "close";
             }
           }
           this.data.streak = 0;
@@ -363,26 +364,26 @@ function Injector(){
     }
     case "leaderboard":{
       this.data.questionIndex++;
-      this.phase = "ready";
+      this.data.phase = "ready";
       if(this.data.questionIndex === this.challengeData.kahoot.questions.length){
-        this.phase = "close";
-        if(this.settings.options.ChallengeAutoContinue){
+        this.data.phase = "close";
+        if(this.defaults.options.ChallengeAutoContinue){
           setTimeout(()=>{this.next();},5000);
         }
         return;
       }
-      if(this.settings.options.ChallengeAutoContinue){
+      if(this.defaults.options.ChallengeAutoContinue){
         setTimeout(()=>{this.next();},5000);
       }
       break;
     }
     case "close":{
-      this.phase = "complete";
+      this.data.phase = "complete";
       this.emit("QuizEnd",this.data.finalResult);
       this.emit("Podium",{
         podiumMedalType: ["gold","silver","bronze"][this._getRank() - 1]
       });
-      if(this.settings.options.ChallengeAutoContinue){
+      if(this.defaults.options.ChallengeAutoContinue){
         setTimeout(()=>{
           this.next();
         },5000);
@@ -392,7 +393,7 @@ function Injector(){
     case "complete":{
       this.stop = true;
       this.disconnectReason = "Session Ended";
-      this.socket.emit("close");
+      this.socket.close();
     }
     }
   };
@@ -400,22 +401,22 @@ function Injector(){
   this.leave = ()=>{
     this.stop = true;
     this.disconnectReason = "Player Left";
-    this.socket.emit("close");
+    this.socket.close();
   };
 
   const joined = (cid)=>{
-    this.socket.emit("message",JSON.stringify([{
+    setTimeout(()=>{this.socket.emit("message",JSON.stringify([{
       channel: "/service/controller",
       data: {
         type: "loginResponse",
         cid: cid+""
       }
-    }]));
+    }]));});
     this._send = async ()=>{throw "This error should not appear unless you are trying to do something silly.";};
   };
 
   this._calculateStreakBonus = ()=>{
-    if(this.settings.options.ChallengeUseStreakBonus){
+    if(this.defaults.options.ChallengeUseStreakBonus){
       if(this.data.streak >= 5){
         return 500;
       }else{
@@ -448,7 +449,7 @@ function Injector(){
             joined(0);
             setTimeout(()=>{
               this.disconnectReason = "Session Ended";
-              this.socket.emit("close");
+              this.socket.close();
             },2000);
             return this.challengeData;
           }
@@ -459,7 +460,7 @@ function Injector(){
       if(count > 0){
         for(let u of this.challengeData.challenge.challengeUsersList){
           if(u.nickname === this.name){
-            this.cid = u.playerCId;
+            this.cid = u.playerCid;
             break;
           }
         }
@@ -469,13 +470,16 @@ function Injector(){
         }
         return this.challengeData;
       }
-      return this._httpRequest(`https://kahoot.it/rest/challenges/${this.challengeData.challenge.challengeId}/join/?nickname=${this.name}`,{
+      return this._httpRequest(`https://kahoot.it/rest/challenges/${this.challengeData.challenge.challengeId}/join/?nickname=${encodeURIComponent(this.name)}`,{
         method: "POST"
       },true).then((data)=>{
+        if(data.error){
+          throw data;
+        }
         Object.assign(this.challengeData,data);
-        this.cid = data.playerCId;
-        joined();
-        if(this.settings.options.ChallengeAutoContinue){
+        this.cid = data.playerCid;
+        joined(this.cid);
+        if(this.defaults.options.ChallengeAutoContinue){
           setTimeout(()=>{this.next();},5000);
         }
         return this.challengeData;
@@ -508,16 +512,16 @@ function Injector(){
         },
         host: parsed.hostname,
         protocol: parsed.protocol,
-        path: parsed.pathname
+        path: parsed.pathname + (parsed.search || "")
       };
       Object.assign(options,opts);
       const proxyOptions = this.defaults.proxy(options);
       options = proxyOptions || options;
       let req;
       if(options.protocol === "https:"){
-        https.request(options,handleRequest);
+        req = https.request(options,handleRequest);
       }else{
-        http.request(options,handleRequest);
+        req = http.request(options,handleRequest);
       }
       req.on("error",(e)=>{reject(e);});
       req.end(packet);
@@ -579,14 +583,14 @@ function Injector(){
   this._getProgress().then(inf=>{
     if(Object.keys(inf.progress).length == 0){
       this.disconnectReason = "Invalid Challenge";
-      return this.socket.emit("close");
+      return this.socket.close();
     }
     this.challengeData = inf;
     if(inf.challenge.endTime <= Date.now() || inf.challenge.challengeUsersList.length >= inf.challenge.maxPlayers){
       this.disconnectReason = "Challenge Ended/Full";
-      return this.socket.emit("close");
+      return this.socket.close();
     }else{
-      this.socket.emit("HandshakeComplete");
+      this.emit("HandshakeComplete");
     }
   });
 }
@@ -596,9 +600,12 @@ class ChallengeHandler extends EventEmitter{
   constructor(client,content){
     super();
     client.challengeData = content;
-    Injector.call(client,this);
+    Injector.call(client);
     this.readyState = 3;
-    this.close = ()=>{this.stop = true;};
+    this.close = ()=>{
+      this.stop = true;
+      this.emit("close");
+    };
   }
 }
 
