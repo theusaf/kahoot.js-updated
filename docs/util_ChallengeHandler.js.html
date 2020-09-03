@@ -41,7 +41,10 @@ function Injector(){
     totalStreak: 0,
     streak: -1,
     phase: "start",
-    questionIndex: 0
+    questionIndex: 0,
+    correctCount: 0,
+    incorrectCount: 0,
+    unansweredCount: 0
   });
 
   this.answer = async (choice,empty)=>{
@@ -51,7 +54,13 @@ function Injector(){
     if(this.defaults.options.ChallengeGetFullScore || this.defaults.options.ChallengeWaitForInput || this.challengeData.challenge.game_options.question_timer){
       tick = 1;
     }
-    const pointsQuestion = question.pointsQuestion || false;
+    const pointsQuestion = this.challengeData.progress.questions.reverse()[0].pointsQuestion || false;
+    if(+this.defaults.options.ChallengeScore > 1500){
+      // Hard limit of 0 - 1,500. (anything higher = 0 on Kahoot's end)
+      this.defaults.options.ChallengeScore = 1500;
+    }else if(+this.defaults.options.ChallengeScore &lt; 0){
+      this.defaults.options.ChallengeScore = 0;
+    }
     const timeScore = +this.defaults.options.ChallengeScore || ((Math.round((1 - ((tick / question.time) / 2)) * 1000) * question.pointsMultiplier) * +pointsQuestion);
     if(this.data.streak === -1){
       this.data.streak = 0;
@@ -76,6 +85,9 @@ function Injector(){
     const alwaysCorrect = this.defaults.options.ChallengeAlwaysCorrect;
     let correct = false;
     let text = "";
+    if(empty === null){
+      choice = -1;
+    }
     let choiceIndex = +choice;
     let c2 = [];
     let score = 0;
@@ -95,8 +107,11 @@ function Injector(){
     }
     case "jumble":{
       correct = JSON.stringify(choice) === JSON.stringify([0,1,2,3]);
-      if(typeof choice.length === "undefined"){
+      if(typeof choice != "object" || typeof choice.length === "undefined"){
         choice = [];
+      }
+      for(let j in choice){
+        choice[j] = +choice[j];
       }
       let tmpList = [];
       for(let n of choice){
@@ -113,22 +128,24 @@ function Injector(){
       break;
     }
     case "multiple_select_quiz":{
-      if(typeof choice.length === "undefined"){
+      if(typeof choice != "object" || typeof choice.length === "undefined"){
         choice = [];
       }
       correct = true;
-      let i = 0;
-      for(let ch of choice){
+      for(let i in choice){
+        choice[i] = +choice[i];
+      }
+      for(let ch in question.choices){
         if(question.choices[ch].correct){
-          c2.push(i);
-        }
-        i++;
-        if((correct &amp;&amp; question.choices[ch].correct) || alwaysCorrect){
-          correct = true;
-          score += timeScore;
-        }else{
-          score = 0;
-          correct = false;
+          c2.push(ch);
+          if(choice.includes(+ch) || alwaysCorrect){
+            if(correct){
+              score += timeScore;
+            }
+          }else{
+            score = 0;
+            correct = false;
+          }
         }
       }
       break;
@@ -205,7 +222,7 @@ function Injector(){
             playerId: this.name,
             points: +correct * score,
             reactionTime: tick,
-            receivedTime: this.receivedQuestionTime,
+            receivedTime: Date.now(),
             text
           }
         ],
@@ -218,7 +235,7 @@ function Injector(){
         playerCount: 1,
         pointsQuestion,
         skipped: (empty === null),
-        startTime: 0,
+        startTime: this.receivedQuestionTime,
         title: question.question,
         type: question.type,
         video: question.video
@@ -267,6 +284,9 @@ function Injector(){
     this.data.totalStreak += score - oldScore;
     this.data.totalScoreNoBonus += oldScore;
     this.data.totalScore += score;
+    if(correct){this.data.correctCount++;}
+    if(!correct &amp;&amp; empty === null){this.data.unansweredCount++;}
+    if(!correct &amp;&amp; empty !== null){this.data.incorrectCount++;}
     const event = {
       choice,
       type: question.type,
@@ -293,6 +313,23 @@ function Injector(){
         }
       }
     };
+    this.data.finalResult = {
+      rank: event.rank,
+      cid: this.cid,
+      correctCount: this.data.correctCount,
+      incorrectCount: this.data.incorrectCount,
+      unansweredCount: this.data.unansweredCount,
+      isKicked: false,
+      isGhost: false,
+      playerCount: this.challengeData.challenge.challengeUsersList.length + 1,
+      startTime: this.challengeData.progress.timestamp,
+      quizId: this.challengeData.kahoot.uuid,
+      name: this.name,
+      totalScore: this.data.totalScore,
+      hostId: "",
+      challengeId: "",
+      isOnlyNonPointGameBlockKahoot: false
+    };
     return this._httpRequest(`https://kahoot.it/rest/challenges/${this.challengeData.challenge.challengeId}/answers`,{
       headers: {
         "Content-Type": "application/json",
@@ -307,10 +344,8 @@ function Injector(){
         this.emit("TimeOver");
         this.emit("QuestionEnd",event);
         this.next();
-      },5000);
+      },1000);
       return;
-    }).catch(e=>{
-      throw e;
     });
   };
 
@@ -340,6 +375,7 @@ function Injector(){
     }
     case "ready": {
       this._getProgress(this.data.questionIndex).then((inf)=>{
+        if(this.data.hitError === true){this.data.hitError = false;}
         if(Object.keys(inf).length !== 0){
           this.challengeData.progress = inf;
         }
@@ -353,6 +389,15 @@ function Injector(){
           quizQuestionAnswers: this.quiz.quizQuestionAnswers
         }));
         setTimeout(()=>{this.next();},5000);
+      }).catch((err)=>{
+        if(this.data.hitError){
+          // Assume something is terribly wrong.
+          clearTimeout(this.ti);
+          this.disconnectReason = "Kahoot - Internal Server Error";
+          this.socket.close();
+        }
+        this.data.hitError = true;
+        this.next();
       });
       break;
     }
@@ -365,18 +410,24 @@ function Injector(){
         this.socket.close();
         return;
       }
+      if(q.type === "content"){
+        this.data.questionIndex++;
+        this.data.phase = "ready";
+        if(this.data.questionIndex === this.challengeData.kahoot.questions.length){
+          this.data.phase = "close";
+        }
+        if(this.challengeData.challenge.game_options.question_timer &amp;&amp; !this.defaults.options.ChallengeWaitForInput){
+          setTimeout(()=>{
+            this.next();
+          },10000);
+        }
+        return;
+      }
       if(this.challengeData.challenge.game_options.question_timer &amp;&amp; !this.defaults.options.ChallengeWaitForInput){
         this.ti = setTimeout(async()=>{
-          if(q.type === "content"){
-            this.data.questionIndex++;
-            this.data.phase = "ready";
-            if(this.data.questionIndex === this.challengeData.kahoot.questions.length){
-              this.data.phase = "close";
-            }
-          }
-          this.data.streak = 0;
           const evt = await this.answer(null,null);
           if(q.type !== "content"){
+            this.emit("TimeOver");
             this.emit("QuestionEnd",evt);
           }
           this.next();
@@ -424,7 +475,7 @@ function Injector(){
       if(this.defaults.options.ChallengeAutoContinue){
         setTimeout(()=>{
           this.next();
-        },5000);
+        },30000);
       }
       break;
     }
@@ -453,12 +504,15 @@ function Injector(){
     this._send = async ()=>{throw "This error should not appear unless you are trying to do something silly.";};
   };
 
-  this._calculateStreakBonus = ()=>{
+  this._calculateStreakBonus = (i)=>{
+    let info = i || this.data.streak;
     if(this.defaults.options.ChallengeUseStreakBonus){
-      if(this.data.streak >= 5){
+      if(info >= 6){
         return 500;
+      }else if(info > 0){
+        return (info - 1) * 100;
       }else{
-        return this.data.streak * 100;
+        return 0;
       }
     }else{
       return 0;
@@ -468,46 +522,11 @@ function Injector(){
   this._send = async (m)=>{
     if(m.data &amp;&amp; m.data.type === "login"){
       this.name = m.data.name + "";
-      let count = 0;
-      for(let p of this.challengeData.progress.playerProgress.playerProgressEntries){
-        if(!p.questionMetrics){
-          break;
-        }
-        if(this.name in p.questionMetrics){
-          if(this.challengeData.progress.summary.playersUnfinished &amp;&amp; this.challengeData.progress.summary.playersUnfinished.filter(o=>{
-            return o.playerId === this.name;
-          }).length){
-            const pl = this.challengeData.progress.summary.playersUnfinished.filter(o=>{
-              return o.playerId == this.name;
-            })[0];
-            this.data.totalScore = pl.finalScore;
-            this.data.questionIndex = pl.totalAnswerCount; // should load the next question probably
-            count = pl.totalAnswerCount;
-          }else{
-            joined(0);
-            setTimeout(()=>{
-              this.disconnectReason = "Session Ended";
-              this.socket.close();
-            },2000);
-            return this.challengeData;
-          }
-        }else{
-          break;
-        }
-      }
-      if(count > 0){
-        for(let u of this.challengeData.challenge.challengeUsersList){
-          if(u.nickname === this.name){
-            this.cid = u.playerCid;
-            break;
-          }
-        }
-        joined(this.cid);
-        if(this.defaults.options.ChallengeAutoContinue){
-          setTimeout(()=>{this.next();},5000);
-        }
-        return this.challengeData;
-      }
+
+      /**
+       * @since 2.0.0
+       * Removed reconnecting - Client id not provided.
+       */
       return this._httpRequest(`https://kahoot.it/rest/challenges/${this.challengeData.challenge.challengeId}/join/?nickname=${encodeURIComponent(this.name)}`,{
         method: "POST"
       },true).then((data)=>{
@@ -538,7 +557,11 @@ function Injector(){
             console.log("RECV: " + data);
           }
           if(json){
-            resolve(JSON.parse(data));
+            try{
+              resolve(JSON.parse(data));
+            }catch(e){
+              reject(data);
+            }
           }else{
             resolve(data);
           }
@@ -663,6 +686,7 @@ class ChallengeHandler extends EventEmitter{
     this.readyState = 3;
     this.close = ()=>{
       this.stop = true;
+      clearTimeout(client.ti);
       this.emit("close");
     };
   }
@@ -685,7 +709,7 @@ module.exports = ChallengeHandler;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Sep 03 2020 08:32:58 GMT-0700 (Pacific Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Sep 03 2020 13:19:14 GMT-0700 (Pacific Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

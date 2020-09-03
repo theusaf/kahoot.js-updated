@@ -2,14 +2,14 @@ var Kahoot = require("../index.js");
 var client = new Kahoot({
   options: {
     ChallengeUseStreakBonus: true,
-    //ChallengeScore: 1500,
-    //ChallengeAlwaysCorrect: true
+    ChallengeScore: 1111,
+    ChallengeAlwaysCorrect: true
   }
 });
 //client.loggingMode = true;
 const PIN = require("fs").readFileSync("PIN.json");
 console.log("joining game...");
-client.join("0" + parseInt(PIN), "ChallengeStreakTest4");
+client.join("0" + parseInt(PIN), "ChallengeStreakTestFAIL6");
 client.on("Joined", () => {
   console.log("joined the game. waiting for quiz to start");
 });

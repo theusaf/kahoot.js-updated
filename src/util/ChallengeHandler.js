@@ -27,8 +27,15 @@ function Injector(){
       tick = 1;
     }
     const pointsQuestion = this.challengeData.progress.questions.reverse()[0].pointsQuestion || false;
+    if(+this.defaults.options.ChallengeScore > 1500){
+      // Hard limit of 0 - 1,500. (anything higher = 0 on Kahoot's end)
+      this.defaults.options.ChallengeScore = 1500;
+    }else if(+this.defaults.options.ChallengeScore < 0){
+      this.defaults.options.ChallengeScore = 0;
+    }
     const timeScore = +this.defaults.options.ChallengeScore || ((Math.round((1 - ((tick / question.time) / 2)) * 1000) * question.pointsMultiplier) * +pointsQuestion);
     if(this.data.streak === -1){
+      this.data.streak = 0;
       const ent = this.challengeData.progress.playerProgress.playerProgressEntries;
       let falseScore = 0;
       for(let q in ent){
@@ -340,6 +347,7 @@ function Injector(){
     }
     case "ready": {
       this._getProgress(this.data.questionIndex).then((inf)=>{
+        if(this.data.hitError === true){this.data.hitError = false;}
         if(Object.keys(inf).length !== 0){
           this.challengeData.progress = inf;
         }
@@ -353,6 +361,15 @@ function Injector(){
           quizQuestionAnswers: this.quiz.quizQuestionAnswers
         }));
         setTimeout(()=>{this.next();},5000);
+      }).catch((err)=>{
+        if(this.data.hitError){
+          // Assume something is terribly wrong.
+          clearTimeout(this.ti);
+          this.disconnectReason = "Kahoot - Internal Server Error";
+          this.socket.close();
+        }
+        this.data.hitError = true;
+        this.next();
       });
       break;
     }
@@ -477,46 +494,11 @@ function Injector(){
   this._send = async (m)=>{
     if(m.data && m.data.type === "login"){
       this.name = m.data.name + "";
-      let count = 0;
-      for(let p of this.challengeData.progress.playerProgress.playerProgressEntries){
-        if(!p.questionMetrics){
-          break;
-        }
-        if(this.name in p.questionMetrics){
-          if(this.challengeData.progress.summary.playersUnfinished && this.challengeData.progress.summary.playersUnfinished.filter(o=>{
-            return o.playerId === this.name;
-          }).length){
-            const pl = this.challengeData.progress.summary.playersUnfinished.filter(o=>{
-              return o.playerId == this.name;
-            })[0];
-            this.data.totalScore = pl.finalScore;
-            this.data.questionIndex = pl.totalAnswerCount; // should load the next question probably
-            count = pl.totalAnswerCount;
-          }else{
-            joined(0);
-            setTimeout(()=>{
-              this.disconnectReason = "Session Ended";
-              this.socket.close();
-            },2000);
-            return this.challengeData;
-          }
-        }else{
-          break;
-        }
-      }
-      if(count > 0){
-        for(let u of this.challengeData.challenge.challengeUsersList){
-          if(u.nickname === this.name){
-            this.cid = u.playerCid;
-            break;
-          }
-        }
-        joined(this.cid);
-        if(this.defaults.options.ChallengeAutoContinue){
-          setTimeout(()=>{this.next();},5000);
-        }
-        return this.challengeData;
-      }
+
+      /**
+       * @since 2.0.0
+       * Removed reconnecting - Client id not provided.
+       */
       return this._httpRequest(`https://kahoot.it/rest/challenges/${this.challengeData.challenge.challengeId}/join/?nickname=${encodeURIComponent(this.name)}`,{
         method: "POST"
       },true).then((data)=>{
