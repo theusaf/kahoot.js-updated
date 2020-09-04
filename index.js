@@ -1,3 +1,3 @@
-var Client = require("./src/kahoot.js");
+const Client = require("./src/kahoot.js");
 
 module.exports = Client;

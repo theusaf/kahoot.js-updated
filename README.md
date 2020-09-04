@@ -6,26 +6,26 @@ Kahoot.js is a library to interact with the Kahoot API. kahoot.js supports joini
 
 # Basic Example
 ```js
-var Kahoot = require("kahoot.js-updated");
-var client = new Kahoot;
+const Kahoot = require("kahoot.js-updated");
+const client = new Kahoot;
 console.log("Joining kahoot...");
 client.join(9802345 /* Or any other kahoot game pin */, "kahoot.js");
-client.on("joined", () => {
-    console.log("I joined the Kahoot!");
+client.on("Joined", () => {
+  console.log("I joined the Kahoot!");
 });
-client.on("quizStart", quiz => {
-    console.log("The quiz has started!");
+client.on("QuizStart", () => {
+  console.log("The quiz has started!");
 });
-client.on("questionStart", question => {
-    console.log("A new question has started, answering the first answer.");
-    question.answer(0);
+client.on("QuestionStart", question => {
+  console.log("A new question has started, answering the first answer.");
+  question.answer(0);
 });
-client.on("quizEnd", () => {
-    console.log("The quiz has ended.");
+client.on("QuizEnd", () => {
+  console.log("The quiz has ended.");
 });
 ```
 
-## Documentation / How to use
+## Full API Documentation
 See [Documentation.md](Documentation.md).
 
 ## Examples

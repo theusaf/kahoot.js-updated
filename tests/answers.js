@@ -1,21 +1,27 @@
-var Kahoot = require("../index.js");
-var client = new Kahoot;
-const PIN = parseInt(require("fs").readFileSync("PIN.txt"));
-console.log("joining game...");
-client.join(PIN, "kahoot.js");
-client.on("joined", () => {
-	console.log("joined the game. waiting for quiz to start");
+const KahootJS = require("../index.js");
+const gameid = require("./PIN.json");
+const client = new KahootJS;
+
+console.log("Joining the game!");
+client.join(gameid,"kahoot.js").then(()=>{
+  console.log("Joined!");
+}).catch((err)=>{
+  console.log("Failed to join: " + err);
 });
-client.on("quiz", quiz => {
-	console.log("quiz has started. waiting for questions..");
+
+client.on("QuizStart",(quiz)=>{
+  console.log("Quiz Started.");
+  console.log(quiz);
+  console.log(client.quiz);
 });
-client.on("question",()=>{
-	console.log("question preparation started");
-})
-client.on("questionStart", question => {
-	console.log("question started. answering 0.");
-	question.answer(0);
+
+client.on("QuestionStart",(question)=>{
+  console.log("Received question:");
+  console.log(question);
+  console.log(client.quiz.currentQuestion);
+  client.answer(0);
 });
-client.on("finish", (o) => {
-	console.log("the quiz has finished.");
+
+client.on("Disconnect",(reason)=>{
+  console.log("Disconnected: " + reason);
 });

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: modules/main.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: modules/main.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const LiveClientHandshake = require("../assets/LiveClientHandshake.js");
+const LiveJoinPacket = require("../assets/LiveJoinPacket.js");
+const LiveJoinTeamPacket = require("../assets/LiveJoinTeamPacket.js");
+const LiveTwoStepAnswer = require("../assets/LiveTwoStepAnswer.js");
+const LiveLeavePacket = require("../assets/LiveLeavePacket.js");
+
+module.exports = function(){
+  this.classes.LiveTwoStepAnswer = LiveTwoStepAnswer;
+  this.classes.LiveJoinPacket = LiveJoinPacket;
+  this.classes.LiveClientHandshake = LiveClientHandshake;
+  this.classes.LiveJoinTeamPacket = LiveJoinTeamPacket;
+  this.classes.LiveLeavePacket = LiveLeavePacket;
+  this.handlers.HandshakeChecker = (message)=>{
+    if(message.channel === "/meta/handshake"){
+      if(message.clientId){
+        this.clientId = message.clientId;
+        const serverTime = message.ext.timesync;
+        const l = Math.round((Date.now() - serverTime.tc - serverTime.p) / 2);
+        const o = serverTime.ts - serverTime.tc - l;
+        this._timesync = {
+          l,
+          o,
+          get tc(){
+            return Date.now();
+          }
+        };
+        this._send(new LiveClientHandshake(1,this._timesync,this));
+        delete this.handlers.HandshakeChecker; // no more need.
+      }else{
+        // error!
+        this.emit("HandshakeFailed",message);
+        this.socket.close();
+      }
+    }
+  };
+  this.handlers.PingChecker = (message)=>{
+    if(message.channel === "/meta/connect" &amp;&amp; message.ext){
+      if(message.advice &amp;&amp; message.advice.reconnect === "retry"){
+        this.emit("HandshakeComplete");
+      }
+      this._send(new LiveClientHandshake(2,message,this));
+    }
+  };
+  this.handlers.timetrack = (message)=>{
+
+    /**
+     * An object about the time events were received
+     * @namespace {Object} LiveEventTimetrack
+     *
+     * @property {String} channel The channel the message is responding to
+     * @property {Object} ext An object that looks like this:
+     * @example
+     * {
+     *   "timetrack": 265834652 // date received
+     * }
+     * @property {String&lt;Number>} id The message id this message is responding to
+     * @property {Boolean} successful Whether the message was successful
+     */
+    if(this.waiting){
+      if(this.waiting[message.id]){
+        // hooray
+        this.waiting[message.id](message);
+        delete this.waiting[message.id];
+      }
+    }
+  };
+  this.handlers.TwoFactor = (message)=>{
+    if(this.settings &amp;&amp; !this.settings.twoFactorAuth){
+      delete this.handlers.TwoFactor;
+      return;
+    }
+    if(message.channel === "/service/player" &amp;&amp; message.data){
+      if(message.data.id === 53){
+
+        /**
+         * TwoFactorReset Event. Emitted when the two-factor auth resets and hasn't been answered correctly yet
+         *
+         * @event Client#TwoFactorReset
+         */
+        this.twoFactorResetTime = Date.now();
+        this.emit("TwoFactorReset");
+      }else if(message.data.id === 51){
+
+        /**
+         * TwoFactorWrong Event. Emitted when the two-factor auth was answered incorrectly.
+         *
+         * @event Client#TwoFactorWrong
+         */
+        this.emit("TwoFactorWrong");
+      }else if(message.data.id === 52){
+
+        /**
+         * TwoFactorCorrect Event. Emitted when the two-factor auth was answered correctly. Enables other events to start.
+         *
+         * @event Client#TwoFactorCorrect
+         */
+        this.connected = true;
+        this.emit("TwoFactorCorrect");
+        if(this.lastEvent){
+          this.emit.apply(this,this.lastEvent);
+        }
+        delete this.lastEvent;
+        delete this.twoFactorResetTime;
+        delete this.handlers.TwoFactor;
+      }
+    }
+  };
+  this.handlers.Disconnect = (message)=>{
+    if(message.channel === "/service/player" &amp;&amp; message.data &amp;&amp; message.data.id === 10){
+      const content = JSON.parse(message.data.content);
+      if(content.kickCode){
+        this.disconnectReason = "Kicked";
+      }else{
+        this.disconnectReason = "Session Ended";
+      }
+      this.leave(true);
+    }
+  };
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Client_defaults.html">defaults</a></li><li><a href="Client_defaults.modules.html">modules</a></li><li><a href="Client_defaults.options.html">options</a></li><li><a href="Client_defaults.wsproxy.WsProxyReturn.html">WsProxyReturn</a></li><li><a href="LiveEventTimetrack.html">LiveEventTimetrack</a></li><li><a href="Nemesis.html">Nemesis</a></li><li><a href="PointsData.html">PointsData</a></li><li><a href="StreakPoints.html">StreakPoints</a></li></ul><h3>Classes</h3><ul><li><a href="Client.html">Client</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:Disconnect">Disconnect</a></li><li><a href="Client.html#event:Feedback">Feedback</a></li><li><a href="Client.html#event:GameReset">GameReset</a></li><li><a href="Client.html#event:Joined">Joined</a></li><li><a href="Client.html#event:NameAccept">NameAccept</a></li><li><a href="Client.html#event:Podium">Podium</a></li><li><a href="Client.html#event:QuestionEnd">QuestionEnd</a></li><li><a href="Client.html#event:QuestionReady">QuestionReady</a></li><li><a href="Client.html#event:QuestionStart">QuestionStart</a></li><li><a href="Client.html#event:QuizEnd">QuizEnd</a></li><li><a href="Client.html#event:QuizStart">QuizStart</a></li><li><a href="Client.html#event:RecoveryData">RecoveryData</a></li><li><a href="Client.html#event:TeamAccept">TeamAccept</a></li><li><a href="Client.html#event:TeamTalk">TeamTalk</a></li><li><a href="Client.html#event:TimeOver">TimeOver</a></li><li><a href="Client.html#event:TwoFactorCorrect">TwoFactorCorrect</a></li><li><a href="Client.html#event:TwoFactorReset">TwoFactorReset</a></li><li><a href="Client.html#event:TwoFactorWrong">TwoFactorWrong</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Sep 03 2020 15:40:12 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

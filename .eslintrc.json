@@ -6,7 +6,8 @@
 		"es6": true
 	},
 	"parserOptions": {
-		"sourceType": "module"
+		"sourceType": "module",
+		"ecmaVersion": 8
 	},
 	"rules": {
 		"semi": ["error", "always"],
@@ -14,7 +15,7 @@
 		"no-unused-vars": ["error", {"args": "none"}],
 		"no-empty": "off",
 		"no-control-regex": "off",
-		"indent": ["error", "tab"],
+		"indent": ["error", 2],
 		"quotes": ["error", "double", {"avoidEscape": true}]
 	},
 	"overrides": [
@@ -24,5 +25,6 @@
 				"node": true
 			}
 		}
-	]
+	],
+	"root": true
 }

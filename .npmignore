@@ -6,3 +6,5 @@ examples/
 .github/
 .eslintrc.json
 .editorconfig
+out/
+docs/

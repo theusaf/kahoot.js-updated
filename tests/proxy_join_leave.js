@@ -1,21 +1,24 @@
 // not working yet.
 var Kahoot = require("../index.js");
 var client = new Kahoot({
-	proxy: "https://cors-anywhere.herokuapp.com/",
-	options: {
-		headers: {
-			"x-requested-with": "nodejs"
-		}
-	}
+  proxy: (options)=>{
+    const {host,path} = options;
+    return Object.assign(options,{
+      host: "cors-anywhere.herokuapp.com",
+      path: `/https://${host}${path}`
+    });
+  }
 });
-const PIN = parseInt(require("fs").readFileSync("PIN.txt"));
-console.log("joining game...");
-client.join(PIN, "testing",["a","b","c","d"]);
-client.on("ready", () => {
-	console.log("joined. leaving..");
-	setTimeout(()=>{client.leave();},5000);
+
+client.join(require("./PIN.json"));
+
+client.on("Joined",()=>{
+  console.log("Joined the game! Leaving");
+  setTimeout(()=>{
+    client.leave();
+  },5000);
 });
-client.on("invalidName",()=>{
-	console.log("bad");
-	setTimeout(()=>{client.join(PIN,"testing2");},5000);
+
+client.on("Disconnect",(reason)=>{
+  console.log("Left the game: " + reason);
 });

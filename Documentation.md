@@ -1,564 +1,373 @@
-# Kahoot.js Documentation
-## Table of Contents
-1. [Classes](#classes)
-2. [Kahoot](#kahoot)
-  - [Events](#kahoot.events)
-    - [ready/joined](#kahoot.events.ready)
-    - [quizStart/quiz](#kahoot.events.quiz)
-    - [question](#kahoot.events.question)
-    - [questionStart](#kahoot.events.questionStart)
-    - [questionSubmit](#kahoot.events.questionSubmit)
-    - [questionEnd](#kahoot.events.questionEnd)
-    - [finish](#kahoot.events.finish)
-    - [finishText](#kahoot.events.finishText)
-    - [2Step](#kahoot.events.2Step)
-    - [2StepFail](#kahoot.events.2StepFail)
-    - [2StepSuccess](#kahoot.events.2StepSuccess)
-    - [feedback](#kahoot.events.feedback)
-    - [invalidName](#kahoot.events.invalidName)
-    - [locked](#kahoot.events.locked)
-    - [handshakeFailed](#kahoot.events.handshakeFailed)
-  - [Methods](#kahoot.methods)
-    - [join](#kahoot.methods.join)
-    - [reconnect](#kahoot.methods.reconnect)
-    - [answerQuestion](#kahoot.methods.answerQuestion)
-    - [answer2Step](#kahoot.methods.answer2Step)
-    - [leave](#kahoot.methods.leave)
-    - [sendFeedback](#kahoot.methods.sendFeedback)
-  - [Properties](#kahoot.properties)
-    - [~~sendingAnswer~~](#kahoot.properties.sendingAnswer)
-    - [token](#kahoot.properties.token)
-    - [sessionID](#kahoot.properties.sessionID)
-    - [name](#kahoot.properties.name)
-    - [quiz](#kahoot.properties.quiz)
-    - [nemesis](#kahoot.properties.nemesis)
-    - [nemeses](#kahoot.properties.nemeses)
-    - [totalScore](#kahoot.properties.totalScore)
-    - [cid](#kahoot.properties.cid)
-    - [team](#kahoot.properties.team)
-    - [hasTwoFactorAuth](#kahoot.properties.hasTwoFactorAuth)
-    - [usesNamerator](#kahoot.properties.usesNamerator)
-    - [gamemode](#kahoot.properties.gamemode)
-    - [loggingMode](#kahoot.properties.loggingMode)
-3. [Quiz](#quiz)
-  - [Properties](#quiz.properties)
-    - [client](#quiz.properties.client)
-    - [type](#quiz.properties.type)
-    - [currentQuestion](#quiz.properties.currentQuestion)
-    - [questions](#quiz.properties.questions)
-    - [questionCount](#quiz.properties.questionCount)
-    - [answerCounts](#quiz.properties.answerCounts)
-4. [Question](#question)
-  - [Methods](#question.methods)
-    - [answer](#question.methods.answer)
-  - [Properties](#question.properties)
-    - [client](#question.properties.client)
-    - [quiz](#question.properties.quiz)
-    - [index](#question.properties.index)
-    - [timeLeft](#question.properties.timeLeft)
-    - [type](#question.properties.type)
-    - [layout](#question.properties.layout)
-    - [ended](#question.properties.ended)
-    - [number](#question.properties.number)
-    - [gamemode](#question.properties.gamemode)
-5. [QuestionEndEvent](#questionendevent)
-  - [Properties](#questionendevent.properties)
-    - [client](#questionendevent.properties.client)
-    - [quiz](#questionendevent.properties.quiz)
-    - [question](#questionendevent.properties.question)
-    - [correctAnswer](#questionendevent.properties.correctAnswer)
-    - [correctAnswers](#questionendevent.properties.correctAnswers)
-    - [text](#questionendevent.properties.text)
-    - [correct](#questionendevent.properties.correct)
-    - [nemesis](#questionendevent.properties.nemesis)
-    - [points](#questionendevent.properties.points)
-    - [rank](#questionendevent.properties.rank)
-    - [streak](#questionendevent.properties.streak)
-    - [total](#questionendevent.properties.total)
-6. [QuestionSubmitEvent](#questionsubmitevent)
-  - [Properties](#questionsubmitevent.properties)
-    - [client](#questionsubmitevent.properties.client)
-    - [quiz](#questionsubmitevent.properties.quiz)
-    - [question](#questionsubmitevent.properties.question)
-7. [Nemesis](#nemesis)
-  - [Properties](#nemesis.properties)
-    - [name](#nemesis.properties.name)
-    - [score](#nemesis.properties.score)
-    - [exists](#nemesis.properties.exists)
-8. [FinishTextEvent](#finishtextevent)
-  - [Properties](#finishtextevent.properties)
-    - [metal](#finishtextevent.properties.metal)
-9. [QuizFinishEvent](#quizfinishevent)
-  - [Properties](#quizfinishevent.properties)
-    - [client](#quizfinishevent.properties.client)
-    - [quiz](#quizfinishevent.properties.quiz)
-    - [players](#quizfinishevent.properties.player)
-    - [quizID](#quizfinishevent.properties.quizID)
-    - [rank](#quizfinishevent.properties.rank)
-    - [correct](#quizfinishevent.properties.correct)
-    - [incorrect](#quizfinishevent.properties.incorrect)
-10. [Q and A](#qa)
-11. [Using Proxies](#qa.proxies)
+# kahoot.js-updated V2.x.x Documentation
+Looking for documentation for V1.x.x? See [Documentation-Old](Documentation-Old.md).
 
-## Classes
-### Kahoot
----
-The kahoot client that interacts with kahoot's quiz api.
-<a name="kahoot.events"></a>
-#### Events
-<a name="kahoot.events.ready"></a>
-`on('ready')` and `on('joined')`
-- Emitted when the client joins the game.
+**Note: The API from V1 has changed in various ways. Check the new docs before upgrading.**
 
-<a name="kahoot.events.quiz"></a>
-`on('quizStart', Quiz)` and `on('quiz', Quiz)`
-- Emitted when the quiz starts for the client.
-- Passes a `Quiz` class.
+See [what's new.](#whats-new)
 
-<a name="kahoot.events.question"></a>
-`on('question', Question)`
-- Emitted when the client receives a new question.
-- This is **NOT** the same as the `questionStart` event, which is emitted after the question has started.
-- Passes a `Question` class.
+[JSDoc](https://theusaf.github.io/kahoot.js-updated)umentation
 
-<a name="kahoot.events.questionStart"></a>
-`on('questionStart', Question)`
-- Emitted when a question starts.
-    - Questions can be answered using `Question.answer(data)`
-- Passes a `Question` class.
+- [Examples](#examples)
+- [Methods](#methods)
+- [Events](#events)
+- [Properties](#properties)
 
-<a name="kahoot.events.questionSubmit"></a>
-`on('questionSubmit', QuestionSubmitEvent)`
-- Emitted when your answer has been submitted.
-- Passes a `QuestionSubmitEvent` class.
+## Documentation
 
-<a name="kahoot.events.questionEnd"></a>
-`on('questionEnd', QuestionEndEvent)`
-- Emitted when a question ends.
-- Passes a `QuestionEndEvent` class.
-
-<a name="kahoot.events.finish"></a>
-`on('finish', QuizFinishEvent)`
-- Emitted when the quiz ends.
-- Passes a `QuizFinishEvent` class.
-
-<a name="kahoot.events.finishText"></a>
-`on('finishText', FinishTextEvent)`
-- Emitted when the quiz finish text is sent.
-- Passes a `FinishTextEvent` class.
-
-<a name="kahoot.events.disconnect"></a>
-`on('quizEnd')` and `on('disconnect')`
-- Emitted when the quiz closes, and the client is disconnected.
-
-<a name="kahoot.events.2Step"></a>
-`on('2Step')`
-- Emitted when the 2 Step Auth is recieved
-- Emitted when the 2 Step Auth is refreshed
-
-<a name="kahoot.events.2StepFail"></a>
-`on('2StepFail')`
-- Emitted when the 2 Step Auth is incorrect
-
-<a name="kahoot.events.2StepSuccess"></a>
-`on('2StepSuccess')`
-- Emitted when the 2 Step Auth is correct
-
-<a name="kahoot.events.feedback"></a>
-`on('feedback')`
-- Emitted when the host requests to see feedback.
-
-<a name="kahoot.events.invalidName"></a>
-`on('invalidName',Error)`
-- Emitted when the join name is a duplicate.
-- Error is a String that describes the error.
-  - Sometimes, `invalidName` is emitted when the pin provided is broken.
-
-<a name="kahoot.events.locked"></a>
-`on('locked')`
-- Emitted when joining a game that is locked.
-
-<a name="kahoot.events.handshakeFailed"></a>
-`on('handshakeFailed')`
-- Emitted when the the websocket connection failed/was blocked.
-
-<a name="kahoot.methods"></a>
-#### Methods
-<a name="kahoot.methods.join"></a>
-`join(sessionID, playerName, teamNames)`
-- Joins the game.
-- Parameters:
-  - ***sessionID (Number)*** - The Kahoot session ID to join.
-  - ***playerName (String)*** - The name of the user.
-  - ***teamNames (Array) [String]*** - The names of the team members to be used in team game modes (optional).
-  - Returns: `Promise`
-
-<a name="kahoot.methods.reconnect"></a>
-`reconnect()`
-- Reconnects the bot.
-- Should be used if connection is lost (network issue).
-- Returns: `undefined`
-
-<a name="kahoot.methods.answerQuestion"></a>
-`answerQuestion(id)`
-- Answers the current question.
-- Parameters:
-  - ***id (Number|Array|String)***
-    - for type "quiz," use a number (0-3) to specify the choice.
-    - for type "open_ended" and "word_cloud," use a string to specify the answer.
-    - for type "jumble," use an array of numbers (0-3) to specify the order of items.
-  - Returns: `Promise`
-
-<a name="kahoot.methods.answer2Step"></a>
-`answer2Step(steps)`
-- Answers the 2 Step Auth.
-- Parameters:
-  - ***steps (Array)***
-    - An array of the steps for the 2 step authentification. (numbers 0-3)
-  - Returns: `Promise`
-
-<a name="kahoot.methods.leave"></a>
-`leave()`
-- Leaves the game.
-- Returns: `Promise`
-
-<a name="kahoot.methods.sendFeedback"></a>
-`sendFeedback(fun, learning, recommend, overall)`
-- Sends feedback to the host.
-- Parameters:
-  - ***fun (Number)***
-    - A number to rate how much fun you had (1-5)
-  - ***learning (Number)***
-    - A number to rate if you learned anything (1 or 0)
-  - ***recommend (Number)***
-    - A number to rate if you would recommend (1 or 0)
-  - ***overall (Number)***
-    - A Number to rate how you felt (-1 - 1)
-        - 1 = good
-        - -1 = bad
-- Returns: `Promise`
-
-<a name="kahoot.properties"></a>
-#### Properties
-<a name="kahoot.properties.sendingAnswer"></a>
-`sendingAnswer (Boolean)`
-- Whether or not the client is currently sending an answer.
-
-<a name="kahoot.properties.token"></a>
-`token (String)`
-- The client token of the user.
-
-<a name="kahoot.properties.sessionID"></a>
-`sessionID (Number)`
-- The session ID of the quiz.
-
-<a name="kahoot.properties.name"></a>
-`name (String)`
-- The user's name.
-
-<a name="kahoot.properties.quiz"></a>
-`quiz (Quiz)`
-- The current quiz of the client.
-
-<a name="kahoot.properties.nemesis"></a>
-`nemesis (Nemesis)`
-- The client's nemesis. (Will be `null` if the client does not have a nemesis.)
-
-<a name="kahoot.properties.nemeses"></a>
-`nemeses (Nemesis Array)`
-- An array of all the client's past nemeses.
-
-<a name="kahoot.properties.totalScore"></a>
-`totalScore (Number)`
-- The client's accumulated score.
-
-<a name="kahoot.properties.cid"></a>
-`cid`
-- The client's client id.
-
-<a name="kahoot.properties.team"></a>
-`team (Array) [String]`
-- The team member names.
-
-<a name="kahoot.properties.gamemode"></a>
-`gamemode (String)`
-- The game mode of the kahoot.
-  - `classic` - normal kahoot game.
-  - `team` - kahoot game with teams.
-
-<a name="kahoot.properties.loggingMode"></a>
-`loggingMode (Boolean)`
-- Whether to log the messages from and to the server. Defaults to false.
-
-<a name="kahoot.properties.usesNamerator"></a>
-`usesNamerator (Boolean)`
-- Whether the kahoot is using the namerator.
-
-<a name="kahoot.properties.hasTwoFactorAuth"></a>
-`hasTwoFactorAuth (Boolean)`
-- Whether the kahoot is using two factor authentification.
-
-### Quiz
----
-<a name="quiz.properties"></a>
-#### Properties
-<a name="quiz.properties.client"></a>
-`client (Kahoot)`
-- The client the quiz is attached.
-
-<a name="quiz.properties.name"></a>
-`name (String)`
-- The name of the quiz. This has been removed by Kahoot and will always be `null` now.
-
-<a name="quiz.properties.type"></a>
-`type (String)`
-- The quiz type.
-
-<a name="quiz.properties.currentQuestion"></a>
-`currentQuestion (Question)`
-- The current question the quiz is on.
-
-<a name="quiz.properties.questions"></a>
-`questions (Question Array)`
-- An array of every single question in the quiz. New questions get added as they come in.
-
-<a name="quiz.properties.questionNumber"></a>
-`questionCount (Number)`
-- The number of questions in the quiz.
-
-<a name="quiz.properties.answerCounts"></a>
-`answerCounts (Array) [Number]`
-- An array that shows the # of choices per question in the quiz.
-
-### Question
----
-<a name="question.methods"></a>
-#### Methods
-<a name="question.methods.answer"></a>
-`answer(number)`
-- Parameters:
-  - ***number (Number)***
-    - The question number to answer. (0 is the first answer, 1 is the second answer, etc.)
-
-<a name="question.properties"></a>
-#### Properties
-<a name="question.properties.client"></a>
-`client (Kahoot)`
-- The client attached to the question.
-
-<a name="question.properties.quiz"></a>
-`quiz (Quiz)`
-- The quiz that the question for.
-
-<a name="question.properties.index"></a>
-`index (Number)`
-- The index of the question.
-
-<a name="question.properties.timeLeft"></a>
-`timeLeft (Number)`
-- The time left before the question starts.
-
-<a name="question.properties.type"></a>
-`type (String)`
-- The question type.
-  - "quiz" is the basic multiple choice quesiton.
-  - "survey" is a poll, there aren't any points.
-  - "content" is a slideshow, you don't need to answer this one.
-  - "jumble" is a puzzle question, send an array of numbers to order the answers.
-  - "open_ended" is a free response question; send text.
-  - "word_cloud" is a free response poll; send text.
-
-<a name="question.properties.layout"></a>
-`layout (String)`
-- The layout of the question.
-- Example values: "TRUE_FALSE", "CLASSIC"
-
-<a name="question.properties.ended"></a>
-`ended (Boolean)`
-- Whether or not the question has ended.
-
-<a name="question.properties.number"></a>
-`number (Number)`
-- The number of the question.
-
-<a name="question.properties.gamemode"></a>
-`gamemode (String)`
-- The game mode of the session. It can be either "classic" or "team."
-
-### QuestionEndEvent
----
-<a name="questionendevent.properties"></a>
-#### Properties
-<a name="questionendevent.properties.client"></a>
-`client (Kahoot)`
-- The client attached to the event.
-
-<a name="questionendevent.properties.quiz"></a>
-`quiz (Quiz)`
-- The quiz that the event is attached to.
-
-<a name="questionendevent.properties.question"></a>
-`question (Question)`
-- The question that the event is attached to.
-
-<a name="questionendevent.properties.correctAnswers"></a>
-`correctAnswers (String Array)`
-- A list of the correct answers.
-
-<a name="questionendevent.properties.correctAnswer"></a>
-`correctAnswer (String)`
-- The correct answer. (if there are multiple correct answers, this will be the first correct answer.)
-
-<a name="questionendevent.properties.text"></a>
-`text (String)`
-- The text sent by Kahoot after a question has finished.
-
-<a name="questionendevent.properties.correct"></a>
-`correct (Boolean)`
-- Whether or not the client got the question right.
-
-<a name="questionendevent.properties.nemesis"></a>
-`nemesis (Nemesis)`
-- The client's nemesis. (Will be `null` if the client does not have a nemesis.)
-
-<a name="questionendevent.properties.points"></a>
-`points (Number)`
-- The points earned from this question.
-
-<a name="questionendevent.properties.streak"></a>
-`streak (Number)`
-- The current correct streak.
-
-<a name="questionendevent.properties.rank"></a>
-`rank (Number)`
-- The rank of the client
-
-<a name="questionendevent.properties.total"></a>
-`total (Number)`
-- The total score of the client
-
-### QuestionSubmitEvent
----
-<a name="questionsubmitevent.properties"></a>
-#### Properties
-<a name="questionsubmitevent.properties.client"></a>
-`client (Kahoot)`
-- The client attached to the event.
-
-<a name="questionsubmitevent.properties.quiz"></a>
-`quiz (Quiz)`
-- The quiz attached to the event.
-
-<a name="questionsubmitevent.properties.question"></a>
-`question (Question)`
-- The question attached to the event.
-
-### Nemesis
----
-<a name="nemesis.properties"></a>
-#### Properties
-<a name="nemesis.properties.name"></a>
-`name (String)`
-- The name of the nemesis user.
-
-<a name="nemesis.properties.score"></a>
-`score (Number)`
-- The score of the nemesis user.
-
-<a name="nemesis.properties.isGhost"></a>
-`isGhost (Boolean)`
-- Whether or not the nemesis user is a ghost player or not.
-
-<a name="nemesis.properties.exists"></a>
-`exists (Boolean)`
-- Whether or not the nemesis exists (All other values will be `undefined` if this is `false`)
-
-### FinishTextEvent
----
-<a name="finishtextevent.properties"></a>
-#### Properties
-
-<a name="finishtextevent.properties.metal"></a>
-`metal (String)`
-- The medal recieved after the quiz.
-
-### QuizFinishEvent
----
-<a name="quizfinishevent.properties"></a>
-#### Properties
-<a name="quizfinishevent.properties.client"></a>
-`client (Kahoot)`
-- The client attached to the event.
-
-<a name="quizfinishevent.properties.quiz"></a>
-`quiz (Quiz)`
-- The quiz attached to the event.
-
-<a name="quizfinishevent.properties.players"></a>
-`players (Number)`
-- The number of players on the quiz.
-
-<a name="quizfinishevent.properties.quizID"></a>
-`quizID (String)`
-- The ID of the quiz.
-- This is **ONLY** sent at the end of the quiz.
-
-<a name="quizfinishevent.properties.rank"></a>
-`rank (Number)`
-- The client's ranking on the quiz.
-
-<a name="quizfinishevent.properties.correct"></a>
-`correct (Number)`
-- The number of questions that were scored correct.
-
-<a name="quizfinishevent.properties.incorrect"></a>
-`incorrect (Number)`
-- The number of questions that were scored incorrect.
-
-#### All events have a .rawEvent property, which contains the raw information from Kahoot.
-
----
-<a name="qa"></a>
-## Q and A
-<a name="qa.proxies"></a>
-### Using Proxies
-This package (**V1.2.12+**) now has support for use of proxies. This will request the session information using the proxy, but the websocket will still be directly connected.
-Proxies can either be a **String** or an **Object** like so:
+<a name="examples"></a>
+## Examples
+<a name="basic"></a>
+### Basic Usage
 ```js
-const proxy1 = "http://cors-server.example.com/";
-const proxy2 = {
-  proxy: "http://other-server.example.com/path/",
-  options: {
-    headers: {
-      "X-Requested-With": "foobar"
-    },
-    method: "POST"
-  },
-  nopath: true
-};
+const Kahoot = require("kahoot.js-updated");
+const client = new Kahoot;
+client.join(PIN).catch(err=>{
+  console.log("Failed to join: " + err.description || err.status);
+});
+client.on("Joined",()=>{console.log("Joined!")});
+client.on("Disconnect",(reason)=>{console.log("Disconnected: " + reason)});
+client.on("QuizStart",(question)=>{question.answer(0)});
 ```
-#### Example Usage:
+
+<a name="custom-modules"></a>
+### Custom Modules
 ```js
-const kahootJS = require("kahoot.js-updated");
-const bots = [];
-for(let i = 0; i < 10; ++i){
-  let client;
-  if(Math.round(Math.random())){
-    client = new kahootJS(proxy1);
-  }else{
-    client = new kahootJS(proxy2);
+const disabled = new Kahoot({
+  modules: {
+  	extraData: false,
+    feedback: false,
+    teamAccept: false
   }
-  client.join(pin);
-  bots.push(client);
-}
+});
+disabled.join(PIN);
+disabled.on("QuestionStart",(question)=>{
+  try{
+    question.answer(0);
+  }catch(err){ // question.answer is not a function
+               // (enabled in extraDark, which was disabled)
+    disabled.answer(0); // works!
+  }
+});
+disabled.on("TeamAccept",(info)=>{
+  console.log(info); // This should not run (teamAccept is disabled)
+});
 ```
-#### The Proxy Option
-Proxies must be in this format in order to work:<br/>
-`https://sub.domain.top/<path>/<query>`
-- The information is requested by appending the proxy to the start of the url:<br>
-`"https://sub.domain.top/path/" + "https://kahoot.it/reserve/session/12345/?12418"`
-- This can be prevented by using the nopath option.
 
-The options is the [HTTP Request Options](https://nodejs.org/api/http.html#http_http_request_options_callback), which should only be used if the proxy service requires special headers to work. You can also set the method used.
+<a name="methods"></a>
+### Methods
 
-**Proxies are only used to specify HTTP requests for the tokens and for challenge games. If the websocket connection is blocked, you need to use a proxy/vpn for your server.**
+<a name="methods.static.defaults"></a>
+**`static` `defaults(options)`** - Creates a new Client class using new default options.
+| Parameter | Returns |
+| - | - |
+| [options](https://theusaf.github.io/kahoot.js-updated/Client_defaults.html) | Client |
+
+<a name="methods.static.join"></a>
+**`static` `join(pin,name,team)`** - Creates a new client and joins the game.
+#### Parameters:
+| name | description |
+|-|-|
+|pin|The game pin of the Kahoot! game/challenge|
+|*name*|The name of the client.|
+|*team*|The team members (used in team mode). If left empty, defaults to `"Player 1","Player 2","Player 3","Player 4"`|
+#### Returns `Object`
+
+|property|description|
+|-|-|
+|client|The newly created client|
+|event|The [join](#methods.join) promise|
+
+Equivalent of doing:
+```
+var client = new Kahoot;
+client.join(pin,name,team);
+```
+
+<a name="methods.join"></a>
+**join(pin,name,team)** - Join a Kahoot! game or challenge.
+#### Parameters:
+|name|description|
+|-|-|
+|pin|The game pin of the Kahoot! game/challenge|
+|*name*|The name of the player|
+|*team*|The team members of the player. Defaults to `"Player 1","Player 2","Player 3","Player 4"`|
+#### Returns `Promise`
+- Resolves when the player joins the game (including team members)
+  - If two step join is enabled, this does not mean that the client is fully connected yet.
+- Rejects with an [error object](https://kahoot.js.org/#/enum/LiveEventJoinResponse) if joining fails.
+  - If the game is `LOCKED`, it will reject with a [status object](https://kahoot.js.org/#/enum/LiveEventStatus) instead
+  - There is a chance that this may neither resolve nor reject if Kahoot! for some reason decides to ignore your login request (usually due to a suspicious name).
+  - If the error is not due to a duplicate name, the client will disconnect from the socket.
+
+<a name="methods.answer"></a>
+**answer(choice)** - Answers the question
+#### Parameters:
+- `choice` - A `Number`, `String`, or `Array<Number>` representing the client's answer to a question.
+  - The answer is automatically reformatted if invalid input is provided based on the question type.
+#### Returns: `Promise`
+- Resolves when the answer is received by Kahoot!
+- Rejects if the message fails to be received within 10 seconds. <sup>[4](#footnote-4)</sup>
+
+<a name="methods.answerTwoFactorAuth"></a>
+**answerTwoFactorAuth(steps)** - Answers the two-step code.
+#### Parameters:
+- `code` - A list of the following numbers: `0,1,2,3` (red,blue,yellow,green). The numbers represent the code order on the host's screen.
+#### Returns `Promise`
+- Resolves when the message is received by Kahoot!
+- Rejects if the message times out <sup>[4](#footnote-4)</sup>
+
+<a name="methods.joinTeam"></a>
+**joinTeam(team)** - Send the team members
+- This should be used if you specify `false` for *`team`* in [join](#methods.join).
+  - specifying `false` for the team disables sending the team immediately.
+#### Parameters:
+- *`team`* - A list of strings representing the names of team members. Defaults to `"Player 1","Player 2","Player 3","Player 4"`
+#### Returns `Promise`
+- Resolves when received by Kahoot!
+- Rejects if the message times out <sup>[4](#footnote-4)</sup>
+
+<a name="methods.leave"></a>
+**leave()** - Leaves the game.
+- Disconnects from the game and closes the socket.
+
+<a name="methods.next"></a>
+**next()**<sup>[5](#footnote-5)</sup> - Continues to the next event.
+- This is run automatically if `defaults.options.ChallengeAutoContinue` is `true` (which it is by default)
+
+<a name="methods.reconnect"></a>
+**reconnect(cid)** - Reconnect to a game
+#### Parameters:
+- *`cid`* - If creating a new client to reconnect, you can specify a cid to rejoin the game.
+  - You can call this without `cid` if the socket disconnected for an unknown reason.
+#### Returns `Promise`
+- Resolves when the client reconnects to the game
+- Rejects if the client fails to reconnect
+
+<a name="methods.sendFeedback"></a>
+**sendFeedback(fun,learn,recommend,overall)** - Sends feedback to the host.
+#### Parameters
+- `fun` - A number from 1 to 5, rating the quiz
+- `learn` - A number from 0 to 1, specifying if you learnt anything
+- `recommend` - A number from 0 to 1, specifying if you would recommend the quiz
+- `overall` - A number from -1 to 1, rating the overall feeling of the game.
+#### Returns `Promise`
+- Resolves when the feedback is received by Kahoot!
+- Rejects if the message times out <sup>[4](#footnote-4)</sup>
+
+### Events
+<a name="events.Disconnect"></a>
+`Disconnect` => `String`
+- Emitted when the client is disconnected
+  - Returns a String with the reason why the client was disconnected.
+
+<a name="events.Feedback"></a>
+`Feedback`
+- Emitted when the host asks for feedback
+
+<a name="events.GameReset"></a>
+`GameReset`
+- Emitted when the game resets back to the lobby
+
+<a name="events.Joined"></a>
+`Joined` => `Object`
+- Emitted when the client joins the game
+  - Returns an object with the [settings](https://theusaf.github.io/kahoot.js-updated/Client.html#event:Joined) of the game
+  - May not necessarily mean that the client is fully connected.
+    - If two-step join is enabled, the client will have to answer the two-step challenge before being fully connected.
+
+<a name="events.NameAccept"></a>
+`NameAccept` => `Object`
+- Emitted when Kahoot! has validated the client's name.
+  - Returns an object including the player's name (may be changed if deemed inappropriate)
+    - `playerName` - The player name
+    - `quizType` - String (`quiz`)
+    - `playerV2` - Boolean (`true`)
+    - `hostPrimaryUsage` - The host account's primary usage
+
+<a name="events.Podium"></a>
+`Podium` => `Object`
+- Emitted when the quiz has ended. (After [`QuizEnd`](#events.QuizEnd))
+  - Returns an object containing the medal.
+    - `podiumMedalType` - The medal.
+
+<a name="events.QuestionEnd"></a>
+`QuestionEnd` => `Object`
+- Emitted when the question ends.
+  - Returns an [object](https://theusaf.github.io/kahoot.js-updated/Client.html#event:QuestionEnd) with information about the client's score and answer.
+
+<a name="events.QuestionReady"></a>
+`QuestionReady` => `Object`
+- Emitted when the question is about to start
+  - Returns an [object](https://theusaf.github.io/kahoot.js-updated/Client.html#event:QuestionReady) with information about the upcoming question and the time remaining before it starts.
+
+<a name="events.QuestionStart"></a>
+`QuestionStart` => `Object`
+- Emitted when the question starts.
+  - Returns an [object](https://theusaf.github.io/kahoot.js-updated/Client.html#event:QuestionStart) with information about the question and the time remaining in the question.
+  - The client may now answer the question.
+
+<a name="events.QuizEnd"></a>
+`QuizEnd` => `Object`
+- Emitted when the quiz ends.
+  - Returns an [object](https://theusaf.github.io/kahoot.js-updated/Client.html#event:QuizEnd) about the ranking and scores of the client.
+
+<a name="events.QuizStart"></a>
+`QuizStart` => `Object`
+- Emitted when the quiz starts.
+  - Returns an object that contains some information about the quiz.
+    - `quizType` - String (`quiz`)
+    - `quizQuestionAnswers` - A list of numbers signifying the number of choices in each question.
+
+<a name="events.RecoveryData"></a>
+`RecoveryData` => `Object`
+- Emitted when the "recovery data" is sent from the server to the client.
+  - This event is not particularly useful. The function running this event also calls other events based on the recovery data content.
+    - These events are useful when joining a game late.
+    - See [LiveEventRecoveryData](https://kahoot.js.org/#/enum/LiveEventRecoveryData).
+
+<a name="events.TeamAccept"></a>
+`TeamAccept` => `Object`
+- Emitted when the team member's names have been validated by Kahoot!
+  - Returns an object containing recovery data and the validated team members.
+    - `memberNames` - A list of the team names. May be modified if the names included an inappropriate word.
+    - `recoveryData` - [Recovery data](https://kahoot.js.org/#/enum/LiveEventRecoveryData )
+
+<a name="events.TeamTalk"></a>
+`TeamTalk` => `Object`
+- Emitted when the team talk starts in team mode.
+  - Returns an [object](https://theusaf.github.io/kahoot.js-updated/Client.html#event:TeamTalk) describing the time remaining and the upcoming question.
+  - Unintended ability? You can answer the question during team talk (if the host is using the official host website)
+
+<a name="events.TimeOver"></a>
+`TimeOver` => `Object`
+- Emitted when the question ends (before [QuestionEnd](#events.QuestionEnd)).
+  - Returns an object.
+    - `questionIndex` - The question index of the recently ended question.
+
+<a name="events.TwoFactorCorrect"></a>
+`TwoFactorCorrect`
+- Emitted when the two-step challenge was completed successfully.
+  - TwoFactor events will stop being emitted after this.
+
+<a name="events.TwoFactorReset"></a>
+`TwoFactorReset`
+- Emitted when the two-step challenge code resets.
+
+<a name="events.TwoFactorWrong"></a>
+`TwoFactorWrong`
+- Emitted when the two-step challenge was answered incorrectly.
+
+<a name="whats-new"></a>
+## What's New in Version 2?
+
+### Control what events and functions are used in each client.
+When creating the client, you may pass options to [disable certain "modules."](#custom-modules) This can be used to create a fast, memory-efficient client by removing excess events, methods, and properties that won't be used by the client. All modules are enabled by default.
+
+### Property removal/rename
+- Some properties from version 1 are no longer stored:
+  - token
+  - nemesis
+  - nemeses
+  - team
+  - sendingAnswer
+- Renamed properties
+  - sessionID => gameid
+  - gamemode => settings.gameMode
+  - usesNamerator => settings.namerator
+  - hasTwoFactorAuth => settings.twoFactorAuth
+  - totalScore => data.totalScore <sup>[1](#footnote-1)</sup>
+- New properties
+  - data.streak <sup>[1](#footnote-1)</sup>
+
+**Why?**
+
+Many of these properties can be accessed through the events and have no real purpose besides being read-only data with no effect on the program (The properties are not used by the program). This should reduce the amount of memory used by each client.
+
+Also, I am trying to match my code to [kahoot.js.org](https://kahoot.js.org), so that it is easier to find changes and fix any broken code.
+
+The properties such as `name`, `cid`, `totalScore`, `quiz`, etc will be kept because they are a bit more useful to users.
+
+### Proxies
+Proxies can now be applied to the websockets as well as any http requests. However the proxies are now functions that return Objects specifying options for each connection.
+
+### Events
+Some events have been removed, and many events have been renamed. There are a few new events as well:
+- Removed:
+  - `questionSubmit`
+  - `invalidName`
+  - `locked`
+- Renamed:
+  - `ready` `joined` => `Joined`
+  - `quizStart` `quiz` => `QuizStart`
+  - `question` => `QuestionReady`
+  - `questionStart` => `QuestionStart`
+  - `questionEnd` => `QuestionEnd`
+  - `finish` => `QuizEnd`
+  - `finishText` => `Podium`
+  - `quizEnd` `disconnect` => `Disconnect`
+  - `2Step` => `TwoFactorReset`
+  - `2StepFail` => `TwoFactorWrong`
+  - `2StepSuccess` => `TwoFactorCorrect`
+  - `feedback` => `Feedback`
+  - `handshakeFailed` => `HandshakeFailed` <sup>[2](#footnote-2)</sup>
+- Added:
+  - `TimeOver`
+  - `TeamTalk`
+  - `TeamAccept`
+  - `NameAccept`
+  - `GameReset`
+  - `RecoveryData` <sup>[3](#footnote-3)</sup>
+
+These events should be easier to understand for developers. Most removed events are now part of the asynchronous methods or have been removed because they are not actual events from Kahoot!'s API.
+
+### Methods
+There are a few changes to methods, as well as new ones.
+- Renamed:
+  - `answerQuestion` => `answer`
+  - `answer2Step` => `answerTwoFactorAuth`
+- Added:
+  - `join` (static)
+  - `defaults`(static)
+  - `joinTeam`
+
+Read the [full documentation](https://theusaf.github.io/kahoot.js-updated) for a detailed explanation of each method and event.
+
+### Challenges
+There are a few changes to how kahoot.js-updated handles challenges:
+- Not possible to "rejoin" a challenge. (The cid was removed from the challenge response)
+- Better error handling and answer checking/scores.
+- For custom scores, value is now hard coded to be limited between [0,1500]
+
+Challenges are not affected by disabled modules. (If fact, it's probably better to disable them for challenges)
+
+### Improvements
+- A shorter way to join:
+  ```js
+  const Kahoot = require("kahoot.js-updated");
+  const {client,event} = Kahoot.join(pin);
+  event.then(()=>{
+    console.log("Joined!");
+  }).catch((err)=>{
+    console.log("Error! " + JSON.stringify(err));
+  });
+  ```
+- Most methods now return a `Promise` that resolves when received by Kahoot's server and rejects if not received within 10 seconds.
+- More in-built timers to prevent packet loss.
+
+**Footnotes**
+
+1. <a name="footnote-1">Enabled when the module `extraData` is enabled.</a>
+2. <a name="footnote-2">This event should not be used. Instead, catch the promise rejection from the `join` or `reconnect` methods.</a>
+3. <a name="footnote-3">The client does not need to listen to this event. This event is used internally to emit other events.</a>
+4. <a name="footnote-4">Basically, this assumes that the packet was lost.</a>
+5. <a name="footnote-5">For use in Challenges</a>
+
+---
+
+© theusaf 2020
+
+---
+
+**Disclaimer:**
+
+Kahoot.JS-Updated is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Kahoot! AB.
