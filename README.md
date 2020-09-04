@@ -28,7 +28,5 @@ client.on("QuizEnd", () => {
 ## Full API Documentation
 See [Documentation.md](Documentation.md).
 
-
-
 ## Examples
 See `examples/` and `tests/`.
