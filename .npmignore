@@ -8,3 +8,4 @@ examples/
 .editorconfig
 out/
 docs/
+.travis.yml
