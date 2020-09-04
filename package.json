@@ -4,7 +4,7 @@
   "description": "Answer, Join Kahoot Quizzes with nodejs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/join_leave.js"
   },
   "keywords": [
     "kahoot",
