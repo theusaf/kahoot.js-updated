@@ -433,7 +433,7 @@ Client.prototype._defaults = {
 
 module.exports = Client;
 
- /**
+/**
   * @namespace Client#defaults.wsproxy.WsProxyReturn
   * @type {Object}
   * @property {String} address The websocket URL

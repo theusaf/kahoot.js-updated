@@ -538,7 +538,7 @@ function Injector(){
             resolve(data);
           }
         });
-      }
+      };
       const parsed = new URL(url);
       let options = {
         headers: {
