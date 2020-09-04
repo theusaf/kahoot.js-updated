@@ -23,20 +23,27 @@ client.on("TwoFactorCorrect",()=>{
   console.log("Yay! I'm in!");
 });
 client.on("TeamAccept",t=>{
-  console.log(t);
+  console.log(t.memberNames);
 });
 client.on("NameAccept",n=>{
-  console.log(n);
+  console.log(n.playerName);
 });
 client.on("TimeOver",()=>{
   console.log("Times up");
 });
 client.on("QuestionStart",(q)=>{
+  if(Math.random() > 0.5){return console.log("Not answering");}
+  console.log("answering");
   q.answer(0);
+});
+client.on("Podium",()=>{
+  console.log("Podium time!");
+});
+client.on("QuizEnd",()=>{
+  console.log("Quiz ended");
 });
 client.on("QuestionEnd",d=>{
   console.log("question ended");
-  console.log(d);
 });
 
 function shuffle(array) {
