@@ -252,6 +252,7 @@ class Client extends EventEmitter{
     this._send(new this.classes.LiveLeavePacket(this));
     if(!arguments[0]){this.disconnectReason = "Client Left";}
     setTimeout(()=>{
+      if(!this.socket){return;}
       this.socket.close();
     },500);
   }

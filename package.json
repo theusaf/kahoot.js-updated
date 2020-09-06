@@ -1,6 +1,6 @@
 {
   "name": "kahoot.js-updated",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Answer, Join Kahoot Quizzes with nodejs",
   "main": "index.js",
   "scripts": {
@@ -32,7 +32,6 @@
     "url": "https://github.com/theusaf/kahoot.js-updated/issues"
   },
   "devDependencies": {
-    "eslint": "^7.8.1",
-    "jsdoc-to-markdown": "^6.0.1"
+    "eslint": "^7.8.1"
   }
 }
