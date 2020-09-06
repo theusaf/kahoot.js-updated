@@ -72,5 +72,12 @@ module.exports = function(){
       }
     }
   };
+  if(this.defaults.reconnect){
+    this.on("Joined",()=>{
+      if(this.reconnectRecovery){
+        this.requestRecoveryData();
+      }
+    });
+  }
   this.once("NameAccept",this.requestRecoveryData);
 };

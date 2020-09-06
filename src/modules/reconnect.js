@@ -27,6 +27,9 @@ module.exports = function(){
     await sleep(0.5);
     await this._send(new LiveReconnectPacket(this,pin,cid));
     return new Promise((resolve, reject)=>{
+      if(this.handlers.recovery){
+        this.reconnectRecovery = true;
+      }
       this.handlers.ReconnectFinish = async (message)=>{
         if(message.channel === "/service/controller" && message.data && message.data.type === "loginResponse"){
           if(message.data.error){
