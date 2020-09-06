@@ -32,7 +32,7 @@ module.exports = function(){
        */
       this.emit("RecoveryData",recover);
       const data = recover.data;
-      switch (recover.defaultQuizData.state) {
+      switch (recover.state) {
       case 0:{
         if(!this.quiz){
           this.quiz = {
@@ -54,7 +54,8 @@ module.exports = function(){
         this._emit("QuestionStart",data);
         break;
       }
-      case 4:{
+      case 4:
+      case 5:{
         this._emit("TimeUp",data);
         if(data.revealAnswer){
           this._emit("QuestionEnd",data.revealAnswer);
