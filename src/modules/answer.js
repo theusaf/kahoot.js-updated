@@ -1,5 +1,9 @@
 const LiveQuestionAnswer = require("../assets/LiveQuestionAnswer.js");
 const sleep = require("../util/sleep.js");
+/**
+ * @fileinfo This is the answer module
+ * - Loads the answer method
+ */
 module.exports = function(){
 
   /**

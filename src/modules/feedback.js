@@ -1,5 +1,9 @@
 const sleep = require("../util/sleep.js");
 const LiveFeedbackPacket = require("../assets/LiveFeedbackPacket.js");
+/**
+ * @fileinfo This is the feedback module
+ * - Loads the Feedback event and the sendFeedback method
+ */
 module.exports = function(){
   this.handlers.feedback = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 12){

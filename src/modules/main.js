@@ -3,7 +3,12 @@ const LiveJoinPacket = require("../assets/LiveJoinPacket.js");
 const LiveJoinTeamPacket = require("../assets/LiveJoinTeamPacket.js");
 const LiveTwoStepAnswer = require("../assets/LiveTwoStepAnswer.js");
 const LiveLeavePacket = require("../assets/LiveLeavePacket.js");
-
+/**
+ * @fileinfo This is the main module
+ * - Always enabled
+ * - Loads many things, such as two factor auth.
+ * - Runs the handshakes, pings, disconnects, and promises.
+ */
 module.exports = function(){
   this.classes.LiveTwoStepAnswer = LiveTwoStepAnswer;
   this.classes.LiveJoinPacket = LiveJoinPacket;

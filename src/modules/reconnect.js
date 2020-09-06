@@ -1,5 +1,9 @@
 const sleep = require("../util/sleep.js");
 const LiveReconnectPacket = require("../assets/LiveReconnectPacket.js");
+/**
+ * @fileinfo This is the reconnect module
+ * - Loads the reconnect method
+ */
 module.exports = function(){
 
   /**

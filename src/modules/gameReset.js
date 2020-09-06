@@ -1,3 +1,7 @@
+/**
+ * @fileinfo This is the gameReset module
+ * - Loads the GameReset event
+ */
 module.exports = function(){
   this.handlers.gameReset = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 5){

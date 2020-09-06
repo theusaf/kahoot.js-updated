@@ -1,5 +1,9 @@
+/**
+ * @fileinfo This is the questionReady module
+ * - Loads the QuestionReady event
+ */
 module.exports = function(){
-  this.handlers.questionEnd = (message)=>{
+  this.handlers.QuestionReady = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 1){
 
       /**

@@ -1,3 +1,7 @@
+/**
+ * @fileinfo This is the teamAccept module
+ * - Loads the TeamAccept event
+ */
 module.exports = function(){
   this.handlers.teamAccept = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 19){

@@ -1,3 +1,7 @@
+/**
+ * @fileinfo This is the ChallengeHandler module
+ * - Loads stuff used in challenges.
+ */
 const EventEmitter = require("events");
 const {URL} = require("url");
 const http = require("http");

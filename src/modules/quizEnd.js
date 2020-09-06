@@ -1,3 +1,7 @@
+/**
+ * @fileinfo This is the quizEnd module
+ * - Loads the QuizEnd event
+ */
 module.exports = function(){
   this.handlers.quizEnd = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 13){

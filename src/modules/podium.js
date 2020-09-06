@@ -1,3 +1,7 @@
+/**
+ * @fileinfo This is the podium module
+ * - Loads the Podium event
+ */
 module.exports = function(){
   this.handlers.podium = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 13){
