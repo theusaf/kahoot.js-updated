@@ -4,8 +4,7 @@ Kahoot.js is a library to interact with the Kahoot API. kahoot.js supports joini
 
 ![NPM](https://nodei.co/npm/kahoot.js-updated.png)
 
-![Dependencies](https://david-dm.org/theusaf/kahoot.js-updated.svg) [![Known Vulnerabilities](https://snyk.io/test/github/theusaf/kahoot.js-updated/badge.svg)](https://snyk.io/test/github/theusaf/kahoot.js-updated) [![HitCount](https://hits.dwyl.com/theusaf/kahoot.js-updated.svg)](https://hits.dwyl.com/theusaf/kahoot.js-updated) ![Builds](https://travis-ci.com/theusaf/kahoot.js-updated.svg?branch=master)
-<!--![Docs](https://inch-ci.org/github/theusaf/kahoot.js-updated.svg?branch=master)-->
+![Dependencies](https://david-dm.org/theusaf/kahoot.js-updated.svg) [![Known Vulnerabilities](https://snyk.io/test/github/theusaf/kahoot.js-updated/badge.svg)](https://snyk.io/test/github/theusaf/kahoot.js-updated) [![HitCount](https://hits.dwyl.com/theusaf/kahoot.js-updated.svg)](https://hits.dwyl.com/theusaf/kahoot.js-updated) ![Builds](https://travis-ci.com/theusaf/kahoot.js-updated.svg?branch=master) ![Docs](https://inch-ci.org/github/theusaf/kahoot.js-updated.svg?branch=master)
 
 **Note: If upgrading from version 1.x.x, read the latest documentation for the new api first.**
 

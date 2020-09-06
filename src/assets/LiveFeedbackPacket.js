@@ -11,7 +11,8 @@ module.exports = class LiveFeedbackPacket extends LiveBaseMessage{
         fun,
         learning,
         recommend,
-        overall
+        overall,
+        nickname: client.name
       })
     });
   }

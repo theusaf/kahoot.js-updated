@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: Nemesis</title>
+    <title>JSDoc: Namespace: currentQuestion</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: Nemesis</h1>
+    <h1 class="page-title">Namespace: currentQuestion</h1>
 
     
 
@@ -28,7 +28,8 @@
 
 <header>
     
-        <h2>Nemesis</h2>
+        <h2>
+            <span class="ancestors"><a href="Client.html">Client</a><a href="Client_quiz.html">#quiz</a>.</span>currentQuestion</h2>
         
     
 </header>
@@ -37,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Information about a player one rank above the client.</div>
+            <div class="description">The question object. May contain other information than listed below. See question events.</div>
         
 
         
@@ -69,53 +70,7 @@
 
         <tr>
             
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The nemesis's name</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>isGhost</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Whether the nemesis is a ghost</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>totalScore</code></td>
+                <td class="name"><code>questionIndex</code></td>
             
 
             <td class="type">
@@ -131,7 +86,99 @@
 
             
 
-            <td class="description last">The number of points the nemesis has</td>
+            <td class="description last">The current question index</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Alias for questionIndex</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>gameBlockType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The question type.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Alias for gameBlockType</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>answer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Alias for <a href="Client.html#answer">Client#answer</a>. Only exists on QuestionStart.</td>
         </tr>
 
     
@@ -170,7 +217,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_questionEnd.js.html">modules/questionEnd.js</a>, <a href="modules_questionEnd.js.html#line33">line 33</a>
+        <a href="modules_extraData.js.html">modules/extraData.js</a>, <a href="modules_extraData.js.html#line93">line 93</a>
     </li></ul></dd>
     
 

@@ -29,6 +29,16 @@
             <pre class="prettyprint source linenums"><code>/**
  * @fileinfo This module adds extra data to be stored by the client in various events
  */
+
+/**
+ * Extra client data.&lt;br/>
+ * Note: Some properties listed may not exist if the extraData module is disabled.
+ * @namespace Client#data
+ * @type {Object}
+ * @property {Number} totalScore The total score of the client
+ * @property {Number} streak The answer streak of the client
+ * @property {Number} rank The position of the client.
+ */
 module.exports = function(){
   const self = this;
   this.data.totalScore = 0;
@@ -47,8 +57,14 @@ module.exports = function(){
       },
       get type(){
         return event.type;
+      },
+      get index(){
+        return event.questionIndex
       }
     });
+    try{
+      Object.assign(self.quiz.currentQuestion,event);
+    }catch(e){}
   });
   this.on("QuizStart",(event)=>{
     Object.assign(event,{
@@ -56,20 +72,35 @@ module.exports = function(){
         return event.quizQuestionAnswers.length;
       }
     });
+    try{
+      Object.assign(self.quiz,event);
+    }catch(e){}
   });
   this.on("QuestionStart",(event)=>{
     Object.assign(event,{
       get type(){
         return event.gameBlockType;
+      },
+      get index(){
+        return event.questionIndex
       }
     });
+    try{
+      Object.assign(self.quiz.currentQuestion,event);
+    }catch(e){}
   });
   this.on("QuestionReady",(event)=>{
     Object.assign(event,{
       get type(){
         return event.gameBlockType;
+      },
+      get index(){
+        return event.questionIndex
       }
     });
+    try{
+      Object.assign(self.quiz.currentQuestion,event);
+    }catch(e){}
   });
   this.on("QuestionEnd",(event)=>{
     this.data.totalScore = event.totalScore;
@@ -77,6 +108,26 @@ module.exports = function(){
     this.data.rank = event.rank;
   });
 };
+
+/**
+ * The quiz object. May contain other information. See QuizStart event.
+ * @namespace Client#quiz
+ * @type {Object}
+ * @property {Number[]} quizQuestionAnswers The list of numbers signifying the number of choices/question.
+ * @property {Number} questionCount The number of questions.
+ * @property {Client#quiz.currentQuestion}
+ */
+
+/**
+ * The question object. May contain other information than listed below. See question events.
+ * @namespace Client#quiz.currentQuestion
+ * @type {Object}
+ * @property {Number} questionIndex The current question index
+ * @property {Number} index Alias for questionIndex
+ * @property {String} gameBlockType The question type.
+ * @property {String} type Alias for gameBlockType
+ * @property {Function} answer Alias for {@link Client#answer}. Only exists on QuestionStart.
+ */
 </code></pre>
         </article>
     </section>
@@ -87,13 +138,13 @@ module.exports = function(){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Client_defaults.html">defaults</a></li><li><a href="Client_defaults.modules.html">modules</a></li><li><a href="Client_defaults.options.html">options</a></li><li><a href="Client_defaults.wsproxy.WsProxyReturn.html">WsProxyReturn</a></li><li><a href="LiveEventTimetrack.html">LiveEventTimetrack</a></li><li><a href="Nemesis.html">Nemesis</a></li><li><a href="PointsData.html">PointsData</a></li><li><a href="StreakPoints.html">StreakPoints</a></li></ul><h3>Classes</h3><ul><li><a href="Client.html">Client</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:Disconnect">Disconnect</a></li><li><a href="Client.html#event:Feedback">Feedback</a></li><li><a href="Client.html#event:GameReset">GameReset</a></li><li><a href="Client.html#event:Joined">Joined</a></li><li><a href="Client.html#event:NameAccept">NameAccept</a></li><li><a href="Client.html#event:Podium">Podium</a></li><li><a href="Client.html#event:QuestionEnd">QuestionEnd</a></li><li><a href="Client.html#event:QuestionReady">QuestionReady</a></li><li><a href="Client.html#event:QuestionStart">QuestionStart</a></li><li><a href="Client.html#event:QuizEnd">QuizEnd</a></li><li><a href="Client.html#event:QuizStart">QuizStart</a></li><li><a href="Client.html#event:RecoveryData">RecoveryData</a></li><li><a href="Client.html#event:TeamAccept">TeamAccept</a></li><li><a href="Client.html#event:TeamTalk">TeamTalk</a></li><li><a href="Client.html#event:TimeOver">TimeOver</a></li><li><a href="Client.html#event:TwoFactorCorrect">TwoFactorCorrect</a></li><li><a href="Client.html#event:TwoFactorReset">TwoFactorReset</a></li><li><a href="Client.html#event:TwoFactorWrong">TwoFactorWrong</a></li></ul><h3>Global</h3><ul><li><a href="global.html#EventEmitter">EventEmitter</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Client_data.html">data</a></li><li><a href="Client_defaults.html">defaults</a></li><li><a href="Client_defaults.modules.html">modules</a></li><li><a href="Client_defaults.options.html">options</a></li><li><a href="Client_defaults.wsproxy.WsProxyReturn.html">WsProxyReturn</a></li><li><a href="Client_quiz.html">quiz</a></li><li><a href="Client_quiz.currentQuestion.html">currentQuestion</a></li><li><a href="LiveEventTimetrack.html">LiveEventTimetrack</a></li><li><a href="Nemesis.html">Nemesis</a></li><li><a href="PointsData.html">PointsData</a></li><li><a href="StreakPoints.html">StreakPoints</a></li></ul><h3>Classes</h3><ul><li><a href="Client.html">Client</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:Disconnect">Disconnect</a></li><li><a href="Client.html#event:Feedback">Feedback</a></li><li><a href="Client.html#event:GameReset">GameReset</a></li><li><a href="Client.html#event:Joined">Joined</a></li><li><a href="Client.html#event:NameAccept">NameAccept</a></li><li><a href="Client.html#event:Podium">Podium</a></li><li><a href="Client.html#event:QuestionEnd">QuestionEnd</a></li><li><a href="Client.html#event:QuestionReady">QuestionReady</a></li><li><a href="Client.html#event:QuestionStart">QuestionStart</a></li><li><a href="Client.html#event:QuizEnd">QuizEnd</a></li><li><a href="Client.html#event:QuizStart">QuizStart</a></li><li><a href="Client.html#event:RecoveryData">RecoveryData</a></li><li><a href="Client.html#event:TeamAccept">TeamAccept</a></li><li><a href="Client.html#event:TeamTalk">TeamTalk</a></li><li><a href="Client.html#event:TimeOver">TimeOver</a></li><li><a href="Client.html#event:TwoFactorCorrect">TwoFactorCorrect</a></li><li><a href="Client.html#event:TwoFactorReset">TwoFactorReset</a></li><li><a href="Client.html#event:TwoFactorWrong">TwoFactorWrong</a></li></ul><h3>Global</h3><ul><li><a href="global.html#EventEmitter">EventEmitter</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Sat Sep 05 2020 20:42:58 GMT-0700 (Pacific Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Sun Sep 06 2020 07:49:44 GMT-0700 (Pacific Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
