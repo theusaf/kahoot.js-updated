@@ -290,6 +290,10 @@ class Client extends EventEmitter{
       this.socket.on("message",(message)=>{
         this._message(message);
       });
+      this.socket.on("error",()=>{
+        this.emit("HandshakeFailed");
+        try{this.socket.close();}catch(e){}
+      });
       this.on("HandshakeComplete",()=>{
         res(data.data);
       });
