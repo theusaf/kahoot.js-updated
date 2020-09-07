@@ -31,15 +31,15 @@ module.exports = function(){
        * @see {@link https://kahoot.js.org/#/enum/LiveEventRecoveryData}
        */
       this.emit("RecoveryData",recover);
+      if(!this.quiz){
+        this.quiz = {
+          get questionCount(){return (this.quizQuestionAnswers && this.quizQuestionAnswers.length) || 10;}
+        };
+      }
+      this.quiz.quizQuestionAnswers = recover.defaultQuizData.quizQuestionAnswers;
       const data = recover.data;
       switch (recover.state) {
       case 0:{
-        if(!this.quiz){
-          this.quiz = {
-            get questionCount(){return (this.quizQuestionAnswers && this.quizQuestionAnswers.length) || 10;}
-          };
-        }
-        this.quiz.quizQuestionAnswers = recover.defaultQuizData.quizQuestionAnswers;
         break;
       }
       case 1:{

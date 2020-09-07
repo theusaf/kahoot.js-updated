@@ -39,6 +39,7 @@ module.exports = function(){
           }else{
             this.cid = message.data.cid || cid;
             this.emit("Joined",settings);
+            this.connected = true;
             resolve(settings);
           }
           delete this.handlers.ReconnectFinish;
