@@ -31,7 +31,7 @@ module.exports = function(){
         return event.type;
       },
       get index(){
-        return event.questionIndex
+        return event.questionIndex;
       }
     });
     try{
@@ -54,7 +54,7 @@ module.exports = function(){
         return event.gameBlockType;
       },
       get index(){
-        return event.questionIndex
+        return event.questionIndex;
       }
     });
     try{
@@ -67,7 +67,7 @@ module.exports = function(){
         return event.gameBlockType;
       },
       get index(){
-        return event.questionIndex
+        return event.questionIndex;
       }
     });
     try{
