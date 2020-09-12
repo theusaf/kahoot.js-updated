@@ -371,4 +371,4 @@ Challenges are not affected by disabled modules. (If fact, it's probably better 
 
 **Disclaimer:**
 
-Kahoot.JS-Updated is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Kahoot! AB.
+Kahoot.JS-Updated is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Kahoot! AS.
