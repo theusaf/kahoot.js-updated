@@ -29,7 +29,9 @@ client.on("QuestionStart", question => {
         foo.push(i);
         continue;
       }else{
-        question.answer(i);
+        setTimeout(
+          ()=>{question.answer(i);},
+        2000);
       }
       return;
     }

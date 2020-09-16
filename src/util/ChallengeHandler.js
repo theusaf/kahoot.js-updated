@@ -27,7 +27,7 @@ function Injector(){
     clearTimeout(this.ti);
     const question = this.challengeData.kahoot.questions[this.data.questionIndex];
     let tick = Date.now() - this.receivedQuestionTime;
-    if(this.defaults.options.ChallengeGetFullScore || this.defaults.options.ChallengeWaitForInput || this.challengeData.challenge.game_options.question_timer){
+    if(this.defaults.options.ChallengeGetFullScore || this.defaults.options.ChallengeWaitForInput || !this.challengeData.challenge.game_options.question_timer){
       tick = 1;
     }
     const pointsQuestion = this.challengeData.progress.questions.reverse()[0].pointsQuestion || false;
