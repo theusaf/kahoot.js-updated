@@ -13,7 +13,7 @@ client.on("QuizStart", quiz => {
 });
 client.on("QuestionStart", question => {
   console.log("question started. answering.");
-  console.log(question);
+  console.log(client.quiz.currentQuestion);
   // find correct answer
   const choices = question.choices;
   let foo = [];

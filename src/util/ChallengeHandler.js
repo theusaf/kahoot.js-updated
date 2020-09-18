@@ -317,8 +317,8 @@ function Injector(){
         return event;
       }
       this.ti = setTimeout(()=>{
-        this.emit("TimeOver");
-        this.emit("QuestionEnd",event);
+        this._emit("TimeOver");
+        this._emit("QuestionEnd",event);
         this.next();
       },1000);
       return;
@@ -357,7 +357,7 @@ function Injector(){
         }
         this.data.phase = "answer";
         let q = this.challengeData.kahoot.questions[this.data.questionIndex];
-        this.emit("QuestionReady",Object.assign(q,{
+        this._emit("QuestionReady",Object.assign(q,{
           questionIndex: this.data.questionIndex,
           timeLeft: 5,
           gameBlockType: q.type,
@@ -403,12 +403,12 @@ function Injector(){
         this.ti = setTimeout(async()=>{
           const evt = await this.answer(null,null);
           if(q.type !== "content"){
-            this.emit("TimeOver");
-            this.emit("QuestionEnd",evt);
+            this._emit("TimeOver");
+            this._emit("QuestionEnd",evt);
           }
           this.next();
         },q.time || 5000);
-        this.emit("QuestionStart",Object.assign(q,{
+        this._emit("QuestionStart",Object.assign(q,{
           questionIndex: this.data.questionIndex,
           gameBlockType: q.type,
           gameBlockLayout: q.layout,
@@ -417,7 +417,7 @@ function Injector(){
         }));
         return;
       }
-      this.emit("QuestionStart",Object.assign(q,{
+      this._emit("QuestionStart",Object.assign(q,{
         questionIndex: this.data.questionIndex,
         gameBlockType: q.type,
         gameBlockLayout: q.layout,
@@ -444,8 +444,8 @@ function Injector(){
     }
     case "close":{
       this.data.phase = "complete";
-      this.emit("QuizEnd",this.data.finalResult);
-      this.emit("Podium",{
+      this._emit("QuizEnd",this.data.finalResult);
+      this._emit("Podium",{
         podiumMedalType: ["gold","silver","bronze"][this._getRank() - 1]
       });
       if(this.defaults.options.ChallengeAutoContinue){
