@@ -568,11 +568,11 @@ function Injector(){
         }
       }
       const proxyOptions = this.defaults.proxy(options);
-      if(typeof proxyOptions?.destroy === "function"){
+      if(proxyOptions && typeof proxyOptions.destroy === "function"){
         // assume proxyOptions is a request object
         proxyOptions.on("request",handleRequest);
         return;
-      }else if(typeof proxyOptions?.then === "function"){
+      }else if(proxyOptions && typeof proxyOptions.then === "function"){
         // assume Promise<IncomingMessage>
         proxyOptions.then((req)=>{
           req.on("request",handleRequest);
