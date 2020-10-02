@@ -1,3 +1,7 @@
+/**
+ * @fileinfo This is the timeOver module
+ * - Loads the TimeOver event
+ */
 module.exports = function(){
   this.handlers.timeOver = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 4){

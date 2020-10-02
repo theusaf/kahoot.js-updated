@@ -8,3 +8,5 @@ examples/
 .editorconfig
 out/
 docs/
+.travis.yml
+Documentation-old.md

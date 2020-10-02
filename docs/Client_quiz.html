@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: modules/teamAccept.js</title>
+    <title>JSDoc: Namespace: quiz</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,49 +17,205 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: modules/teamAccept.js</h1>
+    <h1 class="page-title">Namespace: quiz</h1>
 
     
 
 
 
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * @fileinfo This is the teamAccept module
- * - Loads the TeamAccept event
- */
-module.exports = function(){
-  this.handlers.teamAccept = (message)=>{
-    if(message.channel === "/service/player" &amp;&amp; message.data &amp;&amp; message.data.id === 19){
-      const data = JSON.parse(message.data.content);
 
-      /**
-       * Emitted when the team members were accepted.
-       *
-       * @event Client#TeamAccept
-       * @type {Object}
-       * @property {String[]} memberNames The team members names.
-       * @property {RecoveryData} recoveryData The recovery data (contains the current event)
-       */
-      this.emit("TeamAccept",data);
-      delete this.handlers.teamAccept;
-      if(this.handlers.recovery){
-        this.handlers.recovery({
-          channel: "/service/player",
-          data: {
-            id: 17,
-            content: JSON.stringify(data.recoveryData)
-          }
-        });
-      }
-    }
-  };
-};
-</code></pre>
-        </article>
-    </section>
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="Client.html">Client</a>#</span>quiz</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">The quiz object. May contain other information. See QuizStart event.</div>
+        
+
+        
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>quizQuestionAnswers</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;Number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The list of numbers signifying the number of choices/question.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>questionCount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The number of questions.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code></code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Client_quiz.currentQuestion.html">Client#quiz.currentQuestion</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="modules_extraData.js.html">modules/extraData.js</a>, <a href="modules_extraData.js.html#line84">line 84</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Namespaces</h3>
+
+        <dl>
+            <dt><a href="Client_quiz.currentQuestion.html">currentQuestion</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

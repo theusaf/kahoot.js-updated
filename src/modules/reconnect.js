@@ -1,5 +1,9 @@
 const sleep = require("../util/sleep.js");
 const LiveReconnectPacket = require("../assets/LiveReconnectPacket.js");
+/**
+ * @fileinfo This is the reconnect module
+ * - Loads the reconnect method
+ */
 module.exports = function(){
 
   /**
@@ -21,8 +25,11 @@ module.exports = function(){
     this.settings = settings;
     // reconnect
     await sleep(0.5);
-    await this.send(new LiveReconnectPacket(this,pin,cid));
+    await this._send(new LiveReconnectPacket(this,pin,cid));
     return new Promise((resolve, reject)=>{
+      if(this.handlers.recovery){
+        this.reconnectRecovery = true;
+      }
       this.handlers.ReconnectFinish = async (message)=>{
         if(message.channel === "/service/controller" && message.data && message.data.type === "loginResponse"){
           if(message.data.error){
@@ -32,6 +39,7 @@ module.exports = function(){
           }else{
             this.cid = message.data.cid || cid;
             this.emit("Joined",settings);
+            this.connected = true;
             resolve(settings);
           }
           delete this.handlers.ReconnectFinish;

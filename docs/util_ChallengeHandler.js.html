@@ -26,7 +26,11 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const EventEmitter = require("events");
+            <pre class="prettyprint source linenums"><code>/**
+ * @fileinfo This is the ChallengeHandler module
+ * - Loads stuff used in challenges.
+ */
+const EventEmitter = require("events");
 const {URL} = require("url");
 const http = require("http");
 const https = require("https");
@@ -51,7 +55,7 @@ function Injector(){
     clearTimeout(this.ti);
     const question = this.challengeData.kahoot.questions[this.data.questionIndex];
     let tick = Date.now() - this.receivedQuestionTime;
-    if(this.defaults.options.ChallengeGetFullScore || this.defaults.options.ChallengeWaitForInput || this.challengeData.challenge.game_options.question_timer){
+    if(this.defaults.options.ChallengeGetFullScore || this.defaults.options.ChallengeWaitForInput || !this.challengeData.challenge.game_options.question_timer){
       tick = 1;
     }
     const pointsQuestion = this.challengeData.progress.questions.reverse()[0].pointsQuestion || false;
@@ -341,8 +345,8 @@ function Injector(){
         return event;
       }
       this.ti = setTimeout(()=>{
-        this.emit("TimeOver");
-        this.emit("QuestionEnd",event);
+        this._emit("TimeOver");
+        this._emit("QuestionEnd",event);
         this.next();
       },1000);
       return;
@@ -381,7 +385,7 @@ function Injector(){
         }
         this.data.phase = "answer";
         let q = this.challengeData.kahoot.questions[this.data.questionIndex];
-        this.emit("QuestionReady",Object.assign(q,{
+        this._emit("QuestionReady",Object.assign(q,{
           questionIndex: this.data.questionIndex,
           timeLeft: 5,
           gameBlockType: q.type,
@@ -427,12 +431,12 @@ function Injector(){
         this.ti = setTimeout(async()=>{
           const evt = await this.answer(null,null);
           if(q.type !== "content"){
-            this.emit("TimeOver");
-            this.emit("QuestionEnd",evt);
+            this._emit("TimeOver");
+            this._emit("QuestionEnd",evt);
           }
           this.next();
         },q.time || 5000);
-        this.emit("QuestionStart",Object.assign(q,{
+        this._emit("QuestionStart",Object.assign(q,{
           questionIndex: this.data.questionIndex,
           gameBlockType: q.type,
           gameBlockLayout: q.layout,
@@ -441,7 +445,7 @@ function Injector(){
         }));
         return;
       }
-      this.emit("QuestionStart",Object.assign(q,{
+      this._emit("QuestionStart",Object.assign(q,{
         questionIndex: this.data.questionIndex,
         gameBlockType: q.type,
         gameBlockLayout: q.layout,
@@ -468,8 +472,8 @@ function Injector(){
     }
     case "close":{
       this.data.phase = "complete";
-      this.emit("QuizEnd",this.data.finalResult);
-      this.emit("Podium",{
+      this._emit("QuizEnd",this.data.finalResult);
+      this._emit("Podium",{
         podiumMedalType: ["gold","silver","bronze"][this._getRank() - 1]
       });
       if(this.defaults.options.ChallengeAutoContinue){
@@ -566,7 +570,7 @@ function Injector(){
             resolve(data);
           }
         });
-      }
+      };
       const parsed = new URL(url);
       let options = {
         headers: {
@@ -703,13 +707,13 @@ module.exports = ChallengeHandler;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Client_defaults.html">defaults</a></li><li><a href="Client_defaults.modules.html">modules</a></li><li><a href="Client_defaults.options.html">options</a></li><li><a href="Client_defaults.wsproxy.WsProxyReturn.html">WsProxyReturn</a></li><li><a href="LiveEventTimetrack.html">LiveEventTimetrack</a></li><li><a href="Nemesis.html">Nemesis</a></li><li><a href="PointsData.html">PointsData</a></li><li><a href="StreakPoints.html">StreakPoints</a></li></ul><h3>Classes</h3><ul><li><a href="Client.html">Client</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:Disconnect">Disconnect</a></li><li><a href="Client.html#event:Feedback">Feedback</a></li><li><a href="Client.html#event:GameReset">GameReset</a></li><li><a href="Client.html#event:Joined">Joined</a></li><li><a href="Client.html#event:NameAccept">NameAccept</a></li><li><a href="Client.html#event:Podium">Podium</a></li><li><a href="Client.html#event:QuestionEnd">QuestionEnd</a></li><li><a href="Client.html#event:QuestionReady">QuestionReady</a></li><li><a href="Client.html#event:QuestionStart">QuestionStart</a></li><li><a href="Client.html#event:QuizEnd">QuizEnd</a></li><li><a href="Client.html#event:QuizStart">QuizStart</a></li><li><a href="Client.html#event:RecoveryData">RecoveryData</a></li><li><a href="Client.html#event:TeamAccept">TeamAccept</a></li><li><a href="Client.html#event:TeamTalk">TeamTalk</a></li><li><a href="Client.html#event:TimeOver">TimeOver</a></li><li><a href="Client.html#event:TwoFactorCorrect">TwoFactorCorrect</a></li><li><a href="Client.html#event:TwoFactorReset">TwoFactorReset</a></li><li><a href="Client.html#event:TwoFactorWrong">TwoFactorWrong</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Client_data.html">data</a></li><li><a href="Client_defaults.html">defaults</a></li><li><a href="Client_defaults.modules.html">modules</a></li><li><a href="Client_defaults.options.html">options</a></li><li><a href="Client_defaults.wsproxy.WsProxyReturn.html">WsProxyReturn</a></li><li><a href="Client_quiz.html">quiz</a></li><li><a href="Client_quiz.currentQuestion.html">currentQuestion</a></li><li><a href="LiveEventTimetrack.html">LiveEventTimetrack</a></li><li><a href="Nemesis.html">Nemesis</a></li><li><a href="PointsData.html">PointsData</a></li><li><a href="StreakPoints.html">StreakPoints</a></li></ul><h3>Classes</h3><ul><li><a href="Client.html">Client</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:Disconnect">Disconnect</a></li><li><a href="Client.html#event:Feedback">Feedback</a></li><li><a href="Client.html#event:GameReset">GameReset</a></li><li><a href="Client.html#event:Joined">Joined</a></li><li><a href="Client.html#event:NameAccept">NameAccept</a></li><li><a href="Client.html#event:Podium">Podium</a></li><li><a href="Client.html#event:QuestionEnd">QuestionEnd</a></li><li><a href="Client.html#event:QuestionReady">QuestionReady</a></li><li><a href="Client.html#event:QuestionStart">QuestionStart</a></li><li><a href="Client.html#event:QuizEnd">QuizEnd</a></li><li><a href="Client.html#event:QuizStart">QuizStart</a></li><li><a href="Client.html#event:RecoveryData">RecoveryData</a></li><li><a href="Client.html#event:TeamAccept">TeamAccept</a></li><li><a href="Client.html#event:TeamTalk">TeamTalk</a></li><li><a href="Client.html#event:TimeOver">TimeOver</a></li><li><a href="Client.html#event:TwoFactorCorrect">TwoFactorCorrect</a></li><li><a href="Client.html#event:TwoFactorReset">TwoFactorReset</a></li><li><a href="Client.html#event:TwoFactorWrong">TwoFactorWrong</a></li></ul><h3>Global</h3><ul><li><a href="global.html#EventEmitter">EventEmitter</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Thu Sep 03 2020 15:40:12 GMT-0700 (Pacific Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Fri Sep 18 2020 15:00:18 GMT-0700 (Pacific Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

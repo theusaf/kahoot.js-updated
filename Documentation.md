@@ -205,6 +205,7 @@ client.join(pin,name,team);
 - Emitted when the question starts.
   - Returns an [object](https://theusaf.github.io/kahoot.js-updated/Client.html#event:QuestionStart) with information about the question and the time remaining in the question.
   - The client may now answer the question.
+  - The object also contains an [`answer`](#methods.answer) method, which can be used to answer the question. <sup>[1](#footnote-1)</sup>
 
 <a name="events.QuizEnd"></a>
 `QuizEnd` => `Object`
@@ -370,4 +371,4 @@ Challenges are not affected by disabled modules. (If fact, it's probably better 
 
 **Disclaimer:**
 
-Kahoot.JS-Updated is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Kahoot! AB.
+Kahoot.JS-Updated is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Kahoot! AS.

@@ -1,3 +1,7 @@
+/**
+ * @fileinfo This is the nameAccept module
+ * - Loads the NameAccept event
+ */
 module.exports = function(){
   this.handlers.nameAccept = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 14){

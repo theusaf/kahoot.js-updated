@@ -252,6 +252,7 @@ class Client extends EventEmitter{
     this._send(new this.classes.LiveLeavePacket(this));
     if(!arguments[0]){this.disconnectReason = "Client Left";}
     setTimeout(()=>{
+      if(!this.socket){return;}
       this.socket.close();
     },500);
   }
@@ -288,6 +289,10 @@ class Client extends EventEmitter{
       });
       this.socket.on("message",(message)=>{
         this._message(message);
+      });
+      this.socket.on("error",()=>{
+        this.emit("HandshakeFailed");
+        try{this.socket.close();}catch(e){}
       });
       this.on("HandshakeComplete",()=>{
         res(data.data);
@@ -433,7 +438,7 @@ Client.prototype._defaults = {
 
 module.exports = Client;
 
- /**
+/**
   * @namespace Client#defaults.wsproxy.WsProxyReturn
   * @type {Object}
   * @property {String} address The websocket URL

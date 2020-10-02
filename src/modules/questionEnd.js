@@ -1,3 +1,7 @@
+/**
+ * @fileinfo This is the questionEnd module
+ * - Loads the QuestionEnd event
+ */
 module.exports = function(){
   this.handlers.questionEnd = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 8){

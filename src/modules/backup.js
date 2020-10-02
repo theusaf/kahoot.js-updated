@@ -1,5 +1,9 @@
 const LiveRequestData = require("../assets/LiveRequestData.js");
 const sleep = require("../util/sleep.js");
+/**
+ * @fileinfo This is the backup module
+ * - Loads the RecoveryData event
+ */
 module.exports = function(){
 
   /**
@@ -27,15 +31,15 @@ module.exports = function(){
        * @see {@link https://kahoot.js.org/#/enum/LiveEventRecoveryData}
        */
       this.emit("RecoveryData",recover);
+      if(!this.quiz){
+        this.quiz = {
+          get questionCount(){return (this.quizQuestionAnswers && this.quizQuestionAnswers.length) || 10;}
+        };
+      }
+      this.quiz.quizQuestionAnswers = recover.defaultQuizData.quizQuestionAnswers;
       const data = recover.data;
-      switch (recover.defaultQuizData.state) {
+      switch (recover.state) {
       case 0:{
-        if(!this.quiz){
-          this.quiz = {
-            get questionCount(){return (this.quizQuestionAnswers && this.quizQuestionAnswers.length) || 10;}
-          };
-        }
-        this.quiz.quizQuestionAnswers = recover.defaultQuizData.quizQuestionAnswers;
         break;
       }
       case 1:{
@@ -50,7 +54,8 @@ module.exports = function(){
         this._emit("QuestionStart",data);
         break;
       }
-      case 4:{
+      case 4:
+      case 5:{
         this._emit("TimeUp",data);
         if(data.revealAnswer){
           this._emit("QuestionEnd",data.revealAnswer);
@@ -68,5 +73,12 @@ module.exports = function(){
       }
     }
   };
+  if(this.defaults.reconnect){
+    this.on("Joined",()=>{
+      if(this.reconnectRecovery){
+        this.requestRecoveryData();
+      }
+    });
+  }
   this.once("NameAccept",this.requestRecoveryData);
 };

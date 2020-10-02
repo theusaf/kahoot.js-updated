@@ -13,7 +13,7 @@ client.on("QuizStart", quiz => {
 });
 client.on("QuestionStart", question => {
   console.log("question started. answering.");
-  console.log(question);
+  console.log(client.quiz.currentQuestion);
   // find correct answer
   const choices = question.choices;
   let foo = [];
@@ -29,7 +29,9 @@ client.on("QuestionStart", question => {
         foo.push(i);
         continue;
       }else{
-        question.answer(i);
+        setTimeout(
+          ()=>{question.answer(i);},
+        2000);
       }
       return;
     }

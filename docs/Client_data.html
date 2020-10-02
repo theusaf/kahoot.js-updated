@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: modules/teamAccept.js</title>
+    <title>JSDoc: Namespace: data</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,49 +17,199 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: modules/teamAccept.js</h1>
+    <h1 class="page-title">Namespace: data</h1>
 
     
 
 
 
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * @fileinfo This is the teamAccept module
- * - Loads the TeamAccept event
- */
-module.exports = function(){
-  this.handlers.teamAccept = (message)=>{
-    if(message.channel === "/service/player" &amp;&amp; message.data &amp;&amp; message.data.id === 19){
-      const data = JSON.parse(message.data.content);
 
-      /**
-       * Emitted when the team members were accepted.
-       *
-       * @event Client#TeamAccept
-       * @type {Object}
-       * @property {String[]} memberNames The team members names.
-       * @property {RecoveryData} recoveryData The recovery data (contains the current event)
-       */
-      this.emit("TeamAccept",data);
-      delete this.handlers.teamAccept;
-      if(this.handlers.recovery){
-        this.handlers.recovery({
-          channel: "/service/player",
-          data: {
-            id: 17,
-            content: JSON.stringify(data.recoveryData)
-          }
-        });
-      }
-    }
-  };
-};
-</code></pre>
-        </article>
-    </section>
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="Client.html">Client</a>#</span>data</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Extra client data.<br/>
+Note: Some properties listed may not exist if the extraData module is disabled.</div>
+        
+
+        
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>totalScore</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The total score of the client</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>streak</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The answer streak of the client</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>rank</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The position of the client.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="modules_extraData.js.html">modules/extraData.js</a>, <a href="modules_extraData.js.html#line5">line 5</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

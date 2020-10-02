@@ -1,10 +1,10 @@
 {
   "name": "kahoot.js-updated",
-  "version": "2.0.0",
+  "version": "2.0.11",
   "description": "Answer, Join Kahoot Quizzes with nodejs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/join_leave.js"
   },
   "keywords": [
     "kahoot",
@@ -32,7 +32,6 @@
     "url": "https://github.com/theusaf/kahoot.js-updated/issues"
   },
   "devDependencies": {
-    "eslint": "^7.8.1",
-    "jsdoc-to-markdown": "^6.0.1"
+    "eslint": "^7.8.1"
   }
 }

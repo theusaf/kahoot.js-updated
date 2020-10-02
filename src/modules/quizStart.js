@@ -1,3 +1,7 @@
+/**
+ * @fileinfo This is the quizStart module
+ * - Loads the QuizStart event
+ */
 module.exports = function(){
   this.handlers.quizStart = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 9){

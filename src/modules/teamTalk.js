@@ -1,3 +1,7 @@
+/**
+ * @fileinfo This is the teamTalk module
+ * - Loads the TeamTalk event
+ */
 module.exports = function(){
   this.handlers.teamTalk = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 20){
