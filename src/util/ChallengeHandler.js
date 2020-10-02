@@ -568,6 +568,17 @@ function Injector(){
         }
       }
       const proxyOptions = this.defaults.proxy(options);
+      if(typeof proxyOptions?.destroy === "function"){
+        // assume proxyOptions is a request object
+        proxyOptions.on("request",handleRequest);
+        return;
+      }else if(typeof proxyOptions?.then === "function"){
+        // assume Promise<IncomingMessage>
+        proxyOptions.then((req)=>{
+          req.on("request",handleRequest);
+        });
+        return;
+      }
       options = proxyOptions || options;
       if(this.loggingMode){
         console.log("SEND: " + JSON.stringify({
@@ -601,7 +612,7 @@ function Injector(){
       }
       if(latest[i] >= this.data.totalScore){
         rank++;
-        if(latest[i] > totalScore){
+        if(latest[i] < totalScore || name === null){
           name = i;
           totalScore = latest[i];
         }

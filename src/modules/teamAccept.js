@@ -3,6 +3,11 @@
  * - Loads the TeamAccept event
  */
 module.exports = function(){
+
+  /**
+   * teamAccept - handles the TeamAccept event
+   * @param {Object} message The websocket message
+   */
   this.handlers.teamAccept = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 19){
       const data = JSON.parse(message.data.content);

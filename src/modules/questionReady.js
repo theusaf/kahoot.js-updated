@@ -3,6 +3,11 @@
  * - Loads the QuestionReady event
  */
 module.exports = function(){
+
+  /**
+   * QuestionReady - Handles the QuestionReady event
+   * @param {Object} message The websocket message
+   */
   this.handlers.QuestionReady = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 1){
 

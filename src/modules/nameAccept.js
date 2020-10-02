@@ -3,6 +3,11 @@
  * - Loads the NameAccept event
  */
 module.exports = function(){
+
+  /**
+   * nameAccept - Handles the NameAccept event
+   * @param {Object} message The websocket message
+   */
   this.handlers.nameAccept = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 14){
       const data = JSON.parse(message.data.content);

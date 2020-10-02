@@ -3,6 +3,11 @@
  * - Loads the QuizStart event
  */
 module.exports = function(){
+
+  /**
+   * questionStart - handles QuestionStart events
+   * @param {Object} message The websocket message  
+   */
   this.handlers.questionStart = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 2){
 

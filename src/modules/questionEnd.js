@@ -3,6 +3,11 @@
  * - Loads the QuestionEnd event
  */
 module.exports = function(){
+
+  /**
+   * questionEnd - Handles the QuestionEnd event
+   * @param {Object} message The websocket message
+   */
   this.handlers.questionEnd = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 8){
 

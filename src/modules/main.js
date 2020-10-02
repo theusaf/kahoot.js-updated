@@ -15,6 +15,11 @@ module.exports = function(){
   this.classes.LiveClientHandshake = LiveClientHandshake;
   this.classes.LiveJoinTeamPacket = LiveJoinTeamPacket;
   this.classes.LiveLeavePacket = LiveLeavePacket;
+
+  /**
+   * HandshakeChecker - Handles the handshake to Kahoot!
+   * @param {Object} message The incoming websocket message.
+   */
   this.handlers.HandshakeChecker = (message)=>{
     if(message.channel === "/meta/handshake"){
       if(message.clientId){
@@ -38,6 +43,11 @@ module.exports = function(){
       }
     }
   };
+
+  /**
+   * PingChecker - Handles the ping/pong messages
+   * @param {Object} message The incoming websocket message
+   */
   this.handlers.PingChecker = (message)=>{
     if(message.channel === "/meta/connect" && message.ext){
       if(message.advice && message.advice.reconnect === "retry"){
@@ -46,6 +56,11 @@ module.exports = function(){
       this._send(new LiveClientHandshake(2,message,this));
     }
   };
+
+  /**
+   * timetrack - handles the 'timetrack' events
+   * @param {Object} message The incoming websocket message
+   */
   this.handlers.timetrack = (message)=>{
 
     /**
@@ -69,6 +84,11 @@ module.exports = function(){
       }
     }
   };
+
+  /**
+   * TwoFactor - handles the 2FA events
+   * @param {Object} message the incoming websocket message
+   */
   this.handlers.TwoFactor = (message)=>{
     if(this.settings && !this.settings.twoFactorAuth){
       delete this.handlers.TwoFactor;
@@ -110,6 +130,11 @@ module.exports = function(){
       }
     }
   };
+
+  /**
+   * Disconnect - handles disconnection
+   * @param {Object} message The incoming websocket message
+   */
   this.handlers.Disconnect = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 10){
       const content = JSON.parse(message.data.content);

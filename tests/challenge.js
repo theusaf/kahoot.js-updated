@@ -13,7 +13,7 @@ client.on("QuizStart", quiz => {
 });
 client.on("QuestionStart", question => {
   console.log("question started. answering.");
-  console.log(client.quiz.currentQuestion);
+  // console.log(client.quiz.currentQuestion);
   // find correct answer
   const choices = question.choices;
   let foo = [];
@@ -31,7 +31,7 @@ client.on("QuestionStart", question => {
       }else{
         setTimeout(
           ()=>{question.answer(i);},
-        2000);
+        3000);
       }
       return;
     }
@@ -44,15 +44,15 @@ client.on("QuestionStart", question => {
 });
 client.on("QuestionReady",question=>{
   console.log("recieved question");
-  //console.log(question);
+  // console.log(question);
 });
 client.on("QuestionEnd",q=>{
   console.log("question ended");
-  //console.log(q);
+  console.log(q.nemesis);
 });
 client.on("QuizEnd", (o) => {
   console.log("the quiz has finished.");
-  console.log(o);
+  // console.log(o);
 });
 client.on("Podium",t=>{
   console.log("podium");

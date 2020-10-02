@@ -291,6 +291,19 @@ The properties such as `name`, `cid`, `totalScore`, `quiz`, etc will be kept bec
 ### Proxies
 Proxies can now be applied to the websockets as well as any http requests. However the proxies are now functions that return Objects specifying options for each connection.
 
+Proxies may also return an [HTTP(S).ClientRequest](https://nodejs.org/api/http.html#http_class_http_clientrequest) or a Promise that resolves with an ClientRequest.
+
+For the `wsproxy`, it should return an Object of `ws` options or return a websocket itself. The websocket should be an `EventEmitter` with the following:
+- A `message` event
+- An `error` event
+- A `close` event
+- An `open` event
+- A `close` method
+- A `send` method
+- A `readyState` property
+
+The best way to do this would be to create a websocket using the [`ws`](https://www.npmjs.com/package/ws) module or something similar.
+
 ### Events
 Some events have been removed, and many events have been renamed. There are a few new events as well:
 - Removed:

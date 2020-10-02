@@ -3,6 +3,11 @@
  * - Loads the QuizEnd event
  */
 module.exports = function(){
+
+  /**
+   * quizEnd - Handles the QuizEnd event
+   * @param {Object} message The websocket message
+   */
   this.handlers.quizEnd = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 3){
 

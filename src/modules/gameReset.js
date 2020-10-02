@@ -3,6 +3,11 @@
  * - Loads the GameReset event
  */
 module.exports = function(){
+
+  /**
+   * gameReset - Handles the GameReset event
+   * @param {Object} message The websocket message
+   */
   this.handlers.gameReset = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 5){
 

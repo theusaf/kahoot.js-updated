@@ -271,7 +271,12 @@ class Client extends EventEmitter{
         if(options.protocols){
           info.splice(0,0,options.protocols);
         }
-        this.socket = new ws(options.address,...info);
+        if(typeof options.readyState === "number" && typeof options.close === "function"){
+          // assume websocket proxy returned a websocket
+          this.socket = options;
+        }else{
+          this.socket = new ws(options.address,...info);
+        }
       }else{
         this.socket = new ChallengeHandler(this,data);
       }
@@ -407,12 +412,12 @@ Client.prototype._defaults = {
    * @param {Object} options The default [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback} options used by Kahoot.js
    * @returns {Object} The modified [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback} options to proxy the request.
    */
-  proxy: (options)=>{}, // Take in [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback}, return and modify new options for the request for the proxied request
+  proxy: (options)=>{}, // Take in [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback}, return and modify new options for the request for the proxied request. You may also return a ClientRequest as well. See Documentation.md
   /**
    * A function to proxy kahoot.js-updated's websocket requests
    * @function Client#defaults.wsproxy
    * @param {String} url The default websocket URI that Kahoot.JS sends the socket to.
-   * @returns {Client#defaults.wsproxy.WsProxyReturn} [WS Options]{@link https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options} used to create the proxied socket
+   * @returns {Client#defaults.wsproxy.WsProxyReturn} [WS Options]{@link https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options} used to create the proxied socket. You may also return a WebSocket itself. See Documentation.md
    */
   wsproxy: (url)=>{return {address: url};}, // Take in [WS Options]{@link https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options}. Return and modify the options for the new proxied websocket connection
   /**

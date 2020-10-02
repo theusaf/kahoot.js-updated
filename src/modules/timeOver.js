@@ -3,6 +3,11 @@
  * - Loads the TimeOver event
  */
 module.exports = function(){
+
+  /**
+   * timeOver - Handles the TimeOver event
+   * @param {Object} message The websocket message
+   */
   this.handlers.timeOver = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 4){
 

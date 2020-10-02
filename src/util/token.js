@@ -3,6 +3,14 @@ const http = require("http");
 const ua = require("user-agents");
 
 class Decoder{
+
+  /**
+   * @static requestChallenge - Requests information about Kahoot! challenges.
+   *
+   * @param  {String<Number>} pin The gameid of the challenge the client is trying to connect to
+   * @param  {Client} client The client
+   * @returns {Promise<Object>} The challenge data
+   */
   static requestChallenge(pin,client){
     return new Promise((resolve, reject)=>{
       function handleRequest(res){
@@ -41,6 +49,17 @@ class Decoder{
         path: `/rest/challenges/pin/${pin}`
       };
       const proxyOptions = client.defaults.proxy(options);
+      if(typeof proxyOptions?.destroy === "function"){
+        // assume proxyOptions is a request object
+        proxyOptions.on("request",handleRequest);
+        return;
+      }else if(typeof proxyOptions?.then === "function"){
+        // assume Promise<IncomingMessage>
+        proxyOptions.then((req)=>{
+          req.on("request",handleRequest);
+        });
+        return;
+      }
       options = proxyOptions || options;
       let req;
       if(options.protocol === "https:"){
@@ -54,6 +73,14 @@ class Decoder{
       req.end();
     });
   }
+
+  /**
+   * @static requestToken - Requests the token for live games.
+   *
+   * @param  {String<Number>} pin The gameid
+   * @param  {Client} client The client
+   * @returns {Promise<object>} The game options
+   */
   static requestToken(pin,client){
     return new Promise((resolve,rej)=>{
       function handleRequest(res){
@@ -91,6 +118,17 @@ class Decoder{
         protocol: "https:"
       };
       const proxyOptions = client.defaults.proxy(options);
+      if(typeof proxyOptions?.destroy === "function"){
+        // assume proxyOptions is a request object
+        proxyOptions.on("request",handleRequest);
+        return;
+      }else if(typeof proxyOptions?.then === "function"){
+        // assume Promise<IncomingMessage>
+        proxyOptions.then((req)=>{
+          req.on("request",handleRequest);
+        });
+        return;
+      }
       options = proxyOptions || options;
       let req;
       if(options.protocol === "https:"){
@@ -104,6 +142,13 @@ class Decoder{
       req.end();
     });
   }
+
+  /**
+   * @static solveChallenge - Solves the challenge for the various Kahoot! tokens.
+   *
+   * @param  {String} challenge The JS function to execute to get the challenge token.
+   * @returns {String} The decoded token
+   */
   static solveChallenge(challenge){
     let solved = "";
     challenge = challenge.replace(/(\u0009|\u2003)/mg, "");
@@ -134,6 +179,14 @@ class Decoder{
     })();
     return solved;
   }
+
+  /**
+   * @static concatTokens - Combines the two tokens to get the final token
+   *
+   * @param  {String} headerToken The base64 decoded header token
+   * @param  {String} challengeToken The decoded challenge token
+   * @returns {String} The final token
+   */
   static concatTokens(headerToken, challengeToken) {
     // Combine the session token and the challenge token together to get the string needed to connect to the websocket endpoint
     for (var token = "", i = 0; i < headerToken.length; i++) {
@@ -144,6 +197,14 @@ class Decoder{
     }
     return token;
   }
+
+  /**
+   * @static resolve - The main function for getting token info
+   *
+   * @param  {String<Number>} pin The gameid
+   * @param  {Client} client The client
+   * @returns {Promise<Object>} The game information.
+   */
   static resolve(pin,client){
     if(isNaN(pin)){
       return new Promise((res,reject)=>{reject("Invalid/Missing PIN");});

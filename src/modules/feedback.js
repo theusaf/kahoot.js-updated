@@ -5,6 +5,11 @@ const LiveFeedbackPacket = require("../assets/LiveFeedbackPacket.js");
  * - Loads the Feedback event and the sendFeedback method
  */
 module.exports = function(){
+
+  /**
+   * feedback - Handles the Feedback event
+   * @param {Object} message The websocket message
+   */
   this.handlers.feedback = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 12){
 

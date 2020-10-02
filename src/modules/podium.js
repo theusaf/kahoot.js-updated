@@ -3,6 +3,11 @@
  * - Loads the Podium event
  */
 module.exports = function(){
+
+  /**
+   * podium - Handles the Podium event
+   * @param {Object} message The websocket message  
+   */
   this.handlers.podium = (message)=>{
     if(message.channel === "/service/player" && message.data && message.data.id === 13){
 
