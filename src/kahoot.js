@@ -149,6 +149,7 @@ class Client extends EventEmitter{
           }else{
             this.cid = message.data.cid;
             if(settings.gameMode === "team"){
+              await sleep(1)
               if(team !== false){
                 team = team || ["Player 1","Player 2","Player 3","Player 4"];
                 // send team!
@@ -321,12 +322,13 @@ class Client extends EventEmitter{
         }
         if(this.loggingMode){console.log("SEND: " + JSON.stringify([message]));}
         if(callback){
-          this.waiting[this.messageId] = callback;
+          const id = this.messageId + "";
+          this.waiting[id] = callback;
           setTimeout(()=>{
-            if(this.waiting[this.messageId]){
+            if(this.waiting[id]){
               // event timed out? (took over 10 seconds)
               callback(null);
-              delete this.waiting[this.messageId];
+              delete this.waiting[id];
             }
           },10e3);
         }
