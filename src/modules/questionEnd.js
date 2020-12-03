@@ -19,11 +19,10 @@ module.exports = function(){
        * @property {(Number|Number[]|String)} choice The answer from the client
        * @property {String} type The question type
        * @property {Boolean} isCorrect Whether the client answered the question correctly
-       * @property {String} text The text content of correct answers
+       * @property {String} text The text content of answers sent by the client
        * @property {Number} receivedTime The time (ms) when the answer was received
        * @property {Booean} pointsQuestion Whether the question offered points
        * @property {Number} points The amount of points earned from the question
-       * @property {String[]} correctAnswers A list of the text content of the correct answers
        * @property {Number[]} correctChoices A list of the indexes of correct choices (used in multi select quizzes)
        * @property {Number} totalScore The total score of the client
        * @property {Number} rank The current position of the client
@@ -52,6 +51,7 @@ module.exports = function(){
  * @property {Number} totalPointsWithBonuses The number of points earned (including bonuses)
  * @property {Number} totalPointsWithoutBonuses The number of points earned without bonuses
  * @property {StreakPoints} answerStreakPoints Information abuot answer streaks
+ * @property {Number} lastGameBlockIndex The previous question index
  */
 
 /**

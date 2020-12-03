@@ -48,19 +48,6 @@ module.exports = function(){
       Object.assign(self.quiz,event);
     }catch(e){}
   });
-  this.on("QuestionStart",(event)=>{
-    Object.assign(event,{
-      get type(){
-        return event.gameBlockType;
-      },
-      get index(){
-        return event.questionIndex;
-      }
-    });
-    try{
-      Object.assign(self.quiz.currentQuestion,event);
-    }catch(e){}
-  });
   this.on("QuestionReady",(event)=>{
     Object.assign(event,{
       get type(){
