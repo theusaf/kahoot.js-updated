@@ -68,99 +68,103 @@ function Injector(){
     let c2 = [];
     let score = 0;
     switch (question.type) {
-    case "quiz":{
-      try{
-        correct = question.choices[choiceIndex].correct;
-        text = question.choices[choiceIndex].answer;
-      }catch(e){
-        correct = false;
-        text = "";
-      }finally{
-        if(alwaysCorrect){correct = true;}
-        if(correct){score+=timeScore;}
-      }
-      break;
-    }
-    case "jumble":{
-      correct = JSON.stringify(choice) === JSON.stringify([0,1,2,3]);
-      if(typeof choice != "object" || typeof choice.length === "undefined"){
-        choice = [];
-      }
-      for(let j in choice){
-        choice[j] = +choice[j];
-      }
-      let tmpList = [];
-      for(let n of choice){
+      case "quiz":{
         try{
-          tmpList.push(question.choices[n].answer);
+          correct = question.choices[choiceIndex].correct;
+          text = question.choices[choiceIndex].answer;
         }catch(e){
-          tmpList.push("");
+          correct = false;
+          text = "";
+        }finally{
+          if(alwaysCorrect){correct = true;}
+          if(correct){score+=timeScore;}
         }
+        break;
       }
-      text = tmpList.join("|");
-      choiceIndex = -1;
-      if(alwaysCorrect){correct = true;}
-      if(correct){score+=timeScore;}
-      break;
-    }
-    case "multiple_select_quiz":{
-      if(typeof choice != "object" || typeof choice.length === "undefined"){
-        choice = [];
-      }
-      correct = true;
-      for(let i in choice){
-        choice[i] = +choice[i];
-      }
-      for(let ch in question.choices){
-        if(question.choices[ch].correct){
-          c2.push(ch);
-          if(choice.includes(+ch) || alwaysCorrect){
-            if(correct){
-              score += timeScore;
-            }
-          }else{
-            score = 0;
-            correct = false;
+      case "jumble":{
+        correct = JSON.stringify(choice) === JSON.stringify([0,1,2,3]);
+        if(typeof choice != "object" || typeof choice.length === "undefined"){
+          choice = [];
+        }
+        for(let j in choice){
+          choice[j] = +choice[j];
+        }
+        let tmpList = [];
+        for(let n of choice){
+          try{
+            tmpList.push(question.choices[n].answer);
+          }catch(e){
+            tmpList.push("");
           }
         }
+        text = tmpList.join("|");
+        choiceIndex = -1;
+        if(alwaysCorrect){correct = true;}
+        if(correct){score+=timeScore;}
+        break;
       }
-      break;
-    }
-    case "open_ended":{
-      text = choice + "";
-      const invalid = /[~`!@#$%^&*(){}[\];:"'<,.>?/\\|\-_+=]/gm;
-      const test = text.replace(invalid,"");
-      for(let choice of question.choices){
-        if(choice.answer.replace(emoji,"")){
-          correct = test.replace(emoji,"").toLowerCase() == choice.answer.replace(emoji,"").replace(invalid,"").toLowerCase();
-        }else{
-          correct = test == choice;
+      case "multiple_select_quiz":{
+        if(typeof choice != "object" || typeof choice.length === "undefined"){
+          choice = [];
         }
-        if(correct){
-          choiceIndex = question.choices.indexOf(choice);
-          break;
+        correct = true;
+        let tmpList = [];
+        for(let i in choice){
+          choice[i] = +choice[i];
+          tmpList.push(question.choices[i].answer);
+        }
+        tmpList = tmpList.join("|");
+        for(let ch in question.choices){
+          if(question.choices[ch].correct){
+            c2.push(ch);
+            if(choice.includes(+ch) || alwaysCorrect){
+              if(correct){
+                score += timeScore;
+              }
+            }else{
+              score = 0;
+              correct = false;
+            }
+          }
+        }
+        break;
+      }
+      case "open_ended":{
+        text = choice + "";
+        const invalid = /[~`!@#$%^&*(){}[\];:"'<,.>?/\\|\-_+=]/gm;
+        const test = text.replace(invalid,"");
+        for(let choice of question.choices){
+          if(choice.answer.replace(emoji,"")){
+            correct = test.replace(emoji,"").toLowerCase() == choice.answer.replace(emoji,"").replace(invalid,"").toLowerCase();
+          }else{
+            correct = test == choice;
+          }
+          if(correct){
+            choiceIndex = question.choices.indexOf(choice);
+            break;
+          }
+        }
+        if(alwaysCorrect){correct = true;}
+        if(correct){score+=timeScore;}
+        break;
+      }
+      case "word_cloud":{
+        text = choice + "";
+        choiceIndex = -1;
+        correct = true;
+        if(this.defaults.options.ChallengeScore){
+          score += timeScore;
+        }
+        break;
+      }
+      default:{
+        choiceIndex = +choice || 0;
+        text = (question.choices[choiceIndex] && question.choices[choiceIndex].answer) || "";
+        correct = true;
+        if(this.defaults.options.ChallengeScore){
+          score += timeScore;
         }
       }
-      if(alwaysCorrect){correct = true;}
-      if(correct){score+=timeScore;}
-      break;
-    }
-    case "word_cloud":{
-      text = choice + "";
-      choiceIndex = -1;
-      correct = true;
-      if(this.defaults.options.ChallengeScore){
-        score += timeScore;
-      }
-      break;
-    }
-    default:{
-      choiceIndex = +choice || 0;
-      correct = true;
-      if(this.defaults.options.ChallengeScore){
-        score += timeScore;
-      }
-    }
     }
     let c = [];
     if(question.choices){
@@ -225,36 +229,36 @@ function Injector(){
     };
     // small changes for specific types
     switch (question.type) {
-    case "word_cloud":
-    case "open_ended":{
-      Object.assign(payload.question.answers[0],{
-        originalText: text,
-        text: text.toLowerCase().replace(/[~`!@#$%^&*(){}[\];:"'<,.>?/\\|\-_+=]/gm,"")
-      });
-      payload.question.choices = [];
-      break;
-    }
-    case "jumble":{
-      let f = choice;
-      if(f.length !== 4){
-        f = [3,2,1,0];
+      case "word_cloud":
+      case "open_ended":{
+        Object.assign(payload.question.answers[0],{
+          originalText: text,
+          text: text.toLowerCase().replace(/[~`!@#$%^&*(){}[\];:"'<,.>?/\\|\-_+=]/gm,"")
+        });
+        payload.question.choices = [];
+        break;
       }
-      payload.question.answers[0].selectedJumbleOrder = f;
-      break;
-    }
-    case "multiple_select_quiz":{
-      payload.question.answers[0].selectedChoices = choice;
-      payload.question.answers[0].choiceIndex = -5;
-      break;
-    }
-    case "content":{
-      Object.assign(payload.question.answers[0],{
-        choiceIndex: -2,
-        isCorrect: true,
-        reactionTime: 0
-      });
-      break;
-    }}
+      case "jumble":{
+        let f = choice;
+        if(f.length !== 4){
+          f = [3,2,1,0];
+        }
+        payload.question.answers[0].selectedJumbleOrder = f;
+        break;
+      }
+      case "multiple_select_quiz":{
+        payload.question.answers[0].selectedChoices = choice;
+        payload.question.answers[0].choiceIndex = -5;
+        break;
+      }
+      case "content":{
+        Object.assign(payload.question.answers[0],{
+          choiceIndex: -2,
+          isCorrect: true,
+          reactionTime: 0
+        });
+        break;
+      }}
     let oldScore = score;
     score += payload.question.answers[0].bonusPoints.answerStreakBonus;
     this.data.totalStreak += score - oldScore;
@@ -271,7 +275,6 @@ function Injector(){
       receivedTime: Date.now(),
       pointsQuestion,
       points: score,
-      correctAnswers: c,
       correctChoices: c2,
       totalScore: this.data.totalScore,
       rank: this._getRank(),
@@ -287,7 +290,8 @@ function Injector(){
           previousStreakLevel: oldstreak,
           previousStreakBonus: this._calculateStreakBonus(oldstreak)
         }
-      }
+      },
+      lastGameBlockIndex: this.data.questionIndex < 0 ? 0 : this.data.questionIndex - 1
     };
     this.data.finalResult = {
       rank: event.rank,
@@ -335,79 +339,88 @@ function Injector(){
       return;
     }
     switch (this.data.phase) {
-    case "start": {
-      this.data.phase = "ready";
-      const kahoot = this.challengeData.kahoot;
-      let qqa = [];
-      for(let question of kahoot.questions){
-        qqa.push(question.choices ? question.choices.length : null);
-      }
-      this._emit("QuizStart",{
-        name: kahoot.title,
-        quizQuestionAnswers: qqa
-      });
-      setTimeout(()=>{this.next();},5000);
-      break;
-    }
-    case "ready": {
-      this._getProgress(this.data.questionIndex).then((inf)=>{
-        if(this.data.hitError === true){this.data.hitError = false;}
-        if(Object.keys(inf).length !== 0){
-          this.challengeData.progress = inf;
-        }
-        this.data.phase = "answer";
-        let q = this.challengeData.kahoot.questions[this.data.questionIndex];
-        this._emit("QuestionReady",Object.assign(q,{
-          questionIndex: this.data.questionIndex,
-          timeLeft: 5,
-          gameBlockType: q.type,
-          gameBlockLayout: q.layout,
-          quizQuestionAnswers: this.quiz.quizQuestionAnswers
-        }));
-        setTimeout(()=>{this.next();},5000);
-      }).catch((err)=>{
-        if(this.data.hitError){
-          // Assume something is terribly wrong.
-          clearTimeout(this.ti);
-          this.disconnectReason = "Kahoot - Internal Server Error";
-          this.socket.close();
-        }
-        this.data.hitError = true;
-        this.next();
-      });
-      break;
-    }
-    case "answer": {
-      let q = this.challengeData.kahoot.questions[this.data.questionIndex];
-      this.receivedQuestionTime = Date.now();
-      this.data.phase = "leaderboard";
-      if(!q){
-        this.disconnectReason = "Unknown Error";
-        this.socket.close();
-        return;
-      }
-      if(q.type === "content"){
-        this.data.questionIndex++;
+      case "start": {
         this.data.phase = "ready";
-        if(this.data.questionIndex === this.challengeData.kahoot.questions.length){
-          this.data.phase = "close";
+        const kahoot = this.challengeData.kahoot;
+        let qqa = [];
+        for(let question of kahoot.questions){
+          qqa.push(question.choices ? question.choices.length : null);
+        }
+        this._emit("QuizStart",{
+          name: kahoot.title,
+          quizQuestionAnswers: qqa
+        });
+        setTimeout(()=>{this.next();},5000);
+        break;
+      }
+      case "ready": {
+        this._getProgress(this.data.questionIndex).then((inf)=>{
+          if(this.data.hitError === true){this.data.hitError = false;}
+          if(Object.keys(inf).length !== 0){
+            this.challengeData.progress = inf;
+          }
+          this.data.phase = "answer";
+          let q = this.challengeData.kahoot.questions[this.data.questionIndex];
+          this._emit("QuestionReady",Object.assign(q,{
+            questionIndex: this.data.questionIndex,
+            timeLeft: 5,
+            gameBlockType: q.type,
+            gameBlockLayout: q.layout,
+            quizQuestionAnswers: this.quiz.quizQuestionAnswers
+          }));
+          setTimeout(()=>{this.next();},5000);
+        }).catch((err)=>{
+          if(this.data.hitError){
+          // Assume something is terribly wrong.
+            clearTimeout(this.ti);
+            this.disconnectReason = "Kahoot - Internal Server Error";
+            this.socket.close();
+          }
+          this.data.hitError = true;
+          this.next();
+        });
+        break;
+      }
+      case "answer": {
+        let q = this.challengeData.kahoot.questions[this.data.questionIndex];
+        this.receivedQuestionTime = Date.now();
+        this.data.phase = "leaderboard";
+        if(!q){
+          this.disconnectReason = "Unknown Error";
+          this.socket.close();
+          return;
+        }
+        if(q.type === "content"){
+          this.data.questionIndex++;
+          this.data.phase = "ready";
+          if(this.data.questionIndex === this.challengeData.kahoot.questions.length){
+            this.data.phase = "close";
+          }
+          if(this.challengeData.challenge.game_options.question_timer && !this.defaults.options.ChallengeWaitForInput){
+            setTimeout(()=>{
+              this.next();
+            },10000);
+          }
+          return;
         }
         if(this.challengeData.challenge.game_options.question_timer && !this.defaults.options.ChallengeWaitForInput){
-          setTimeout(()=>{
+          this.ti = setTimeout(async()=>{
+            const evt = await this.answer(null,null);
+            if(q.type !== "content"){
+              this._emit("TimeOver");
+              this._emit("QuestionEnd",evt);
+            }
             this.next();
-          },10000);
+          },q.time || 5000);
+          this._emit("QuestionStart",Object.assign(q,{
+            questionIndex: this.data.questionIndex,
+            gameBlockType: q.type,
+            gameBlockLayout: q.layout,
+            quizQuestionAnswers: this.quiz.quizQuestionAnswers,
+            timeAvailable: q.time
+          }));
+          return;
         }
-        return;
-      }
-      if(this.challengeData.challenge.game_options.question_timer && !this.defaults.options.ChallengeWaitForInput){
-        this.ti = setTimeout(async()=>{
-          const evt = await this.answer(null,null);
-          if(q.type !== "content"){
-            this._emit("TimeOver");
-            this._emit("QuestionEnd",evt);
-          }
-          this.next();
-        },q.time || 5000);
         this._emit("QuestionStart",Object.assign(q,{
           questionIndex: this.data.questionIndex,
           gameBlockType: q.type,
@@ -415,51 +428,42 @@ function Injector(){
           quizQuestionAnswers: this.quiz.quizQuestionAnswers,
           timeAvailable: q.time
         }));
-        return;
+        // else, you must do everything yourself.
+        break;
       }
-      this._emit("QuestionStart",Object.assign(q,{
-        questionIndex: this.data.questionIndex,
-        gameBlockType: q.type,
-        gameBlockLayout: q.layout,
-        quizQuestionAnswers: this.quiz.quizQuestionAnswers,
-        timeAvailable: q.time
-      }));
-      // else, you must do everything yourself.
-      break;
-    }
-    case "leaderboard":{
-      this.data.questionIndex++;
-      this.data.phase = "ready";
-      if(this.data.questionIndex === this.challengeData.kahoot.questions.length){
-        this.data.phase = "close";
+      case "leaderboard":{
+        this.data.questionIndex++;
+        this.data.phase = "ready";
+        if(this.data.questionIndex === this.challengeData.kahoot.questions.length){
+          this.data.phase = "close";
+          if(this.defaults.options.ChallengeAutoContinue){
+            setTimeout(()=>{this.next();},5000);
+          }
+          return;
+        }
         if(this.defaults.options.ChallengeAutoContinue){
           setTimeout(()=>{this.next();},5000);
         }
-        return;
+        break;
       }
-      if(this.defaults.options.ChallengeAutoContinue){
-        setTimeout(()=>{this.next();},5000);
+      case "close":{
+        this.data.phase = "complete";
+        this._emit("QuizEnd",this.data.finalResult);
+        this._emit("Podium",{
+          podiumMedalType: ["gold","silver","bronze"][this._getRank() - 1]
+        });
+        if(this.defaults.options.ChallengeAutoContinue){
+          setTimeout(()=>{
+            this.next();
+          },30000);
+        }
+        break;
       }
-      break;
-    }
-    case "close":{
-      this.data.phase = "complete";
-      this._emit("QuizEnd",this.data.finalResult);
-      this._emit("Podium",{
-        podiumMedalType: ["gold","silver","bronze"][this._getRank() - 1]
-      });
-      if(this.defaults.options.ChallengeAutoContinue){
-        setTimeout(()=>{
-          this.next();
-        },30000);
+      case "complete":{
+        this.stop = true;
+        this.disconnectReason = "Session Ended";
+        this.socket.close();
       }
-      break;
-    }
-    case "complete":{
-      this.stop = true;
-      this.disconnectReason = "Session Ended";
-      this.socket.close();
-    }
     }
   };
 

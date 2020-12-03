@@ -5,30 +5,30 @@ module.exports = class LiveQuestionAnswer extends LiveBaseMessage{
     const type = question.gameBlockType || "quiz";
     let text = null;
     switch (type) {
-    case "multiple_select_quiz":
-    case "multiple_select_poll":
-    case "jumble":
-      if(typeof choice.length === "undefined" || typeof choice.push === "undefined"){
+      case "multiple_select_quiz":
+      case "multiple_select_poll":
+      case "jumble":
+        if(typeof choice.length === "undefined" || typeof choice.push === "undefined"){
         // not an array.
+          if(isNaN(choice)){
+            choice = [0,1,2,3];
+          }else{
+            choice = [+choice];
+          }
+          if(type === "jumble" && choice.length !== 4){
+            choice = [0,1,2,3];
+          }
+        }
+        break;
+      case "word_cloud":
+      case "open_ended":
+        text = choice + "";
+        break;
+      default:
         if(isNaN(choice)){
-          choice = [0,1,2,3];
-        }else{
-          choice = [+choice];
+          choice = 0;
         }
-        if(type === "jumble" && choice.length !== 4){
-          choice = [0,1,2,3];
-        }
-      }
-      break;
-    case "word_cloud":
-    case "open_ended":
-      text = choice + "";
-      break;
-    default:
-      if(isNaN(choice)){
-        choice = 0;
-      }
-      choice = Number(choice);
+        choice = Number(choice);
     }
     const content = {
       gameid: client.gameid,

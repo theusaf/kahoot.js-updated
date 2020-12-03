@@ -15,7 +15,7 @@
 		"no-unused-vars": ["error", {"args": "none"}],
 		"no-empty": "off",
 		"no-control-regex": "off",
-		"indent": ["error", 2],
+		"indent": ["error", 2, {"SwitchCase": 1}],
 		"quotes": ["error", "double", {"avoidEscape": true}]
 	},
 	"overrides": [

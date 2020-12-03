@@ -39,37 +39,37 @@ module.exports = function(){
       this.quiz.quizQuestionAnswers = recover.defaultQuizData.quizQuestionAnswers;
       const data = recover.data;
       switch (recover.state) {
-      case 0:{
-        break;
-      }
-      case 1:{
-        this._emit("QuizStart",data);
-        break;
-      }
-      case 2:{
-        this._emit("QuestionReady",data.getReady);
-        break;
-      }
-      case 3:{
-        this._emit("QuestionStart",data);
-        break;
-      }
-      case 4:
-      case 5:{
-        this._emit("TimeUp",data);
-        if(data.revealAnswer){
-          this._emit("QuestionEnd",data.revealAnswer);
+        case 0:{
+          break;
         }
-        break;
-      }
-      case 6:{
-        this._emit("QuizEnd",data);
-        break;
-      }
-      case 7:{
-        this._emit("Feedback");
-        break;
-      }
+        case 1:{
+          this._emit("QuizStart",data);
+          break;
+        }
+        case 2:{
+          this._emit("QuestionReady",data.getReady);
+          break;
+        }
+        case 3:{
+          this._emit("QuestionStart",data);
+          break;
+        }
+        case 4:
+        case 5:{
+          this._emit("TimeUp",data);
+          if(data.revealAnswer){
+            this._emit("QuestionEnd",data.revealAnswer);
+          }
+          break;
+        }
+        case 6:{
+          this._emit("QuizEnd",data);
+          break;
+        }
+        case 7:{
+          this._emit("Feedback");
+          break;
+        }
       }
     }
   };
