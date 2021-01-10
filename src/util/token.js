@@ -91,7 +91,9 @@ class Decoder{
         res.on("end",()=>{
           let token = res.headers["x-kahoot-session-token"];
           if(!token){
-            rej("header_token");
+            rej({
+              description: "Missing header token (pin doesn't exist)"
+            });
           }
           try{
             token = Buffer.from(token,"base64").toString("ascii");
@@ -101,7 +103,10 @@ class Decoder{
               data
             });
           }catch(e){
-            rej(e);
+            rej({
+              description: "Unknown error when requesting data.",
+              error: e
+            });
           }
         });
       }
@@ -137,7 +142,10 @@ class Decoder{
         req = http.request(options,handleRequest);
       }
       req.on("error",(e)=>{
-        rej(e);
+        rej({
+          description: "Unknown error when requesting data",
+          error: e
+        });
       });
       req.end();
     });

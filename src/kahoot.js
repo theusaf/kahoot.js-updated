@@ -132,6 +132,7 @@ class Client extends EventEmitter{
         if(message.channel === "/service/status"){
           this.emit("status",message.data);
           if(message.data.status === "LOCKED"){
+            message.data.description = "Locked";
             reject(message.data);
             delete this.handlers.JoinFinish;
             this.disconnectReason = "Quiz Locked";
@@ -303,7 +304,9 @@ class Client extends EventEmitter{
       this.on("HandshakeComplete",()=>{
         res(data.data);
       });
-      this.on("HandshakeFailed",rej);
+      this.on("HandshakeFailed",()=>{
+        rej({description:"HandshakeFailed"});
+      });
     });
   }
 
