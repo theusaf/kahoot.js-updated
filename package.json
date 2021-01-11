@@ -1,6 +1,6 @@
 {
   "name": "kahoot.js-updated",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "Answer, Join Kahoot Quizzes with nodejs",
   "main": "index.js",
   "scripts": {

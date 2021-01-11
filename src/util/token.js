@@ -32,7 +32,10 @@ class Decoder{
               },bodyObject.challenge.game_options)
             });
           }catch(e){
-            return reject(body || e);
+            return reject({
+              description: "Failed to get challenge data",
+              error: body || e
+            });
           }
         });
       }
@@ -68,7 +71,10 @@ class Decoder{
         req = http.request(options,handleRequest);
       }
       req.on("error",(e)=>{
-        reject(e);
+        reject({
+          description: "Failed to get challenge data",
+          error: e
+        });
       });
       req.end();
     });
@@ -215,7 +221,11 @@ class Decoder{
    */
   static resolve(pin,client){
     if(isNaN(pin)){
-      return new Promise((res,reject)=>{reject("Invalid/Missing PIN");});
+      return new Promise((res,reject)=>{
+        reject({
+          description: "Invalid/Missing PIN");
+        });
+      });
     }
     if(pin[0] === "0"){
       // challenges
