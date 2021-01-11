@@ -19,7 +19,7 @@ client.on("Feedback",()=>{
   client.sendFeedback(3,1,0,-1);
 });
 client.on("Podium",(t)=>{
-  console.log(t)
+  console.log(t);
 });
 client.on("QuizEnd",(q)=>{
   console.log(q);

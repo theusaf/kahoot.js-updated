@@ -150,7 +150,7 @@ class Client extends EventEmitter{
           }else{
             this.cid = message.data.cid;
             if(settings.gameMode === "team"){
-              await sleep(1)
+              await sleep(1);
               if(team !== false){
                 team = team || ["Player 1","Player 2","Player 3","Player 4"];
                 // send team!

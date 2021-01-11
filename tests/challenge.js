@@ -31,7 +31,7 @@ client.on("QuestionStart", question => {
       }else{
         setTimeout(
           ()=>{question.answer(i);},
-        3000);
+          3000);
       }
       return;
     }

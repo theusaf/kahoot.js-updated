@@ -223,7 +223,7 @@ class Decoder{
     if(isNaN(pin)){
       return new Promise((res,reject)=>{
         reject({
-          description: "Invalid/Missing PIN");
+          description: "Invalid/Missing PIN"
         });
       });
     }
