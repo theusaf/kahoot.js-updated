@@ -64,7 +64,7 @@ module.exports = function(){
   this.on("QuestionEnd",(event)=>{
     if(Object.keys(event) === 0){
       return;
-    };
+    }
     this.data.totalScore = event.totalScore;
     this.data.streak = event.pointsData.answerStreakPoints.streakLevel;
     this.data.rank = event.rank;
