@@ -62,7 +62,7 @@ module.exports = function(){
     }catch(e){}
   });
   this.on("QuestionEnd",(event)=>{
-    if(Object.keys(event) === 0){
+    if(event.hasAnswer === false){
       return;
     }
     this.data.totalScore = event.totalScore;
