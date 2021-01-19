@@ -86,7 +86,7 @@ class Decoder{
           };
         }
         return {
-          token: headers["x-kahoot-session-token"],
+          token: Buffer.from(headers["x-kahoot-session-token"],"base64").toString("utf8"),
           data
         };
       }catch(e){
