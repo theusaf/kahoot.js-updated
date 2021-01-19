@@ -2,11 +2,10 @@
  * @fileinfo This is the ChallengeHandler module
  * - Loads stuff used in challenges.
  */
-const EventEmitter = require("events");
-const {URL} = require("url");
-const http = require("http");
-const https = require("https");
-const emoji = require("./emoji.js");
+const EventEmitter = require("events"),
+  {URL} = require("url"),
+  got = require("got"),
+  emoji = require("./emoji.js");
 
 // overwrites functions
 function Injector(){
@@ -367,14 +366,15 @@ function Injector(){
             gameBlockType: q.type,
             gameBlockLayout: q.layout,
             quizQuestionAnswers: this.quiz.quizQuestionAnswers
-          }));
+          })).catch((e)=>{
+            this.leave("Failed to fetch challenge progress.");
+          });
           setTimeout(()=>{this.next();},5000);
         }).catch((err)=>{
           if(this.data.hitError){
-          // Assume something is terribly wrong.
+            // Assume something is terribly wrong.
             clearTimeout(this.ti);
-            this.disconnectReason = "Kahoot - Internal Server Error";
-            this.socket.close();
+            this.leave("Kahoot - Internal Server Error");
           }
           this.data.hitError = true;
           this.next();
@@ -386,8 +386,7 @@ function Injector(){
         this.receivedQuestionTime = Date.now();
         this.data.phase = "leaderboard";
         if(!q){
-          this.disconnectReason = "Unknown Error";
-          this.socket.close();
+          this.leave("Unknown Error");
           return;
         }
         if(q.type === "content"){
@@ -460,16 +459,14 @@ function Injector(){
         break;
       }
       case "complete":{
-        this.stop = true;
-        this.disconnectReason = "Session Ended";
-        this.socket.close();
+        this.leave("Session Ended");
       }
     }
   };
 
-  this.leave = ()=>{
+  this.leave = (reason)=>{
     this.stop = true;
-    this.disconnectReason = "Player Left";
+    this.disconnectReason = reason || "Player Left";
     this.socket.close();
   };
 
@@ -520,85 +517,53 @@ function Injector(){
           setTimeout(()=>{this.next();},5000);
         }
         return this.challengeData;
+      }).catch(()=>{
+        this.leave("Error connecting to Challenge");
       });
     }
   };
 
-  this._httpRequest = (url,opts,json,packet)=>{
-    return new Promise((resolve, reject)=>{
-      const handleRequest = (res)=>{
-        const chunks = [];
-        res.on("data",(chunk)=>{
-          chunks.push(chunk);
-        });
-        res.on("end",()=>{
-          const data = Buffer.concat(chunks).toString("utf8");
-          if(this.loggingMode){
-            console.log("RECV: " + data);
-          }
-          if(json){
-            try{
-              resolve(JSON.parse(data));
-            }catch(e){
-              reject(data);
-            }
-          }else{
-            resolve(data);
-          }
-        });
-      };
-      const parsed = new URL(url);
-      let options = {
-        headers: {
-          "User-Agent": this.userAgent,
-          "Origin": "kahoot.it",
-          "Referer": "https://kahoot.it/",
-          "Accept-Language": "en-US,en;q=0.8",
-          "Accept": "*/*"
-        },
-        host: parsed.hostname,
-        protocol: parsed.protocol,
-        path: parsed.pathname + (parsed.search || "")
-      };
-      for(let i in opts){
-        if(typeof opts[i] === "object"){
-          if(!options[i]){
-            options[i] = opts[i];
-          }else{
-            Object.assign(options[i],opts[i]);
-          }
-        }else{
+  this._httpRequest = async (url,opts,json,packet)=>{
+    const parsed = new URL(url);
+    let options = {
+      headers: {
+        "User-Agent": this.userAgent,
+        "Origin": "kahoot.it",
+        "Referer": "https://kahoot.it/",
+        "Accept-Language": "en-US,en;q=0.8",
+        "Accept": "*/*"
+      },
+      host: parsed.hostname,
+      protocol: parsed.protocol,
+      path: parsed.pathname + (parsed.search || ""),
+      retry: 3,
+      body: packet
+    };
+    for(let i in opts){
+      if(typeof opts[i] === "object"){
+        if(!options[i]){
           options[i] = opts[i];
+        }else{
+          Object.assign(options[i],opts[i]);
         }
-      }
-      const proxyOptions = this.defaults.proxy(options);
-      if(proxyOptions && typeof proxyOptions.destroy === "function"){
-        // assume proxyOptions is a request object
-        proxyOptions.on("request",handleRequest);
-        return;
-      }else if(proxyOptions && typeof proxyOptions.then === "function"){
-        // assume Promise<IncomingMessage>
-        proxyOptions.then((req)=>{
-          req.on("request",handleRequest);
-        });
-        return;
-      }
-      options = proxyOptions || options;
-      if(this.loggingMode){
-        console.log("SEND: " + JSON.stringify({
-          options,
-          packet
-        }));
-      }
-      let req;
-      if(options.protocol === "https:"){
-        req = https.request(options,handleRequest);
       }else{
-        req = http.request(options,handleRequest);
+        options[i] = opts[i];
       }
-      req.on("error",(e)=>{reject(e);});
-      req.end(packet);
-    });
+    }
+    const proxyOptions = this.defaults.proxy(options);
+    options = proxyOptions || options;
+    if(this.loggingMode){
+      console.log("SEND: " + JSON.stringify({
+        options,
+        packet
+      }));
+    }
+    const req = await got(options);
+    if(json){
+      return JSON.parse(req.body);
+    }else{
+      return req.body;
+    }
   };
 
   this._getNemesis = ()=>{
@@ -655,16 +620,16 @@ function Injector(){
 
   this._getProgress().then(inf=>{
     if(Object.keys(inf.progress).length == 0){
-      this.disconnectReason = "Invalid Challenge";
-      return this.socket.close();
+      return this.leave("Invalid Challenge");
     }
     this.challengeData = inf;
     if(inf.challenge.endTime <= Date.now() || inf.challenge.challengeUsersList.length >= inf.challenge.maxPlayers){
-      this.disconnectReason = "Challenge Ended/Full";
-      return this.socket.close();
+      return this.leave("Challenge Ended/Full");
     }else{
       this.emit("HandshakeComplete");
     }
+  }).catch((e)=>{
+    this.leave("Failed to fetch challenge progress.");
   });
 }
 

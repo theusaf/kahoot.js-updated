@@ -1,6 +1,6 @@
-const https = require("https");
-const http = require("http");
-const ua = require("user-agents");
+const got = require("got"),
+  ua = require("user-agents"),
+  sleep = require("./sleep.js");
 
 class Decoder{
 
@@ -11,34 +11,9 @@ class Decoder{
    * @param  {Client} client The client
    * @returns {Promise<Object>} The challenge data
    */
-  static requestChallenge(pin,client){
-    return new Promise((resolve, reject)=>{
-      function handleRequest(res){
-        const chunks = [];
-        res.on("data",(chunk)=>{
-          chunks.push(chunk);
-        });
-        res.on("end",()=>{
-          const body = Buffer.concat(chunks).toString("utf8");
-          let bodyObject;
-          try{
-            bodyObject = JSON.parse(body);
-            resolve({
-              data: Object.assign({
-                isChallenge: true,
-                twoFactorAuth: false,
-                kahootData: bodyObject.kahoot,
-                rawChallengeData: bodyObject.challenge
-              },bodyObject.challenge.game_options)
-            });
-          }catch(e){
-            return reject({
-              description: "Failed to get challenge data",
-              error: body || e
-            });
-          }
-        });
-      }
+  static async requestChallenge(pin,client){
+    let tries = 0;
+    async function handleRequest(){
       let options = {
         headers: {
           "User-Agent": (new ua).toString(),
@@ -52,32 +27,30 @@ class Decoder{
         path: `/rest/challenges/pin/${pin}`
       };
       const proxyOptions = client.defaults.proxy(options);
-      if(proxyOptions && typeof proxyOptions.destroy === "function"){
-        // assume proxyOptions is a request object
-        proxyOptions.on("request",handleRequest);
-        return;
-      }else if(proxyOptions && typeof proxyOptions.then === "function"){
-        // assume Promise<IncomingMessage>
-        proxyOptions.then((req)=>{
-          req.on("request",handleRequest);
-        });
-        return;
-      }
       options = proxyOptions || options;
-      let req;
-      if(options.protocol === "https:"){
-        req = https.request(options,handleRequest);
-      }else{
-        req = http.request(options,handleRequest);
-      }
-      req.on("error",(e)=>{
-        reject({
+      try{
+        const data = await got(options).json();
+        return {
+          data: Object.assign({
+            isChallenge: true,
+            twoFactorAuth: false,
+            kahootData: data.kahoot,
+            rawChallengeData: data.challenge
+          },data.challenge.game_options)
+        };
+      }catch(e){
+        if(tries < 2){
+          tries++;
+          await sleep(2);
+          return await handleRequest();
+        }
+        throw {
           description: "Failed to get challenge data",
           error: e
-        });
-      });
-      req.end();
-    });
+        };
+      }
+    }
+    return await handleRequest();
   }
 
   /**
@@ -87,35 +60,9 @@ class Decoder{
    * @param  {Client} client The client
    * @returns {Promise<object>} The game options
    */
-  static requestToken(pin,client){
-    return new Promise((resolve,rej)=>{
-      function handleRequest(res){
-        const chunks = [];
-        res.on("data",(chunk)=>{
-          chunks.push(chunk);
-        });
-        res.on("end",()=>{
-          let token = res.headers["x-kahoot-session-token"];
-          if(!token){
-            rej({
-              description: "Missing header token (pin doesn't exist)"
-            });
-          }
-          try{
-            token = Buffer.from(token,"base64").toString("ascii");
-            const data = JSON.parse(Buffer.concat(chunks).toString("utf8"));
-            resolve({
-              token,
-              data
-            });
-          }catch(e){
-            rej({
-              description: "Unknown error when requesting data.",
-              error: e
-            });
-          }
-        });
-      }
+  static async requestToken(pin,client){
+    let tries = 0;
+    async function handleRequest(){
       let options = {
         headers: {
           "User-Agent": (new ua).toString(),
@@ -129,32 +76,32 @@ class Decoder{
         protocol: "https:"
       };
       const proxyOptions = client.defaults.proxy(options);
-      if(proxyOptions && typeof proxyOptions.destroy === "function"){
-        // assume proxyOptions is a request object
-        proxyOptions.on("request",handleRequest);
-        return;
-      }else if(proxyOptions && typeof proxyOptions.then === "function"){
-        // assume Promise<IncomingMessage>
-        proxyOptions.then((req)=>{
-          req.on("request",handleRequest);
-        });
-        return;
-      }
       options = proxyOptions || options;
-      let req;
-      if(options.protocol === "https:"){
-        req = https.request(options,handleRequest);
-      }else{
-        req = http.request(options,handleRequest);
-      }
-      req.on("error",(e)=>{
-        rej({
-          description: "Unknown error when requesting data",
+      try{
+        const {headers,body} = await got(options),
+          data = JSON.parse(body);
+        if(!headers["x-kahoot-session-token"]){
+          throw {
+            description: "Missing header token (pin doesn't exist)"
+          };
+        }
+        return {
+          token: headers["x-kahoot-session-token"],
+          data
+        };
+      }catch(e){
+        tries ++;
+        if(tries < 3){
+          await sleep(2);
+          return await handleRequest();
+        }
+        throw e.description ? e : {
+          description: "Missing header token (pin doesn't exist)",
           error: e
-        });
-      });
-      req.end();
-    });
+        };
+      }
+    }
+    return await handleRequest();
   }
 
   /**

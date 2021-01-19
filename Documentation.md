@@ -291,7 +291,7 @@ The properties such as `name`, `cid`, `totalScore`, `quiz`, etc will be kept bec
 ### Proxies
 Proxies can now be applied to the websockets as well as any http requests. However the proxies are now functions that return Objects specifying options for each connection.
 
-Proxies may also return an [HTTP(S).ClientRequest](https://nodejs.org/api/http.html#http_class_http_clientrequest) or a Promise that resolves with an ClientRequest.
+~Proxies may also return an [HTTP(S).ClientRequest](https://nodejs.org/api/http.html#http_class_http_clientrequest) or a Promise that resolves with an ClientRequest.~ (Removed in 2.3.0)
 
 For the `wsproxy`, it should return an Object of `ws` options or return a websocket itself. The websocket should be an `EventEmitter` with the following:
 - A `message` event

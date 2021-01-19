@@ -1,6 +1,6 @@
 {
   "name": "kahoot.js-updated",
-  "version": "2.2.6",
+  "version": "2.3.0",
   "description": "Answer, Join Kahoot Quizzes with nodejs",
   "main": "index.js",
   "scripts": {
@@ -25,6 +25,7 @@
   "author": "theusaf",
   "license": "ISC",
   "dependencies": {
+    "got": "^11.8.1",
     "user-agents": "^1.0.559",
     "ws": "^7.4.2"
   },

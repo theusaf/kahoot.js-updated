@@ -3,7 +3,9 @@ var client = new Kahoot;
 //client.loggingMode = true;
 const PIN = require("fs").readFileSync("PIN.json");
 console.log("joining game...");
-client.join("0" + parseInt(PIN), Math.random());
+client.join("0" + parseInt(PIN), Math.random()).catch(e=>{
+  console.log(e);
+});
 client.on("Joined", () => {
   console.log("joined the game. waiting for quiz to start");
 });
