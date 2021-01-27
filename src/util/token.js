@@ -96,7 +96,7 @@ class Decoder{
           return await handleRequest();
         }
         throw e.description ? e : {
-          description: "Missing header token (pin doesn't exist)",
+          description: "Request failed or timed out.",
           error: e
         };
       }
