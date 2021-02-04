@@ -315,7 +315,7 @@ function Injector(){
         "Content-Length": Buffer.byteLength(JSON.stringify(payload))
       },
       method: "POST"
-    },false,JSON.stringify(payload)).then((data)=>{
+    },false,JSON.stringify(payload)).finally((data)=>{
       if(empty === null){
         return event;
       }
