@@ -2,7 +2,7 @@ const EventEmitter = require("events");
 const token = require("./util/token.js");
 const ws = require("ws");
 const sleep = require("./util/sleep.js");
-const ua = require("random-useragents");
+const ua = require("random-useragent");
 const ChallengeHandler = require("./util/ChallengeHandler.js");
 
 // A Kahoot! client.

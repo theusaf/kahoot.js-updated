@@ -1,5 +1,5 @@
 const got = require("got"),
-  ua = require("random-useragents"),
+  ua = require("random-useragent"),
   sleep = require("./sleep.js");
 
 class Decoder{
