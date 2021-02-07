@@ -1,5 +1,5 @@
 const got = require("got"),
-  ua = require("user-agents"),
+  ua = require("random-useragents"),
   sleep = require("./sleep.js");
 
 class Decoder{
@@ -16,7 +16,7 @@ class Decoder{
     async function handleRequest(){
       let options = {
         headers: {
-          "User-Agent": (new ua).toString(),
+          "User-Agent": ua.getRandom(),
           "Origin": "kahoot.it",
           "Referer": "https://kahoot.it/",
           "Accept-Language": "en-US,en;q=0.8",
@@ -28,8 +28,10 @@ class Decoder{
       };
       const proxyOptions = client.defaults.proxy(options);
       options = proxyOptions || options;
+      const request = got(options);
+      client.emit("_Request", request);
       try{
-        const data = await got(options).json();
+        const data = await request.json();
         return {
           data: Object.assign({
             isChallenge: true,
@@ -65,7 +67,7 @@ class Decoder{
     async function handleRequest(){
       let options = {
         headers: {
-          "User-Agent": (new ua).toString(),
+          "User-Agent": ua.getRandom(),
           "Origin": "kahoot.it",
           "Referer": "https://kahoot.it/",
           "Accept-Language": "en-US,en;q=0.8",
@@ -77,8 +79,10 @@ class Decoder{
       };
       const proxyOptions = client.defaults.proxy(options);
       options = proxyOptions || options;
+      const request = got(options);
+      client.emit("_Request", request);
       try{
-        const {headers,body} = await got(options),
+        const {headers,body} = await request,
           data = JSON.parse(body);
         if(!headers["x-kahoot-session-token"]){
           throw {

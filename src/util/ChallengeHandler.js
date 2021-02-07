@@ -558,7 +558,9 @@ function Injector(){
         packet
       }));
     }
-    const req = await got(options);
+    const request = got(options);
+    this.emit("_Request", request);
+    const req = await request;
     if(json){
       return JSON.parse(req.body);
     }else{
