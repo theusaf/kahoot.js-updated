@@ -14,8 +14,7 @@ class Client extends EventEmitter{
    * @param  {Object} options Sets up the client. Options can control what events and methods are available to the client. By default, all options are enabled, besides proxies.
    *
    */
-  constructor(options){
-    options = options || {};
+  constructor(options={}){
     super();
     // assign options
     this.defaults = {};
