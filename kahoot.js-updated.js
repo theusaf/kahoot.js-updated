@@ -422,6 +422,31 @@
         }
       };
     },
+    questionStart: function(){
+
+      /**
+       * questionStart - handles QuestionStart events
+       * @param {Object} message The websocket message
+       */
+      this.handlers.questionStart = (message)=>{
+        if(message.channel === "/service/player" && message.data && message.data.id === 2){
+
+          /**
+           * Emitted when the question starts
+           *
+           * @event Client#QuestionStart
+           * @type {Object}
+           * @property {Number} questionIndex The question index
+           * @property {String} gameBlockType The question type
+           * @property {String} gameBlockLayout The layout of the question. May be nonexistent
+           * @property {Number[]} quizQuestionAnswers An array of numbers, signifying the number of answer choices in each question
+           * @property {Number} timeAvailable The time available in the question.
+           */
+          this.questionStartTime = Date.now();
+          this._emit("QuestionStart",JSON.parse(message.data.content));
+        }
+      };
+    },
     questionEnd: function(){
 
       /**
@@ -953,7 +978,7 @@
   }
   class EventEmitter{
     constructor(){
-      this.events = {};
+      this.callbacks = {};
     }
     on(event,cb){
       if(!this.callbacks[event]) this.callbacks[event] = [];
@@ -988,16 +1013,16 @@
     constructor(url,protocols){
       super();
       this.socket = new WebSocket(url,protocols);
-      this.socket.onopen = function(){
+      this.socket.onopen = ()=>{
         this.emit("open");
       };
-      this.socket.onclose = function(e){
+      this.socket.onclose = (e)=>{
         this.emit("close",e);
       };
-      this.socket.onerror = function(e){
+      this.socket.onerror = (e)=>{
         this.emit("error",e);
       };
-      this.socket.onmessage = function(e){
+      this.socket.onmessage = (e)=>{
         this.emit("message",e.data);
       };
     }
@@ -2159,7 +2184,8 @@
             this.socket.send(JSON.stringify(message),res);
           }else{
             message.id = (++this.messageId) + "";
-            this.socket.send(JSON.stringify([message]),res);
+            this.socket.send(JSON.stringify([message]));
+            res();
           }
           if(this.loggingMode){console.log("SEND: " + JSON.stringify([message]));}
           if(callback){
@@ -2202,5 +2228,80 @@
       }
     }
   }
+  KahootClient.prototype._defaults = {
+
+    /**
+     * An object containing the modules to load or not load.
+     * @namespace Client#defaults.modules
+     * @type {Object}
+     * @property {Boolean} extraData Enable additional shortcuts, functions, and properties on various events.
+     * @property {Boolean} feedback Enable the [Feedback]{@link Client#event:Feedback} event and the {@link Client#sendFeedback} method
+     * @property {Boolean} gameReset Enable the [GameReset]{@link Client#event:GameReset} event
+     * @property {Boolean} quizStart Enable the [QuizStart]{@link Client#event:QuizStart} event
+     * @property {Boolean} quizEnd Enable the [QuizEnd]{@link Client#event:QuizEnd} event
+     * @property {Boolean} podium Enable the [Podium]{@link Client#event:Podium} event
+     * @property {Boolean} timeOver Enable the [TimeOver]{@link Client#event:TimeOver} event
+     * @property {Boolean} reconnect Enable the {@link Client#reconnect} method
+     * @property {Boolean} questionReady Enable the [QuestionReady]{@link Client#event:QuestionReady} event
+     * @property {Boolean} questionStart Enable the [QuestionStart]{@link Client#event:QuestionStart} event
+     * @property {Boolean} questionEnd Enable the [QuestionEnd]{@link Client#event:QuestionEnd} event
+     * @property {Boolean} nameAccept Enable the [NameAccept]{@link Client#event:NameAccept} event
+     * @property {Boolean} teamAccept Enable the [TeamAccept]{@link Client#event:TeamAccept} event
+     * @property {Boolean} teamTalk Enable the [TeamTalk]{@link Client#event:TeamTalk} event
+     * @property {Boolean} backup Enable the [RecoveryData]{@link Client#event:RecoveryData} event
+     * @property {Boolean} answer Enable the {@link Client#answer} method
+     */
+    modules: {
+      extraData: true,
+      feedback: true,
+      gameReset: true,
+      quizStart: true,
+      quizEnd: true,
+      podium: true,
+      timeOver: true,
+      reconnect: true,
+      questionReady: true,
+      questionStart: true,
+      questionEnd: true,
+      nameAccept: true,
+      teamAccept: true,
+      teamTalk: true,
+      backup: true,
+      answer: true
+    },
+    /**
+     * A function to proxy kahoot.js-updated's http requests
+     * @function Client#defaults.proxy
+     * @param {Object} options The default [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback} options used by Kahoot.js
+     * @returns {Object} The modified [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback} options to proxy the request.
+     */
+    proxy: (options)=>{}, // Take in [HTTP Request]{@link https://nodejs.org/api/http.html#http_http_request_options_callback}, return and modify new options for the request for the proxied request. You may also return a ClientRequest as well. See Documentation.md
+    /**
+     * A function to proxy kahoot.js-updated's websocket requests
+     * @function Client#defaults.wsproxy
+     * @param {String} url The default websocket URI that Kahoot.JS sends the socket to.
+     * @returns {Client#defaults.wsproxy.WsProxyReturn} [WS Options]{@link https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options} used to create the proxied socket. You may also return a WebSocket itself. See Documentation.md
+     */
+    wsproxy: (url)=>{return {address: url};}, // Take in [WS Options]{@link https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketaddress-protocols-options}. Return and modify the options for the new proxied websocket connection
+    /**
+     * A list of options used in Challenges
+     * @namespace Client#defaults.options
+     * @type {Object}
+     * @property {Boolean} ChallengeAutoContinue Automatically continue through challenge events. Default: <code>true</code>
+     * @property {Boolean} ChallengeGetFullScore Always get the full score. Default: <code>false</code>
+     * @property {Boolean} ChallengeAlwaysCorrect Always get the questions "correct" in challenges. Default: <code>false</code>
+     * @property {Boolean} ChallengeUseStreakBonus Use the answer streak bonuses. Default: <code>false</code>
+     * @property {Boolean} ChallengeWaitForInput Wait for answers before continuing to the next question. Default: <code>false</code>
+     * @property {Number} ChallengeScore A set score to earn each question. (0-1,500) Default: <code>null</code>
+     */
+    options: {
+      ChallengeAutoContinue: true,
+      ChallengeGetFullScore: false,
+      ChallengeAlwaysCorrect: false,
+      ChallengeUseStreakBonus: false,
+      ChallengeWaitForInput: false,
+      ChallengeScore: null
+    }
+  };
   window.KahootClient = KahootClient;
 })();
