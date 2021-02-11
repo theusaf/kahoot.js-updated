@@ -26,9 +26,9 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const https = require("https");
-const http = require("http");
-const ua = require("user-agents");
+            <pre class="prettyprint source linenums"><code>const got = require("got"),
+  ua = require("random-useragent"),
+  sleep = require("./sleep.js");
 
 class Decoder{
 
@@ -39,34 +39,12 @@ class Decoder{
    * @param  {Client} client The client
    * @returns {Promise&lt;Object>} The challenge data
    */
-  static requestChallenge(pin,client){
-    return new Promise((resolve, reject)=>{
-      function handleRequest(res){
-        const chunks = [];
-        res.on("data",(chunk)=>{
-          chunks.push(chunk);
-        });
-        res.on("end",()=>{
-          const body = Buffer.concat(chunks).toString("utf8");
-          let bodyObject;
-          try{
-            bodyObject = JSON.parse(body);
-            resolve({
-              data: Object.assign({
-                isChallenge: true,
-                twoFactorAuth: false,
-                kahootData: bodyObject.kahoot,
-                rawChallengeData: bodyObject.challenge
-              },bodyObject.challenge.game_options)
-            });
-          }catch(e){
-            return reject(body || e);
-          }
-        });
-      }
+  static async requestChallenge(pin,client){
+    let tries = 0;
+    async function handleRequest(){
       let options = {
         headers: {
-          "User-Agent": (new ua).toString(),
+          "User-Agent": ua.getRandom(),
           "Origin": "kahoot.it",
           "Referer": "https://kahoot.it/",
           "Accept-Language": "en-US,en;q=0.8",
@@ -77,29 +55,32 @@ class Decoder{
         path: `/rest/challenges/pin/${pin}`
       };
       const proxyOptions = client.defaults.proxy(options);
-      if(proxyOptions &amp;&amp; typeof proxyOptions.destroy === "function"){
-        // assume proxyOptions is a request object
-        proxyOptions.on("request",handleRequest);
-        return;
-      }else if(proxyOptions &amp;&amp; typeof proxyOptions.then === "function"){
-        // assume Promise&lt;IncomingMessage>
-        proxyOptions.then((req)=>{
-          req.on("request",handleRequest);
-        });
-        return;
-      }
       options = proxyOptions || options;
-      let req;
-      if(options.protocol === "https:"){
-        req = https.request(options,handleRequest);
-      }else{
-        req = http.request(options,handleRequest);
+      const request = got(options);
+      client.emit("_Request", request);
+      try{
+        const data = await request.json();
+        return {
+          data: Object.assign({
+            isChallenge: true,
+            twoFactorAuth: false,
+            kahootData: data.kahoot,
+            rawChallengeData: data.challenge
+          },data.challenge.game_options)
+        };
+      }catch(e){
+        if(tries &lt; 2){
+          tries++;
+          await sleep(2);
+          return await handleRequest();
+        }
+        throw {
+          description: "Failed to get challenge data",
+          error: e
+        };
       }
-      req.on("error",(e)=>{
-        reject(e);
-      });
-      req.end();
-    });
+    }
+    return await handleRequest();
   }
 
   /**
@@ -109,33 +90,12 @@ class Decoder{
    * @param  {Client} client The client
    * @returns {Promise&lt;object>} The game options
    */
-  static requestToken(pin,client){
-    return new Promise((resolve,rej)=>{
-      function handleRequest(res){
-        const chunks = [];
-        res.on("data",(chunk)=>{
-          chunks.push(chunk);
-        });
-        res.on("end",()=>{
-          let token = res.headers["x-kahoot-session-token"];
-          if(!token){
-            rej("header_token");
-          }
-          try{
-            token = Buffer.from(token,"base64").toString("ascii");
-            const data = JSON.parse(Buffer.concat(chunks).toString("utf8"));
-            resolve({
-              token,
-              data
-            });
-          }catch(e){
-            rej(e);
-          }
-        });
-      }
+  static async requestToken(pin,client){
+    let tries = 0;
+    async function handleRequest(){
       let options = {
         headers: {
-          "User-Agent": (new ua).toString(),
+          "User-Agent": ua.getRandom(),
           "Origin": "kahoot.it",
           "Referer": "https://kahoot.it/",
           "Accept-Language": "en-US,en;q=0.8",
@@ -146,29 +106,34 @@ class Decoder{
         protocol: "https:"
       };
       const proxyOptions = client.defaults.proxy(options);
-      if(proxyOptions &amp;&amp; typeof proxyOptions.destroy === "function"){
-        // assume proxyOptions is a request object
-        proxyOptions.on("request",handleRequest);
-        return;
-      }else if(proxyOptions &amp;&amp; typeof proxyOptions.then === "function"){
-        // assume Promise&lt;IncomingMessage>
-        proxyOptions.then((req)=>{
-          req.on("request",handleRequest);
-        });
-        return;
-      }
       options = proxyOptions || options;
-      let req;
-      if(options.protocol === "https:"){
-        req = https.request(options,handleRequest);
-      }else{
-        req = http.request(options,handleRequest);
+      const request = got(options);
+      client.emit("_Request", request);
+      try{
+        const {headers,body} = await request,
+          data = JSON.parse(body);
+        if(!headers["x-kahoot-session-token"]){
+          throw {
+            description: "Missing header token (pin doesn't exist)"
+          };
+        }
+        return {
+          token: Buffer.from(headers["x-kahoot-session-token"],"base64").toString("utf8"),
+          data
+        };
+      }catch(e){
+        tries ++;
+        if(tries &lt; 3){
+          await sleep(2);
+          return await handleRequest();
+        }
+        throw e.description ? e : {
+          description: "Request failed or timed out.",
+          error: e
+        };
       }
-      req.on("error",(e)=>{
-        rej(e);
-      });
-      req.end();
-    });
+    }
+    return await handleRequest();
   }
 
   /**
@@ -235,7 +200,11 @@ class Decoder{
    */
   static resolve(pin,client){
     if(isNaN(pin)){
-      return new Promise((res,reject)=>{reject("Invalid/Missing PIN");});
+      return new Promise((res,reject)=>{
+        reject({
+          description: "Invalid/Missing PIN"
+        });
+      });
     }
     if(pin[0] === "0"){
       // challenges
@@ -272,7 +241,7 @@ module.exports = Decoder;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Sun Oct 11 2020 19:45:43 GMT-0700 (Pacific Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Feb 11 2021 07:55:37 GMT-0800 (Pacific Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
