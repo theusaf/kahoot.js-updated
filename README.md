@@ -1,5 +1,8 @@
+# End of service
+kahoot.js-updated was taken down on Feb 18, 2021.
+
 # About
-Kahoot.js is a library to interact with the Kahoot API. kahoot.js supports joining and interacting with quizzes and challenges.
+Kahoot.js was a library to interact with the Kahoot API. kahoot.js supports joining and interacting with quizzes and challenges.
 **Installation requires Node.js 10.9.0 or higher.**
 
 ![NPM](https://nodei.co/npm/kahoot.js-updated.png)
