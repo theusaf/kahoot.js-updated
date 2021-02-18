@@ -1,3 +1,6 @@
+# End of Service
+kahoot.js-updated/browser was taken down on Feb 18, 2021
+
 # About
 This is the kahoot.js-updated browser library
 
