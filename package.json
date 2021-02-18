@@ -1,7 +1,7 @@
 {
   "name": "kahoot.js-updated",
-  "version": "2.4.0",
-  "description": "Answer, Join Kahoot Quizzes with nodejs",
+  "version": "3.404.0",
+  "description": "[Removed]",
   "main": "index.js",
   "scripts": {
     "test": "node tests/join_leave.js"

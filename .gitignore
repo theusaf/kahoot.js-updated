@@ -1,2 +1,8 @@
 .DS_Store
 node_modules/
+tests
+src
+docs
+Documentation*
+index.js
+.travis.yml
