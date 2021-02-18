@@ -10,3 +10,10 @@ out/
 docs/
 .travis.yml
 Documentation-old.md
+.DS_Store
+tests
+src
+docs
+Documentation*
+index.js
+.travis.yml
